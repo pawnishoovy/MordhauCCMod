@@ -1,0 +1,32 @@
+ACTORS:
+archer. light armor, female
+medium chainmail crusader. THIS, IS MY REALM!!!!
+
+AI:
+
+ability to block, move back and forth, use different attacks in melee
+
+MELEE SYSTEM:
+
+blocking
+first-phase charging
+
+MELEE:
+
+short sword
+short hammer
+
+big hammer
+short axe
+
+RANGED:
+crossbow (easy)
+bow (relatively easy)
+
+VOICES:
+
+1-2 more voice packs?
+
+SPECIAL:
+
+ballista emplacement?

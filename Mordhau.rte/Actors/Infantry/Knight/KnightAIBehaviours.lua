@@ -622,11 +622,10 @@ function KnightAIBehaviours.handleVoicelines(self)
 		-- SUPPRESSING
 		if (IsHDFirearm(self.EquippedItem)) then
 			local gun = ToHDFirearm(self.EquippedItem);
+			local gunMag = gun.Magazine
 			local reloading = gun:IsReloading();
 			
 			if self.EquippedItem:IsInGroup("Weapons - Primary") then
-				local gunMag = gun.Magazine
-				local reloading = gun:IsReloading();
 				
 				if gun.FullAuto == true and gunMag and gunMag.Capacity > 40  and gun:IsActivated() then
 					if gun.FiredFrame then
@@ -679,7 +678,7 @@ function KnightAIBehaviours.handleVoicelines(self)
 						if (math.random(1, 100) < 35) then
 							KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedMedium, 3, 3);
 						end
-					elseif (math.random(1, 100) < 20) then
+					elseif (math.random(1, 100) < 20) and gunMag and gunMag.Capacity > 10 then
 						KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Reload, 3, 3);
 					end
 					self.reloadVoicelinePlayed = true;
