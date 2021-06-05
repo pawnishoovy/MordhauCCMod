@@ -105,7 +105,7 @@ function Update(self)
 				--self.StanceOffset = Vector((1 - chargeFactor) * 2 + 1, self.originalStanceOffset.Y)
 				--self.StanceOffset = self.originalStanceOffset + Vector(chargeFactor * -5, 0) - Vector(-self.Magazine.JointOffset.X - 8, self.Magazine.JointOffset.Y)
 				
-				stanceOffset = Vector((1 - chargeFactor) * 5 + 2, self.originalStanceOffset.Y)
+				stanceOffset = Vector((1 - chargeFactor) * 3 + 2, self.originalStanceOffset.Y)
 				
 				self.Frame = math.floor(chargeFactor * 2 + 0.5)
 				
@@ -214,17 +214,17 @@ function Update(self)
 		self:Reload();
 	end
 	
-	local stringStartPosA = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, -14):RadRotate(self.RotAngle)
-	local stringStartPosB = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, 14):RadRotate(self.RotAngle)
-	local stringMiddlePos = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, 0):RadRotate(self.RotAngle)
+	local stringStartPosA = self.Pos + Vector((-2 - self.Frame) * self.FlipFactor, -14):RadRotate(self.RotAngle)
+	local stringStartPosB = self.Pos + Vector((-2 - self.Frame) * self.FlipFactor, 14):RadRotate(self.RotAngle)
+	local stringMiddlePos = self.Pos + Vector((-2 - self.Frame) * self.FlipFactor, 0):RadRotate(self.RotAngle)
 	local stringColor = 168
 	
 	if stringMode == 1 then
 		local arrowPos = self.Magazine.Pos + Vector(-6 * self.Magazine.FlipFactor, 0):RadRotate(self.Magazine.RotAngle)
 		arrowPos = SceneMan:ShortestDistance(stringMiddlePos,arrowPos,SceneMan.SceneWrapsX)
-		arrowPos:RadRotate(-self.Magazine.RotAngle)
-		arrowPos.X = math.min(arrowPos.X, 0)
-		arrowPos:RadRotate(self.Magazine.RotAngle)
+		--arrowPos:RadRotate(-self.Magazine.RotAngle)
+		--arrowPos.X = math.min(arrowPos.X, 0)
+		--arrowPos:RadRotate(self.Magazine.RotAngle)
 		arrowPos = arrowPos + stringMiddlePos
 		
 		PrimitiveMan:DrawLinePrimitive(stringStartPosA, stringStartPosA + SceneMan:ShortestDistance(stringStartPosA,arrowPos,SceneMan.SceneWrapsX), stringColor)
@@ -296,7 +296,8 @@ end
 
 function OnCollideWithTerrain(self, terrainID) -- delet
 	if self.Magazine and self.playDrop == true then
-		self.Magazine.JointStrength = -5
+		--self.Magazine.JointStrength = -5
+		self:RemoveAttachable(self.Magazine, true, false)
 		self.playDrop = false;
 		self.soundDrop:Play(self.Pos)
 	end
