@@ -22,6 +22,8 @@ function Create(self)
 	
 	self.originalStanceOffset = Vector(math.abs(self.StanceOffset.X), self.StanceOffset.Y)
 	
+	self.chargingStanceOffset = Vector(math.abs(self.SharpStanceOffset.X), self.SharpStanceOffset.Y)
+	
 	self.originalJointOffset = Vector(self.JointOffset.X, self.JointOffset.Y)
 	
 	self.lastAge = self.Age + 0
@@ -118,12 +120,40 @@ function Update(self)
 					self.charging = true
 					self.chargeTimer:Reset()
 					self.soundDraw:Play(self.Pos)
+				else
+					stanceOffset = Vector((2 - chargeFactor) * 5 + 2, self.chargingStanceOffset.Y)				
+
+					-- bring it in an extreme angles to avoid issues
+					if math.abs(self.RotAngle) > 0.85 then	
+						stanceOffset = Vector((1 - chargeFactor) * 5 + -1, self.chargingStanceOffset.Y)
+					end
+					
+					self.shakeMult = 0
+					
+					-- arghhhh hard to keep bow arghh shakey
+					if (self.chargeTimer.ElapsedSimTimeMS) > (self.chargeTime * 2) then
+						self.shakeMult = ((self.chargeTimer.ElapsedSimTimeMS-(self.chargeTime*2)) / self.chargeTime) * 3;
+						
+						if self.shakeMult > 6 then
+							self:Deactivate();
+							self.charging = false
+							self.shoot = true
+							self.lastChargeFactor = chargeFactor
+							self.chargeTimer:Reset()
+						end
+						
+						self.RotAngle = self.RotAngle + (math.rad(math.random((self.shakeMult*-100), (self.shakeMult*100))/100)*self.FlipFactor)
+					end
+				
 				end
 			else
 				if self.charging then
+					self.soundDraw:FadeOut(50);
 					self.charging = false
-					self.shoot = true
 					self.lastChargeFactor = chargeFactor
+					if self.lastChargeFactor > 0.25 then
+						self.shoot = true
+					end
 				end
 				self.chargeTimer:Reset()
 			end
@@ -136,6 +166,7 @@ function Update(self)
 			
 			if self.pastReloadTimer:IsPastSimMS(60) then
 				if self.FiredFrame then
+					self.RotAngle = self.RotAngle + (math.rad(math.random((self.shakeMult*-100), (self.shakeMult*100))/100)*self.FlipFactor)
 					
 					--
 					local arrow = CreateMOSRotating("Longbow Arrow", "Mordhau.rte");
@@ -148,9 +179,11 @@ function Update(self)
 					
 					MovableMan:AddParticle(arrow);
 					
-					self.lastChargeFactor = 0
-					
+					self.soundFire.Pitch = math.min(1.3, (2 - self.lastChargeFactor))
+					self.soundFire.Volume = math.max(self.lastChargeFactor, 0.75);
 					self.soundFire:Play(self.Pos)
+					
+					self.lastChargeFactor = 0
 					
 					self.soundDraw:Stop()
 					
@@ -169,16 +202,21 @@ function Update(self)
 	if self.Magazine then
 		if self.Magazine.RoundCount < 1 then
 			self.Magazine.Scale = 0
-		else
+			if self:IsActivated() then
+				self:Reload();
+			end
+		else		
 			self.Magazine.Scale = 1
 			
 			stringMode = 1
 		end
+	elseif self:IsActivated() then
+		self:Reload();
 	end
 	
-	local stringStartPosA = self.Pos + Vector((-3 - self.Frame) * self.FlipFactor, -14):RadRotate(self.RotAngle)
-	local stringStartPosB = self.Pos + Vector((-3 - self.Frame) * self.FlipFactor, 14):RadRotate(self.RotAngle)
-	local stringMiddlePos = self.Pos + Vector((-3 - self.Frame) * self.FlipFactor, 0):RadRotate(self.RotAngle)
+	local stringStartPosA = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, -14):RadRotate(self.RotAngle)
+	local stringStartPosB = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, 14):RadRotate(self.RotAngle)
+	local stringMiddlePos = self.Pos + Vector((-1 - self.Frame) * self.FlipFactor, 0):RadRotate(self.RotAngle)
 	local stringColor = 168
 	
 	if stringMode == 1 then
@@ -250,11 +288,16 @@ function Update(self)
 		--PrimitiveMan:DrawCirclePrimitive(self.guideTable[#self.guideTable],4,120);
 	end
 	]]
-end 
+end
+
+function OnDetach(self)
+	self.playDrop = true;
+end
 
 function OnCollideWithTerrain(self, terrainID) -- delet
-	if self.Magazine then
+	if self.Magazine and self.playDrop == true then
 		self.Magazine.JointStrength = -5
+		self.playDrop = false;
 		self.soundDrop:Play(self.Pos)
 	end
 end

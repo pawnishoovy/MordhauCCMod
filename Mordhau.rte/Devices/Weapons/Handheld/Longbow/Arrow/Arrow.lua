@@ -9,17 +9,40 @@ function Create(self)
 	
 	self.trailID = trail.UniqueID]]
 	
-	self.soundImpact = CreateSoundContainer("Longbow Arrow Impact", "Mordhau.rte");
+	self.soundBounce = CreateSoundContainer("Longbow Arrow Bounce", "Mordhau.rte");
+	self.soundBouncePlay = true;
+	
+	self.soundFlyLoop = CreateSoundContainer("Longbow Arrow FlyLoop", "Mordhau.rte");
+	self.originalPitch = math.random(95, 105) / 100;
+	self.soundFlyLoop:Play(self.Pos);
+
+	self.terrainSounds = {
+	Impact = {[12] = CreateSoundContainer("Longbow Arrow Hit Concrete", "Mordhau.rte"),
+			[164] = CreateSoundContainer("Longbow Arrow Hit Concrete", "Mordhau.rte"),
+			[177] = CreateSoundContainer("Longbow Arrow Hit Concrete", "Mordhau.rte"),
+			[9] = CreateSoundContainer("Longbow Arrow Hit Dirt", "Mordhau.rte"),
+			[10] = CreateSoundContainer("Longbow Arrow Hit Dirt", "Mordhau.rte"),
+			[11] = CreateSoundContainer("Longbow Arrow Hit Dirt", "Mordhau.rte"),
+			[128] = CreateSoundContainer("Longbow Arrow Hit Dirt", "Mordhau.rte"),
+			[6] = CreateSoundContainer("Longbow Arrow Hit Sand", "Mordhau.rte"),
+			[8] = CreateSoundContainer("Longbow Arrow Hit Sand", "Mordhau.rte"),
+			[178] = CreateSoundContainer("Longbow Arrow Hit SolidMetal", "Mordhau.rte"),
+			[179] = CreateSoundContainer("Longbow Arrow Hit SolidMetal", "Mordhau.rte"),
+			[180] = CreateSoundContainer("Longbow Arrow Hit SolidMetal", "Mordhau.rte"),
+			[181] = CreateSoundContainer("Longbow Arrow Hit SolidMetal", "Mordhau.rte"),
+			[182] = CreateSoundContainer("Longbow Arrow Hit SolidMetal", "Mordhau.rte")}}
+			
+	self.soundHitFlesh = CreateSoundContainer("Longbow Arrow HitActor Flesh", "Mordhau.rte");
+	self.soundHitMetal = CreateSoundContainer("Longbow Arrow HitActor Metal", "Mordhau.rte");
+	
+	self.soundWhistle = CreateSoundContainer("Longbow Arrow Whistle", "Mordhau.rte");
+	if self.Vel.Magnitude > 45 then
+		self.soundWhistle.Pitch = math.random(95, 105) / 100;
+		self.soundWhistle:Play(self.Pos);
+	end
 	
 	self.soundWiggle = CreateSoundContainer("Longbow Arrow Wiggle", "Mordhau.rte");
 	self.soundWigglePlay = true
-	
-	self.soundBounce = CreateSoundContainer("Longbow Arrow Bounce", "Mordhau.rte");
-	self.soundBouncePlay = true
-	
-	self.soundFlyby = CreateSoundContainer("Longbow Arrow Flyby", "Mordhau.rte");
-	self.soundFlyby.Pitch = 1.1
-	self.soundFlyby:Play(self.Pos)
 	
 	self.Frame = math.random(0, self.FrameCount - 1);
 	
@@ -53,7 +76,11 @@ function Update(self)
 		self:GibThis();
 	end
 	
-	self.soundFlyby.Pos = self.Pos
+	self.soundWhistle.Pos = self.Pos
+	self.soundFlyLoop.Pos = self.Pos
+	
+	self.soundFlyLoop.Volume = math.min(self.Vel.Magnitude / 50, 50) + 0.05;
+	self.soundFlyLoop.Pitch = (self.Vel.Magnitude / 20) + self.originalPitch;
 	
 	--- Areodynamics
 	if not self.stuck then
@@ -116,9 +143,9 @@ function Update(self)
 				self.stickVecY = stickVec.Y;
 				self.stickRot = self.RotAngle - self.stickMO.RotAngle;
 				self.stickWiggle = 2;
-				
-				self.soundImpact:Play(self.Pos)
-				self.soundFlyby:Stop(-1)
+			
+				self.soundWhistle:Stop(-1)
+				self.soundFlyLoop:Stop(-1)
 				
 				-- Damage, create a pixel that makes a hole
 				for i = 0, 2 do
@@ -134,6 +161,10 @@ function Update(self)
 				-- Get the material and set damage multiplier
 				local material = self.stickMO.Material.PresetName;
 				
+				-- get wounds to check for dent metal
+				local woundName = self.stickMO:GetEntryWoundPresetName()
+				local woundNameExit = self.stickMO:GetExitWoundPresetName()
+				
 				
 				-- Add extra effects based on the material
 				if string.find(material,"Flesh") then
@@ -141,12 +172,16 @@ function Update(self)
 					blood.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
 					blood.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.1, 0.1)) * RangeRand(0.05, 0.1) * -1.0;
 					MovableMan:AddParticle(blood);
+					self.soundHitFlesh:Play(self.Pos);
 				else
 					for i = 1, 3 do
 						local bloofm = CreateMOSParticle("Tiny Smoke Trail 1");
 						bloofm.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
 						bloofm.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.2, 0.2)) * RangeRand(0.1, 0.4) * -1.0;
 						MovableMan:AddParticle(bloofm);
+					end
+					if string.find(material,"Metal") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
+						self.soundHitMetal:Play(self.Pos);
 					end
 				end
 				
@@ -195,11 +230,24 @@ function Update(self)
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				self.Pos = rayHitPos - Vector(self.IndividualRadius * self.stickDeepness, 0):RadRotate(self.RotAngle);
 				
+				local terrPixel = SceneMan:GetTerrMatter(rayHitPos.X, rayHitPos.Y)
+		
+				if terrPixel ~= 0 then -- 0 = air
+					if self.terrainSounds.Impact[terrPixel] ~= nil then
+						self.terrainSounds.Impact[terrPixel]:Play(self.Pos);
+					else -- default to concrete
+						self.terrainSounds.Impact[177]:Play(self.Pos);
+					end
+				else
+					self.terrainSounds.FootstepWalk[177]:Play(self.Pos);
+				end
+				
 				self.PinStrength = 1000;
 				self.Vel = Vector()
 				self.AngularVel = 0;
 				
-				self.soundFlyby:Stop(-1)
+				self.soundFlyLoop:Stop(-1)
+				self.soundWhistle:Stop(-1);
 				
 				self.HitsMOs = false;
 				--[[
@@ -221,8 +269,6 @@ function Update(self)
 				
 				self.stuck = true
 				self.phase = 2
-				
-				self.soundImpact:Play(self.Pos)
 				
 				self.decayTime = self.decayTime * 0.5;
 				
@@ -276,7 +322,7 @@ function OnCollideWithTerrain(self, terrainID) -- delet
 		self.ToSettle = true;
 		self.phase = 3
 		
-		if self.soundBouncePlay and self.Vel.Magnitude > 5 then
+		if self.soundBouncePlay == true and self.Vel.Magnitude > 5 then
 			self.soundBounce:Play(self.Pos)
 			self.soundBouncePlay = false
 		end
@@ -284,5 +330,6 @@ function OnCollideWithTerrain(self, terrainID) -- delet
 end
 
 function Destroy(self)
-	self.soundFlyby:Stop(-1)
+	self.soundFlyLoop:Stop(-1);
+	self.soundWhistle:Stop(-1);
 end
