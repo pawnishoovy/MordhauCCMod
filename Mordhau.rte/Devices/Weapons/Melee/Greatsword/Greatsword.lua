@@ -73,11 +73,11 @@ function Create(self)
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
 	
-	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Greatsword Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Greatsword Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Greatsword Mordhau", "Mordhau.rte");
 	
 	local chargeAttackSounds = {}
 	
@@ -85,11 +85,11 @@ function Create(self)
 	--chargeAttackSounds.hitDefaultSound
 	--chargeAttackSounds.hitDefaultSoundVariations
 	
-	chargeAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Greatsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Greatsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Greatsword Mordhau", "Mordhau.rte");
 	
 	local regularAttackGFX = {}
 	
@@ -105,7 +105,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 150
+	attackPhase[i].durationMS = 250
 	
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -130,7 +130,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 250
+	attackPhase[i].durationMS = 300
 	
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -155,13 +155,13 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 110
+	attackPhase[i].durationMS = 150
 	
 	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 3.4
-	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].attackDamage = 5
+	attackPhase[i].attackStunChance = 0.2
 	attackPhase[i].attackRange = 20
-	attackPhase[i].attackPush = 0.8
+	attackPhase[i].attackPush = 1
 	attackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
 	
 	attackPhase[i].frameStart = 7
@@ -171,20 +171,20 @@ function Create(self)
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(7, -2)
 	
-	attackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	attackPhase[i].soundStart = CreateSoundContainer("Slash Greatsword Mordhau", "Mordhau.rte");
 	
 	attackPhase[i].soundEnd = nil
 	
 	-- Early Attack
 	i = 4
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 30
+	attackPhase[i].durationMS = 45
 	
 	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 3.4
-	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].attackDamage = 5
+	attackPhase[i].attackStunChance = 0.2
 	attackPhase[i].attackRange = 20
-	attackPhase[i].attackPush = 0.8
+	attackPhase[i].attackPush = 1
 	attackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
 	
 	attackPhase[i].frameStart = 11
@@ -201,13 +201,13 @@ function Create(self)
 	-- Attack
 	i = 5
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 110
+	attackPhase[i].durationMS = 150
 	
 	attackPhase[i].canDamage = true
-	attackPhase[i].attackDamage = 3.4
-	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].attackDamage = 5
+	attackPhase[i].attackStunChance = 0.2
 	attackPhase[i].attackRange = 15
-	attackPhase[i].attackPush = 0.8
+	attackPhase[i].attackPush = 1
 	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
@@ -225,7 +225,7 @@ function Create(self)
 	-- Early Recover
 	i = 6
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 100
+	attackPhase[i].durationMS = 140
 	
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -250,7 +250,7 @@ function Create(self)
 	-- Recover
 	i = 7
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 100
+	attackPhase[i].durationMS = 140
 	
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -283,7 +283,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 150
+	chargeAttackPhase[i].durationMS = 200
 	
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
@@ -308,7 +308,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 350
+	chargeAttackPhase[i].durationMS = 500
 	
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
@@ -333,11 +333,11 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 110
+	chargeAttackPhase[i].durationMS = 190
 	
 	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackDamage = 6
+	chargeAttackPhase[i].attackStunChance = 0.2
 	chargeAttackPhase[i].attackRange = 20
 	chargeAttackPhase[i].attackPush = 0.8
 	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
@@ -349,18 +349,18 @@ function Create(self)
 	chargeAttackPhase[i].offsetStart = Vector(-3, -4)
 	chargeAttackPhase[i].offsetEnd = Vector(0, -5)
 	
-	chargeAttackPhase[i].soundStart = CreateSoundContainer("Stab Longsword Mordhau", "Mordhau.rte");
+	chargeAttackPhase[i].soundStart = CreateSoundContainer("Stab Greatsword Mordhau", "Mordhau.rte");
 	
 	chargeAttackPhase[i].soundEnd = nil
 	
 	-- Early Attack
 	i = 4
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 30
+	chargeAttackPhase[i].durationMS = 45
 	
 	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackDamage = 6
+	chargeAttackPhase[i].attackStunChance = 0.2
 	chargeAttackPhase[i].attackRange = 20
 	chargeAttackPhase[i].attackPush = 0.8
 	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
@@ -379,11 +379,11 @@ function Create(self)
 	-- Attack
 	i = 5
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 110
+	chargeAttackPhase[i].durationMS = 160
 	
 	chargeAttackPhase[i].canDamage = true
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackDamage = 6
+	chargeAttackPhase[i].attackStunChance = 0.2
 	chargeAttackPhase[i].attackRange = 15
 	chargeAttackPhase[i].attackPush = 0.8
 	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
@@ -403,7 +403,7 @@ function Create(self)
 	-- Early Recover
 	i = 6
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 100
+	chargeAttackPhase[i].durationMS = 150
 	
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
@@ -428,7 +428,7 @@ function Create(self)
 	-- Recover
 	i = 7
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 100
+	chargeAttackPhase[i].durationMS = 150
 	
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
@@ -543,7 +543,7 @@ function Update(self)
 					self.chargeSound:Play(self.Pos);
 				end
 				if self.VOValueSet ~= true then
-					self.parent:SetNumberValue("Large Attack", 1);
+					self.parent:SetNumberValue("Extreme Attack", 1);
 					self.VOValueSet = true;
 				end
 			end
