@@ -234,7 +234,7 @@ function Create(self)
 	self.spotVoiceLineDelay = 15000;
 	
 	 -- in pixels
-	self.spotDistanceClose = 175;
+	self.spotDistanceClose = 50;
 	self.spotDistanceMid = 520;
 	--spotDistanceFar -- anything further than distanceMid
 	
@@ -413,11 +413,11 @@ function Update(self)
 	-- Start modded code--
 	
 	if (UInputMan:KeyPressed(26)) and self:IsPlayerControlled() then
-		self.Health = self.Health -26
+		self:RemoveAttachable(self.Head, true, true)
 	end
 	
 	if UInputMan:KeyPressed(3) and self:IsPlayerControlled() then
-		self.Health = self.Health -51
+		self:RemoveAttachable(self.FGArm, true, true)
 	end
 	
 	if (UInputMan:KeyPressed(24)) and self:IsPlayerControlled() then
