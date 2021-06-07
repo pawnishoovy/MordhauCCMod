@@ -46,6 +46,25 @@ function Create(self)
 	self.currentAttackStart = false
 	self.attackAnimationIsPlaying = false
 	
+	--TODO FIL
+	-- change "charge" to stab and "regular" to slash/strike/normal
+	
+	self.terrainHitSounds = {
+	[12] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+	[164] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+	[177] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+	[9] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+	[10] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+	[11] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+	[128] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+	[6] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
+	[8] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
+	[178] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+	[179] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+	[180] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+	[181] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+	[182] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte")}
+	
 	local attackPhase
 	local regularAttackSounds = {}
 	local i
@@ -54,15 +73,11 @@ function Create(self)
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
 	
-	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitFleshSound = CreateSoundContainer("Hit Flesh Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Longsword Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitMetalSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
-	
-	regularAttackSounds.hitTerrainSoftSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
-	
-	regularAttackSounds.hitTerrainHardSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
 	
 	local chargeAttackSounds = {}
 	
@@ -70,15 +85,11 @@ function Create(self)
 	--chargeAttackSounds.hitDefaultSound
 	--chargeAttackSounds.hitDefaultSoundVariations
 	
-	chargeAttackSounds.hitDeflectSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitFleshSound = CreateSoundContainer("Hit Flesh Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Longsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitMetalSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
-	
-	chargeAttackSounds.hitTerrainSoftSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
-	
-	chargeAttackSounds.hitTerrainHardSound = CreateSoundContainer("Hit Metal Longsword Mordhau", "Mordhau.rte");
+	chargeAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
 	
 	local regularAttackGFX = {}
 	
@@ -119,7 +130,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 30
+	attackPhase[i].durationMS = 250
 	
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -147,7 +158,7 @@ function Create(self)
 	attackPhase[i].durationMS = 110
 	
 	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 2.3
+	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
@@ -160,7 +171,7 @@ function Create(self)
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(7, -2)
 	
-	attackPhase[i].soundStart = CreateSoundContainer("Swing Longsword Mordhau", "Mordhau.rte");
+	attackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
 	
 	attackPhase[i].soundEnd = nil
 	
@@ -170,7 +181,7 @@ function Create(self)
 	attackPhase[i].durationMS = 30
 	
 	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 2.3
+	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
@@ -193,7 +204,7 @@ function Create(self)
 	attackPhase[i].durationMS = 110
 	
 	attackPhase[i].canDamage = true
-	attackPhase[i].attackDamage = 3
+	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 15
 	attackPhase[i].attackPush = 0.8
@@ -266,186 +277,7 @@ function Create(self)
 	self.attackAnimationsGFX[1] = regularAttackGFX
 	self.attackAnimations[1] = attackPhase
 	
-	-- Regular Attack 2 ("stab")
-	attackPhase2 = {}
-	
-	-- Prepare
-	i = 1
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 150
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 0
-	attackPhase2[i].attackStunChance = 0
-	attackPhase2[i].attackRange = 0
-	attackPhase2[i].attackPush = 0
-	attackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = 0
-	attackPhase2[i].angleEnd = -60
-	attackPhase2[i].offsetStart = Vector(0, 0)
-	attackPhase2[i].offsetEnd = Vector(-2, -3)
-	
-	attackPhase2[i].soundStart = nil
-	attackPhase2[i].soundStartVariations = 0
-	
-	attackPhase2[i].soundEnd = nil
-	attackPhase2[i].soundEndVariations = 0
-	
-	-- Late Prepare
-	i = 2
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 30
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 0
-	attackPhase2[i].attackStunChance = 0
-	attackPhase2[i].attackRange = 0
-	attackPhase2[i].attackPush = 0
-	attackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = -60
-	attackPhase2[i].angleEnd = -70
-	attackPhase2[i].offsetStart = Vector(-2, -3)
-	attackPhase2[i].offsetEnd = Vector(-3, -4)
-	
-	attackPhase2[i].soundStart = nil
-	attackPhase2[i].soundStartVariations = 0
-	
-	attackPhase2[i].soundEnd = nil
-	attackPhase2[i].soundEndVariations = 0
-	
-	-- Early Early Attack
-	i = 3
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 110
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 2.3
-	attackPhase2[i].attackStunChance = 0.15
-	attackPhase2[i].attackRange = 20
-	attackPhase2[i].attackPush = 0.8
-	attackPhase2[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = -70
-	attackPhase2[i].angleEnd = -80
-	attackPhase2[i].offsetStart = Vector(-3, -4)
-	attackPhase2[i].offsetEnd = Vector(0, -5)
-	
-	attackPhase2[i].soundStart = CreateSoundContainer("Swing Longsword Mordhau", "Mordhau.rte");
-	
-	attackPhase2[i].soundEnd = nil
-	
-	-- Early Attack
-	i = 4
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 30
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 2.3
-	attackPhase2[i].attackStunChance = 0.15
-	attackPhase2[i].attackRange = 20
-	attackPhase2[i].attackPush = 0.8
-	attackPhase2[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = -80
-	attackPhase2[i].angleEnd = -90
-	attackPhase2[i].offsetStart = Vector(0, -5)
-	attackPhase2[i].offsetEnd = Vector(4, -6)
-	
-	attackPhase2[i].soundStart = nil
-	
-	attackPhase2[i].soundEnd = nil
-	
-	-- Attack
-	i = 5
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 110
-	
-	attackPhase2[i].canDamage = true
-	attackPhase2[i].attackDamage = 3
-	attackPhase2[i].attackStunChance = 0.15
-	attackPhase2[i].attackRange = 15
-	attackPhase2[i].attackPush = 0.8
-	attackPhase2[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	attackPhase2[i].attackAngle = 90;
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = -90
-	attackPhase2[i].angleEnd = -90
-	attackPhase2[i].offsetStart = Vector(4 , -6)
-	attackPhase2[i].offsetEnd = Vector(15, -6)
-	
-	attackPhase2[i].soundStart = nil
-	
-	attackPhase2[i].soundEnd = nil
-	
-	-- Early Recover
-	i = 6
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 100
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 0
-	attackPhase2[i].attackStunChance = 0
-	attackPhase2[i].attackRange = 0
-	attackPhase2[i].attackPush = 0
-	attackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 6
-	attackPhase2[i].frameEnd = 7
-	attackPhase2[i].angleStart = -90
-	attackPhase2[i].angleEnd = -60
-	attackPhase2[i].offsetStart = Vector(15, -6)
-	attackPhase2[i].offsetEnd = Vector(7, -3)
-	
-	attackPhase2[i].soundStart = nil
-	attackPhase2[i].soundStartVariations = 0
-	
-	attackPhase2[i].soundEnd = nil
-	attackPhase2[i].soundEndVariations = 0
-	
-	-- Recover
-	i = 7
-	attackPhase2[i] = {}
-	attackPhase2[i].durationMS = 100
-	
-	attackPhase2[i].canDamage = false
-	attackPhase2[i].attackDamage = 0
-	attackPhase2[i].attackStunChance = 0
-	attackPhase2[i].attackRange = 0
-	attackPhase2[i].attackPush = 0
-	attackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	attackPhase2[i].frameStart = 7
-	attackPhase2[i].frameEnd = 6
-	attackPhase2[i].angleStart = -60
-	attackPhase2[i].angleEnd = 0
-	attackPhase2[i].offsetStart = Vector(7, -3)
-	attackPhase2[i].offsetEnd = Vector(3, 0)
-	
-	attackPhase2[i].soundStart = nil
-	attackPhase2[i].soundStartVariations = 0
-	
-	attackPhase2[i].soundEnd = nil
-	attackPhase2[i].soundEndVariations = 0
-	
-	-- Add the animation to the animation table
-	self.attackAnimationsSounds[2] = regularAttackSounds
-	self.attackAnimationsGFX[2] = regularAttackGFX
-	self.attackAnimations[2] = attackPhase2
-	
-	-- Charged Attack
-
+	-- Charge Attack (stab)
 	chargeAttackPhase = {}
 	
 	-- Prepare
@@ -461,11 +293,11 @@ function Create(self)
 	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
 	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 7
+	chargeAttackPhase[i].frameEnd = 6
 	chargeAttackPhase[i].angleStart = 0
-	chargeAttackPhase[i].angleEnd = 45
+	chargeAttackPhase[i].angleEnd = -60
 	chargeAttackPhase[i].offsetStart = Vector(0, 0)
-	chargeAttackPhase[i].offsetEnd = Vector(4,-15)
+	chargeAttackPhase[i].offsetEnd = Vector(-2, -3)
 	
 	chargeAttackPhase[i].soundStart = nil
 	chargeAttackPhase[i].soundStartVariations = 0
@@ -476,56 +308,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 60
-	
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 0
-	chargeAttackPhase[i].attackStunChance = 0
-	chargeAttackPhase[i].attackRange = 0
-	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	chargeAttackPhase[i].frameStart = 7
-	chargeAttackPhase[i].frameEnd = 7
-	chargeAttackPhase[i].angleStart = 45
-	chargeAttackPhase[i].angleEnd = 45
-	chargeAttackPhase[i].offsetStart = Vector(4, -15)
-	chargeAttackPhase[i].offsetEnd = Vector(4, -15)
-	
-	chargeAttackPhase[i].soundStart = nil
-	chargeAttackPhase[i].soundStartVariations = 0
-	
-	chargeAttackPhase[i].soundEnd = nil
-	chargeAttackPhase[i].soundEndVariations = 0
-	
-	-- Attack
-	i = 3
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 160
-	
-	chargeAttackPhase[i].canDamage = true
-	chargeAttackPhase[i].attackDamage = 5
-	chargeAttackPhase[i].attackStunChance = 0.3
-	chargeAttackPhase[i].attackRange = 7
-	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(0, -7) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 45;
-	
-	chargeAttackPhase[i].frameStart = 7
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = 45
-	chargeAttackPhase[i].angleEnd = -100
-	chargeAttackPhase[i].offsetStart = Vector(4, -15)
-	chargeAttackPhase[i].offsetEnd = Vector(15, 15)
-	
-	chargeAttackPhase[i].soundStart = CreateSoundContainer("Swing Longsword Mordhau", "Mordhau.rte");
-	
-	chargeAttackPhase[i].soundEnd = nil
-	
-	-- Recover
-	i = 4
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 250
+	chargeAttackPhase[i].durationMS = 350
 	
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
@@ -536,10 +319,130 @@ function Create(self)
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -100
+	chargeAttackPhase[i].angleStart = -60
+	chargeAttackPhase[i].angleEnd = -70
+	chargeAttackPhase[i].offsetStart = Vector(-2, -3)
+	chargeAttackPhase[i].offsetEnd = Vector(-3, -4)
+	
+	chargeAttackPhase[i].soundStart = nil
+	chargeAttackPhase[i].soundStartVariations = 0
+	
+	chargeAttackPhase[i].soundEnd = nil
+	chargeAttackPhase[i].soundEndVariations = 0
+	
+	-- Early Early Attack
+	i = 3
+	chargeAttackPhase[i] = {}
+	chargeAttackPhase[i].durationMS = 110
+	
+	chargeAttackPhase[i].canDamage = false
+	chargeAttackPhase[i].attackDamage = 4
+	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackRange = 20
+	chargeAttackPhase[i].attackPush = 0.8
+	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	
+	chargeAttackPhase[i].frameStart = 6
+	chargeAttackPhase[i].frameEnd = 6
+	chargeAttackPhase[i].angleStart = -70
+	chargeAttackPhase[i].angleEnd = -80
+	chargeAttackPhase[i].offsetStart = Vector(-3, -4)
+	chargeAttackPhase[i].offsetEnd = Vector(0, -5)
+	
+	chargeAttackPhase[i].soundStart = CreateSoundContainer("Stab Longsword Mordhau", "Mordhau.rte");
+	
+	chargeAttackPhase[i].soundEnd = nil
+	
+	-- Early Attack
+	i = 4
+	chargeAttackPhase[i] = {}
+	chargeAttackPhase[i].durationMS = 30
+	
+	chargeAttackPhase[i].canDamage = false
+	chargeAttackPhase[i].attackDamage = 4
+	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackRange = 20
+	chargeAttackPhase[i].attackPush = 0.8
+	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	
+	chargeAttackPhase[i].frameStart = 6
+	chargeAttackPhase[i].frameEnd = 6
+	chargeAttackPhase[i].angleStart = -80
+	chargeAttackPhase[i].angleEnd = -90
+	chargeAttackPhase[i].offsetStart = Vector(0, -5)
+	chargeAttackPhase[i].offsetEnd = Vector(4, -6)
+	
+	chargeAttackPhase[i].soundStart = nil
+	
+	chargeAttackPhase[i].soundEnd = nil
+	
+	-- Attack
+	i = 5
+	chargeAttackPhase[i] = {}
+	chargeAttackPhase[i].durationMS = 110
+	
+	chargeAttackPhase[i].canDamage = true
+	chargeAttackPhase[i].attackDamage = 4
+	chargeAttackPhase[i].attackStunChance = 0.15
+	chargeAttackPhase[i].attackRange = 15
+	chargeAttackPhase[i].attackPush = 0.8
+	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
+	
+	chargeAttackPhase[i].frameStart = 6
+	chargeAttackPhase[i].frameEnd = 6
+	chargeAttackPhase[i].angleStart = -90
+	chargeAttackPhase[i].angleEnd = -90
+	chargeAttackPhase[i].offsetStart = Vector(4 , -6)
+	chargeAttackPhase[i].offsetEnd = Vector(15, -6)
+	
+	chargeAttackPhase[i].soundStart = nil
+	
+	chargeAttackPhase[i].soundEnd = nil
+	
+	-- Early Recover
+	i = 6
+	chargeAttackPhase[i] = {}
+	chargeAttackPhase[i].durationMS = 100
+	
+	chargeAttackPhase[i].canDamage = false
+	chargeAttackPhase[i].attackDamage = 0
+	chargeAttackPhase[i].attackStunChance = 0
+	chargeAttackPhase[i].attackRange = 0
+	chargeAttackPhase[i].attackPush = 0
+	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	
+	chargeAttackPhase[i].frameStart = 6
+	chargeAttackPhase[i].frameEnd = 7
+	chargeAttackPhase[i].angleStart = -90
+	chargeAttackPhase[i].angleEnd = -60
+	chargeAttackPhase[i].offsetStart = Vector(15, -6)
+	chargeAttackPhase[i].offsetEnd = Vector(7, -3)
+	
+	chargeAttackPhase[i].soundStart = nil
+	chargeAttackPhase[i].soundStartVariations = 0
+	
+	chargeAttackPhase[i].soundEnd = nil
+	chargeAttackPhase[i].soundEndVariations = 0
+	
+	-- Recover
+	i = 7
+	chargeAttackPhase[i] = {}
+	chargeAttackPhase[i].durationMS = 100
+	
+	chargeAttackPhase[i].canDamage = false
+	chargeAttackPhase[i].attackDamage = 0
+	chargeAttackPhase[i].attackStunChance = 0
+	chargeAttackPhase[i].attackRange = 0
+	chargeAttackPhase[i].attackPush = 0
+	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	
+	chargeAttackPhase[i].frameStart = 7
+	chargeAttackPhase[i].frameEnd = 6
+	chargeAttackPhase[i].angleStart = -60
 	chargeAttackPhase[i].angleEnd = 0
-	chargeAttackPhase[i].offsetStart = Vector(15, 15)
-	chargeAttackPhase[i].offsetEnd = Vector(3, -5)
+	chargeAttackPhase[i].offsetStart = Vector(7, -3)
+	chargeAttackPhase[i].offsetEnd = Vector(3, 0)
 	
 	chargeAttackPhase[i].soundStart = nil
 	chargeAttackPhase[i].soundStartVariations = 0
@@ -548,142 +451,9 @@ function Create(self)
 	chargeAttackPhase[i].soundEndVariations = 0
 	
 	-- Add the animation to the animation table
-	self.attackAnimationsSounds[3] = chargeAttackSounds
-	self.attackAnimationsGFX[3] = regularAttackGFX
-	self.attackAnimations[3] = chargeAttackPhase
-	
-	-- Charged Attack 2 Upwards Swing
-	
-	chargeAttackPhase2 = {}
-	
-	
-	-- Prepare
-	i = 1
-	chargeAttackPhase2[i] = {}
-	chargeAttackPhase2[i].durationMS = 150
-	
-	chargeAttackPhase2[i].canDamage = false
-	chargeAttackPhase2[i].attackDamage = 0
-	chargeAttackPhase2[i].attackStunChance = 0
-	chargeAttackPhase2[i].attackRange = 0
-	chargeAttackPhase2[i].attackPush = 0
-	chargeAttackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	chargeAttackPhase2[i].frameStart = 6
-	chargeAttackPhase2[i].frameEnd = 9
-	chargeAttackPhase2[i].angleStart = 0
-	chargeAttackPhase2[i].angleEnd = -70
-	chargeAttackPhase2[i].offsetStart = Vector(0, 0)
-	chargeAttackPhase2[i].offsetEnd = Vector(4, 15)
-	
-	chargeAttackPhase2[i].soundStart = nil
-	chargeAttackPhase2[i].soundStartVariations = 0
-	
-	chargeAttackPhase2[i].soundEnd = nil
-	chargeAttackPhase2[i].soundEndVariations = 0
-	
-	-- Late Prepare
-	i = 2
-	chargeAttackPhase2[i] = {}
-	chargeAttackPhase2[i].durationMS = 60
-	
-	chargeAttackPhase2[i].canDamage = false
-	chargeAttackPhase2[i].attackDamage = 0
-	chargeAttackPhase2[i].attackStunChance = 0
-	chargeAttackPhase2[i].attackRange = 0
-	chargeAttackPhase2[i].attackPush = 0
-	chargeAttackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	chargeAttackPhase2[i].frameStart = 9
-	chargeAttackPhase2[i].frameEnd = 10
-	chargeAttackPhase2[i].angleStart = -70
-	chargeAttackPhase2[i].angleEnd = -120
-	chargeAttackPhase2[i].offsetStart = Vector(4, 15)
-	chargeAttackPhase2[i].offsetEnd = Vector(4, 15)
-	
-	chargeAttackPhase2[i].soundStart = nil
-	chargeAttackPhase2[i].soundStartVariations = 0
-	
-	chargeAttackPhase2[i].soundEnd = nil
-	chargeAttackPhase2[i].soundEndVariations = 0
-	
-	-- Attack
-	i = 3
-	chargeAttackPhase2[i] = {}
-	chargeAttackPhase2[i].durationMS = 90
-	
-	chargeAttackPhase2[i].canDamage = false
-	chargeAttackPhase2[i].attackDamage = 5
-	chargeAttackPhase2[i].attackStunChance = 0.3
-	chargeAttackPhase2[i].attackRange = 7
-	chargeAttackPhase2[i].attackPush = 0.8
-	chargeAttackPhase2[i].attackVector = Vector(0, -7) -- local space vector relative to position and rotation
-	chargeAttackPhase2[i].attackAngle = 90;
-	
-	chargeAttackPhase2[i].frameStart = 10
-	chargeAttackPhase2[i].frameEnd = 8
-	chargeAttackPhase2[i].angleStart = -120
-	chargeAttackPhase2[i].angleEnd = -82.5
-	chargeAttackPhase2[i].offsetStart = Vector(4, 15)
-	chargeAttackPhase2[i].offsetEnd = Vector(9.5, 0)
-	
-	chargeAttackPhase2[i].soundStart = CreateSoundContainer("Swing Longsword Mordhau", "Mordhau.rte");
-	
-	chargeAttackPhase2[i].soundEnd = nil
-	
-	-- Attack
-	i = 4
-	chargeAttackPhase2[i] = {}
-	chargeAttackPhase2[i].durationMS = 90
-	
-	chargeAttackPhase2[i].canDamage = true
-	chargeAttackPhase2[i].attackDamage = 5
-	chargeAttackPhase2[i].attackStunChance = 0.3
-	chargeAttackPhase2[i].attackRange = 7
-	chargeAttackPhase2[i].attackPush = 0.8
-	chargeAttackPhase2[i].attackVector = Vector(0, -7) -- local space vector relative to position and rotation
-	chargeAttackPhase2[i].attackAngle = 90;
-	
-	chargeAttackPhase2[i].frameStart = 8
-	chargeAttackPhase2[i].frameEnd = 6
-	chargeAttackPhase2[i].angleStart = -82.5
-	chargeAttackPhase2[i].angleEnd = -45
-	chargeAttackPhase2[i].offsetStart = Vector(9.5, 0)
-	chargeAttackPhase2[i].offsetEnd = Vector(15, -15)
-	
-	chargeAttackPhase2[i].soundStart = nil
-	
-	chargeAttackPhase2[i].soundEnd = nil
-	
-	-- Recover
-	i = 5
-	chargeAttackPhase2[i] = {}
-	chargeAttackPhase2[i].durationMS = 250
-	
-	chargeAttackPhase2[i].canDamage = false
-	chargeAttackPhase2[i].attackDamage = 0
-	chargeAttackPhase2[i].attackStunChance = 0
-	chargeAttackPhase2[i].attackRange = 0
-	chargeAttackPhase2[i].attackPush = 0
-	chargeAttackPhase2[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
-	
-	chargeAttackPhase2[i].frameStart = 6
-	chargeAttackPhase2[i].frameEnd = 6
-	chargeAttackPhase2[i].angleStart = -45
-	chargeAttackPhase2[i].angleEnd = 0
-	chargeAttackPhase2[i].offsetStart = Vector(15, -15)
-	chargeAttackPhase2[i].offsetEnd = Vector(3, -5)
-	
-	chargeAttackPhase2[i].soundStart = nil
-	chargeAttackPhase2[i].soundStartVariations = 0
-	
-	chargeAttackPhase2[i].soundEnd = nil
-	chargeAttackPhase2[i].soundEndVariations = 0
-	
-	-- Add the animation to the animation table
-	self.attackAnimationsSounds[4] = chargeAttackSounds
-	self.attackAnimationsGFX[4] = regularAttackGFX
-	self.attackAnimations[4] = chargeAttackPhase2
+	self.attackAnimationsSounds[2] = chargeAttackSounds
+	self.attackAnimationsGFX[2] = regularAttackGFX
+	self.attackAnimations[2] = chargeAttackPhase
 	
 	-- replace with your own code if you wish
 	
@@ -806,10 +576,10 @@ function Update(self)
 			if self.isCharged then
 				self.isCharged = false
 				self.wasCharged = true;
-				playAttackAnimation(self, math.random(3, 4)) -- charged attack
+				playAttackAnimation(self, 2) -- charged attack
 				self.parent:SetNumberValue("Medium Attack", 1); --here for extra movement sounds on parent knight
 			else
-				playAttackAnimation(self, math.random(1, 2)) -- regular attack
+				playAttackAnimation(self, 1) -- regular attack
 			end
 		end
 		
@@ -1048,6 +818,16 @@ function Update(self)
 					self.attack = false
 					self.charged = false
 					
+					local terrPixel = SceneMan:GetTerrMatter(rayHitPos.X, rayHitPos.Y)
+			
+					if terrPixel ~= 0 then -- 0 = air
+						if self.terrainHitSounds[terrPixel] ~= nil then
+							self.terrainHitSounds[terrPixel]:Play(self.Pos);
+						else -- default to concrete
+							self.terrainHitSounds[177]:Play(self.Pos);
+						end
+					end
+					
 					if terrCheck >= 100 then
 						if self.attackAnimationsGFX[self.currentAttackAnimation].hitTerrainHardGFX then
 							local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitTerrainHardGFX);
@@ -1086,18 +866,6 @@ function Update(self)
 				elseif hitType == 2 then -- Metal
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound:Play(self.Pos);
-					end
-				elseif hitType == 3 then -- Terrain Soft
-					if self.attackAnimationsSounds[self.currentAttackAnimation].hitTerrainSoftSound then
-						self.attackAnimationsSounds[self.currentAttackAnimation].hitTerrainSoftSound:Play(self.Pos);
-					end
-				elseif hitType == 4 then -- Terrain Hard
-					if self.attackAnimationsSounds[self.currentAttackAnimation].hitTerrainHardSound then
-						self.attackAnimationsSounds[self.currentAttackAnimation].hitTerrainHardSound:Play(self.Pos);
-					end
-				else
-					if self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound then
-						self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound:Play(self.Pos);
 					end
 				end
 				self.attackAnimationCanHit = false

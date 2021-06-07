@@ -238,8 +238,6 @@ function Update(self)
 					else -- default to concrete
 						self.terrainSounds.Impact[177]:Play(self.Pos);
 					end
-				else
-					self.terrainSounds.FootstepWalk[177]:Play(self.Pos);
 				end
 				
 				self.PinStrength = 1000;
