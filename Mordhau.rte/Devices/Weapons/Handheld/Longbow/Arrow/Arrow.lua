@@ -148,13 +148,13 @@ function Update(self)
 				self.soundFlyLoop:Stop(-1)
 				
 				-- Damage, create a pixel that makes a hole
-				for i = 0, 2 do
+				for i = 0, 4 do
 					local pixel = CreateMOPixel("Longbow Arrow Damage", "Mordhau.rte");
 					pixel.Vel = self.Vel;
 					pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
 					pixel.Team = self.Team;
 					pixel.IgnoresTeamHits = true;
-					pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 100;--1.53;
+					pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 60;--1.53;
 					MovableMan:AddParticle(pixel);
 				end
 				

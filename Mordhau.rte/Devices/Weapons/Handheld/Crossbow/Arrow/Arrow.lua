@@ -136,16 +136,7 @@ function Update(self)
 			
 				self.soundFlyLoop:Stop(-1)
 				
-				-- Damage, create a pixel that makes a hole
-				for i = 0, 3 do
-					local pixel = CreateMOPixel("Longbow Arrow Damage", "Mordhau.rte");
-					pixel.Vel = self.Vel;
-					pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
-					pixel.Team = self.Team;
-					pixel.IgnoresTeamHits = true;
-					pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 100;--1.53;
-					MovableMan:AddParticle(pixel);
-				end
+				local addWounds = true
 				
 				-- Get the material and set damage multiplier
 				local material = self.stickMO.Material.PresetName;
@@ -179,6 +170,40 @@ function Update(self)
 					effect.Pos = rayHitPos
 					MovableMan:AddParticle(effect);
 					effect:GibThis();
+				end
+				
+				local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
+				if (actorHit and IsActor(actorHit)) then
+			
+					if IsAHuman(actorHit) then
+						local actorHuman = ToAHuman(actorHit)
+						if actorHuman.Head and self.stickMO.ID == actorHuman.Head.ID or actorHuman.FGArm and self.stickMO.ID == actorHuman.FGArm.ID or actorHuman.BGArm and self.stickMO.ID == actorHuman.BGArm.ID or actorHuman.FGLeg and self.stickMO.ID == actorHuman.FGLeg.ID or actorHuman.BGLeg and self.stickMO.ID == actorHuman.BGLeg.ID then
+							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
+							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
+							if self.stickMO.WoundCount + 4 > self.stickMO.GibWoundLimit then
+								ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
+								addWounds = false;
+								self.stickMO.Vel = self.stickMO.Vel + lessVel
+							elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
+								ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
+								addWounds = false;
+								self.stickMO.Vel = self.stickMO.Vel + lessVel
+							end
+						end
+					end
+				end
+				
+				if addWounds == true then
+					-- Damage, create a pixel that makes a hole
+					for i = 0, 4 do
+						local pixel = CreateMOPixel("Longbow Arrow Damage", "Mordhau.rte");
+						pixel.Vel = self.Vel;
+						pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
+						pixel.Team = self.Team;
+						pixel.IgnoresTeamHits = true;
+						pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 140;--1.53;
+						MovableMan:AddParticle(pixel);
+					end
 				end
 				
 				
