@@ -12,6 +12,9 @@ function OnDetach(self)
 
 	self:EnableScript("Mordhau.rte/Actors/Shared/Scripts/HeadBouncePhysics.lua");
 	
+	self.playBleed = true;
+	
 	self.bounceSound = CreateSoundContainer("HeadPlatedBounce Mordhau", "Mordhau.rte");
+	self.bloodSound = CreateSoundContainer("Blood Mordhau", "Mordhau.rte");
 	
 end

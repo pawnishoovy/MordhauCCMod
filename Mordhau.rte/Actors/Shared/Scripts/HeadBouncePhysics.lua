@@ -5,9 +5,14 @@ function Create(self)
 
 end
 
-function OnCollideWithTerrain(self, terrainID)	
+function OnCollideWithTerrain(self, terrainID)
 
-	if self.TravelImpulse.Magnitude > 60 and self.impactTimer:IsPastSimMS(self.impactCooldown) then
+	if self.playBleed == true then
+		self.playBleed = false;
+		self.bloodSound:Play(self.Pos);
+	end
+
+	if self.TravelImpulse.Magnitude > 45 and self.impactTimer:IsPastSimMS(self.impactCooldown) then
 	
 		self.impactCooldown = 400;
 		self.impactTimer:Reset();
