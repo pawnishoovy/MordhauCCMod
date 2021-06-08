@@ -705,6 +705,7 @@ function ArcherAIBehaviours.handleVoicelines(self)
 				if self.activatedExplosive then
 					self.activatedExplosive = false;
 					self.movementSounds.Throw:Play(self.Pos);
+					ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
 
 				end
 			end
