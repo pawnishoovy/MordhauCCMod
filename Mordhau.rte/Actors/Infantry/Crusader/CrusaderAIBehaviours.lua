@@ -692,7 +692,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 		
 		-- THROWING GRENADES
 	
-		if IsTDExplosive(self.EquippedItem) then
+		if IsIsThrownDevice(self.EquippedItem) then
 			local activated = self.controller:IsState(Controller.WEAPON_FIRE)
 			if (activated) then
 
