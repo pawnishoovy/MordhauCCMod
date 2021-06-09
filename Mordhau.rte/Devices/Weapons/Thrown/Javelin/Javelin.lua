@@ -254,6 +254,7 @@ function Update(self)
 				--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec, 5);
 				
 			elseif self.phase == 1 then -- Stuck into MO
+			
 				if self.stickMO.ID ~= rte.NoMOID and not self.decayTimer:IsPastSimMS(self.decayTime) and self.PinStrength > 10 then
 					--self.Pos = self.stickMO.Pos + Vector(self.stickVec.X, self.stickVec.Y):RadRotate(self.stickMO.RotAngle)
 					self.RotAngle = self.stickMO.RotAngle + self.stickRot * 0.1
@@ -273,6 +274,9 @@ function Update(self)
 				end
 				
 			elseif self.phase == 2 then -- Stuck into terrain
+			
+				self.HUDVisible = false;
+			
 				self.PinStrength = 1000;
 				self.AngularVel = 0;
 				
@@ -280,7 +284,12 @@ function Update(self)
 					self.ToSettle = true;
 				end
 			elseif self.phase == 3 then -- Fell from MO
-				
+			
+				if self.decayGib then
+					self.HUDVisible = false;
+				else
+					self.HUDVisible = true;
+				end
 				
 			end
 		end
@@ -327,4 +336,11 @@ function OnCollideWithTerrain(self, terrainID) -- delet
 end
 function Destroy(self) -- delet
 	self.flightLoopSound:Stop();
+end
+
+function OnDetach(self)
+
+	if self.wasActivated == true then
+		self.HUDVisible = false;
+	end
 end
