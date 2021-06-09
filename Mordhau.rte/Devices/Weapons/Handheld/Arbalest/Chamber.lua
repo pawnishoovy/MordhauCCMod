@@ -4,6 +4,11 @@ function Create(self)
 	
 	-- Sounds --
 	
+	self.afterSound = CreateSoundContainer("Pre Arbalest", "Mordhau.rte");
+	-- meaningless! just here to save an if check
+	
+	self.preSound = CreateSoundContainer("Pre Arbalest", "Mordhau.rte");
+	
 	self.attachSound = CreateSoundContainer("Attach Arbalest", "Mordhau.rte");
 	
 	self.pullBackSound = CreateSoundContainer("PullBack Arbalest", "Mordhau.rte");
@@ -13,6 +18,8 @@ function Create(self)
 	self.detachSound = CreateSoundContainer("Detach Arbalest", "Mordhau.rte");
 	
 	self.boltLoadSound = CreateSoundContainer("BoltLoad Arbalest", "Mordhau.rte");
+	
+	self:SetNumberValue("DelayedFireTimeMS", 135)
 	
 	self.lastAge = self.Age
 	
@@ -67,7 +74,7 @@ function Create(self)
 	self.recoilStrength = 18 -- multiplier for base recoil added to the self.recoilStr when firing
 	self.recoilPowStrength = 0.01 -- multiplier for self.recoilStr when firing
 	self.recoilRandomUpper = 2 -- upper end of random multiplier (1 is lower)
-	self.recoilDamping = 1.0
+	self.recoilDamping = 0.25
 	
 	self.recoilMax = 2 -- in deg.
 	self.originalSharpLength = self.SharpLength
@@ -288,9 +295,20 @@ function Update(self)
 		
 	end
 	
+	if self.delayedFire == true then
+		self.Locked = false;
+		local minTime = 0
+		local maxTime = 200
+		
+		local factor = math.pow(math.min(math.max(self.delayedFireTimer.ElapsedSimTimeMS - minTime, 0) / (maxTime - minTime), 1), 2)
+		
+		self.Frame = math.floor((1 - factor) * (4) + 0.5)
+
+	end
+
 	if self.FiredFrame then
 		self.Frame = 0;
-		self.Locked = false;
+		self.recoilStrength = 40
 
 	end
 	
@@ -347,6 +365,6 @@ end
 
 function Detach(self)
 
-	if self.afterSound then self.afterSound:Stop(-1) end
+	self.afterSound:Stop(-1);
 	
 end
