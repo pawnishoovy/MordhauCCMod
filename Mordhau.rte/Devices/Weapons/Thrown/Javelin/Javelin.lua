@@ -3,6 +3,9 @@ function Create(self)
 	self.origMass = self.Mass;
 	self.thrownMassMultiplier = self:NumberValueExists("ThrownMassMultiplier") and self:GetNumberValue("ThrownMassMultiplier") or 5;
 	
+	self.bounceSound = CreateSoundContainer("Bounce Javelin", "Mordhau.rte");
+	self.bounceSoundPlay = true;
+	
 	self.throwSound = CreateSoundContainer("Throw Javelin", "Mordhau.rte");
 	
 	self.flightLoopSound = CreateSoundContainer("FlightLoop Javelin", "Mordhau.rte");
@@ -36,7 +39,6 @@ function Create(self)
 	
 	self.decayTimer = nil;
 	self.decayTime = RangeRand(4000,8000);--3000;
-	self.decayGib = math.random(1,5) >= 2;
 	
 	self.deleteTimer = Timer()
 	
@@ -148,7 +150,7 @@ function Update(self)
 								if actorHuman.Head and self.stickMO.ID == actorHuman.Head.ID or actorHuman.FGArm and self.stickMO.ID == actorHuman.FGArm.ID or actorHuman.BGArm and self.stickMO.ID == actorHuman.BGArm.ID or actorHuman.FGLeg and self.stickMO.ID == actorHuman.FGLeg.ID or actorHuman.BGLeg and self.stickMO.ID == actorHuman.BGLeg.ID then
 									-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
 									local halfVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/2);
-									if self.stickMO.WoundCount + 6 > self.stickMO.GibWoundLimit then
+									if self.stickMO.WoundCount + 7 > self.stickMO.GibWoundLimit then
 										ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
 										addWounds = false;
 										self.stickMO.Vel = self.stickMO.Vel + halfVel
@@ -162,7 +164,7 @@ function Update(self)
 						end
 						
 						if addWounds == true then
-							for i = 1, 5 do
+							for i = 1, 6 do
 								self.stickMO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 						end
@@ -263,6 +265,8 @@ function Update(self)
 					
 					self.PinStrength = 0;
 					
+					self.decayGib = true;
+					
 					self.stickMO = nil;
 					self.stuck = false
 					self.phase = 3
@@ -276,6 +280,7 @@ function Update(self)
 					self.ToSettle = true;
 				end
 			elseif self.phase == 3 then -- Fell from MO
+				
 				
 			end
 		end
@@ -299,7 +304,6 @@ function Update(self)
 			
 			self.decayTimer = nil;
 			self.decayTime = RangeRand(4000,8000);--3000;
-			self.decayGib = math.random(1,5) >= 2;
 			self.phase = 0;
 			
 		end
@@ -310,14 +314,16 @@ end
 
 function OnCollideWithTerrain(self, terrainID) -- delet
 	self.flightLoopSound:Stop();
+	
 	if self.phase == 3 and self.decayGib then
-		self:GibThis();
-		--self.ToDelete = true;
-	else
 		self.ToSettle = true;
-		self.phase = 3
-
 	end
+
+	if self.bounceSoundPlay == true and self.Vel.Magnitude > 5 then
+		self.bounceSound:Play(self.Pos)
+		self.bounceSoundPlay = false
+	end
+	
 end
 function Destroy(self) -- delet
 	self.flightLoopSound:Stop();

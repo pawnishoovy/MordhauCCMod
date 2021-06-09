@@ -2,33 +2,29 @@ function Create(self)
 	self.origMass = self.Mass;
 	self.thrownMassMultiplier = self:NumberValueExists("ThrownMassMultiplier") and self:GetNumberValue("ThrownMassMultiplier") or 5;
 	
-	self.bounceSound = CreateSoundContainer("Bounce ThrowingAxe", "Mordhau.rte");
+	self.bounceSound = CreateSoundContainer("Bounce ThrowingKnife", "Mordhau.rte");
 	self.bounceSoundPlay = true;
 	
-	self.throwSound = CreateSoundContainer("Throw ThrowingAxe", "Mordhau.rte");
-	
-	self.spinSound = CreateSoundContainer("Spin ThrowingAxe", "Mordhau.rte");
-	self.spinTimer = Timer();
-	self.spinDelay = 220;
+	self.throwSound = CreateSoundContainer("Throw ThrowingKnife", "Mordhau.rte");
 	
 	self.terrainSounds = {
-	Impact = {[12] = CreateSoundContainer("Impact Concrete Javelin", "Mordhau.rte"),
-			[164] = CreateSoundContainer("Impact Concrete Javelin", "Mordhau.rte"),
-			[177] = CreateSoundContainer("Impact Concrete Javelin", "Mordhau.rte"),
-			[9] = CreateSoundContainer("Impact Dirt Javelin", "Mordhau.rte"),
-			[10] = CreateSoundContainer("Impact Dirt Javelin", "Mordhau.rte"),
-			[11] = CreateSoundContainer("Impact Dirt Javelin", "Mordhau.rte"),
-			[128] = CreateSoundContainer("Impact Dirt Javelin", "Mordhau.rte"),
-			[6] = CreateSoundContainer("Impact Sand Javelin", "Mordhau.rte"),
-			[8] = CreateSoundContainer("Impact Sand Javelin", "Mordhau.rte"),
-			[178] = CreateSoundContainer("Impact SolidMetal Javelin", "Mordhau.rte"),
-			[179] = CreateSoundContainer("Impact SolidMetal Javelin", "Mordhau.rte"),
-			[180] = CreateSoundContainer("Impact SolidMetal Javelin", "Mordhau.rte"),
-			[181] = CreateSoundContainer("Impact SolidMetal Javelin", "Mordhau.rte"),
-			[182] = CreateSoundContainer("Impact SolidMetal Javelin", "Mordhau.rte")}}
+	Impact = {[12] = CreateSoundContainer("Impact Concrete ThrowingKnife", "Mordhau.rte"),
+			[164] = CreateSoundContainer("Impact Concrete ThrowingKnife", "Mordhau.rte"),
+			[177] = CreateSoundContainer("Impact Concrete ThrowingKnife", "Mordhau.rte"),
+			[9] = CreateSoundContainer("Impact Dirt ThrowingKnife", "Mordhau.rte"),
+			[10] = CreateSoundContainer("Impact Dirt ThrowingKnife", "Mordhau.rte"),
+			[11] = CreateSoundContainer("Impact Dirt ThrowingKnife", "Mordhau.rte"),
+			[128] = CreateSoundContainer("Impact Dirt ThrowingKnife", "Mordhau.rte"),
+			[6] = CreateSoundContainer("Impact Sand ThrowingKnife", "Mordhau.rte"),
+			[8] = CreateSoundContainer("Impact Sand ThrowingKnife", "Mordhau.rte"),
+			[178] = CreateSoundContainer("Impact SolidMetal ThrowingKnife", "Mordhau.rte"),
+			[179] = CreateSoundContainer("Impact SolidMetal ThrowingKnife", "Mordhau.rte"),
+			[180] = CreateSoundContainer("Impact SolidMetal ThrowingKnife", "Mordhau.rte"),
+			[181] = CreateSoundContainer("Impact SolidMetal ThrowingKnife", "Mordhau.rte"),
+			[182] = CreateSoundContainer("Impact SolidMetal ThrowingKnife", "Mordhau.rte")}}
 			
-	self.soundHitFlesh = CreateSoundContainer("Impact Flesh ThrowingAxe", "Mordhau.rte");
-	self.soundHitMetal = CreateSoundContainer("Impact Metal ThrowingAxe", "Mordhau.rte");
+	self.soundHitFlesh = CreateSoundContainer("Impact Flesh ThrowingKnife", "Mordhau.rte");
+	self.soundHitMetal = CreateSoundContainer("Impact Metal ThrowingKnife", "Mordhau.rte");
 	
 	self.stickMO = nil;
 	self.stickVecX = 0;
@@ -49,23 +45,13 @@ end
 function Update(self)
 	if self.ID == self.RootID then
 		if not self.thrown and self.wasActivated then
-			self.AngularVel = self.AngularVel - self.Vel.Magnitude * self.FlipFactor * 0.6
+			self.AngularVel = self.AngularVel - self.Vel.Magnitude * self.FlipFactor * 1.4
 			self.Mass = self.origMass * self.thrownMassMultiplier;
 			self.thrown = true;
 			self.wasActivated = false;
 			self.throwSound:Play(self.Pos);
-			self.spinTimer:Reset();
 		elseif self.thrown == true then
 			if self.phase == 0 and self.Vel.Magnitude > 13 then -- Raycast, stick to things
-			
-				if math.abs(self.AngularVel) > 6 and math.abs(self.Vel.Magnitude) > 6 and self.spinTimer:IsPastSimMS(self.spinDelay) then
-					self.spinTimer:Reset();
-					self.spinDelay = 220 * (math.abs(self.AngularVel)/10);
-					
-					self.spinSound.Volume = math.max(0.3, math.min(math.abs(self.AngularVel/20), 1))
-					self.spinSound.Pitch = 1.5
-					self.spinSound:Play(self.Pos);
-				end
 			
 				local rayOrigin = self.Pos
 				local rayVec = Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.Vel.Magnitude * rte.PxTravelledPerFrame + self.IndividualRadius);
@@ -117,35 +103,11 @@ function Update(self)
 							effect:GibThis();
 						end
 						
-						local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
-						if (actorHit and IsActor(actorHit)) then
-					
-							if IsAHuman(actorHit) then
-								local actorHuman = ToAHuman(actorHit)
-								if actorHuman.Head and self.stickMO.ID == actorHuman.Head.ID or actorHuman.FGArm and self.stickMO.ID == actorHuman.FGArm.ID or actorHuman.BGArm and self.stickMO.ID == actorHuman.BGArm.ID or actorHuman.FGLeg and self.stickMO.ID == actorHuman.FGLeg.ID or actorHuman.BGLeg and self.stickMO.ID == actorHuman.BGLeg.ID then
-									-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
-									local halfVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/2);
-									if self.stickMO.WoundCount + 7 > self.stickMO.GibWoundLimit then
-										ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-										addWounds = false;
-										self.stickMO.Vel = self.stickMO.Vel + halfVel
-									elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
-										ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-										addWounds = false;
-										self.stickMO.Vel = self.stickMO.Vel + halfVel
-									end
-								end
-							end
-						end
-						
 						if addWounds == true then
-							-- weird lopsidedness can easily make pixels miss, so we just add wounds raw
-							for i = 1, 7 do
+							for i = 1, 3 do
 								self.stickMO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 						end
-							
-						self.spinSound:Stop(-1);
 						
 						self.PinStrength = 1000;
 						self.Vel = Vector()
@@ -215,8 +177,6 @@ function Update(self)
 							MovableMan:AddParticle(effect);
 							effect:GibThis();
 						end
-						
-						self.spinSound:Stop(-1);
 						
 						self.stuck = true
 						self.phase = 2
