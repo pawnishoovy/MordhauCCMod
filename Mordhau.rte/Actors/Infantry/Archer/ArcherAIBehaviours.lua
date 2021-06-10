@@ -287,6 +287,11 @@ function ArcherAIBehaviours.handleHealth(self)
 
 	if (healthTimerReady or wasLightlyInjured or wasInjured or wasHeavilyInjured) then
 	
+		if self:NumberValueExists("Death By Fire") then
+			self:RemoveNumberValue("Death By Fire");
+			KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+		end
+	
 		self.oldHealth = self.Health;
 		self.healthUpdateTimer:Reset();
 		
@@ -602,6 +607,11 @@ function ArcherAIBehaviours.handleAITargetLogic(self)
 end
 
 function ArcherAIBehaviours.handleVoicelines(self)
+
+	if self:NumberValueExists("Death By Fire") then
+		self:RemoveNumberValue("Death By Fire");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+	end
 
 	-- DEVICE RELATED VOICELINES
 	

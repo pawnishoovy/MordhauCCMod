@@ -287,6 +287,11 @@ function CrusaderAIBehaviours.handleHealth(self)
 
 	if (healthTimerReady or wasLightlyInjured or wasInjured or wasHeavilyInjured) then
 	
+		if self:NumberValueExists("Death By Fire") then
+			self:RemoveNumberValue("Death By Fire");
+			KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+		end
+	
 		self.oldHealth = self.Health;
 		self.healthUpdateTimer:Reset();
 		
@@ -608,6 +613,11 @@ end
 
 function CrusaderAIBehaviours.handleVoicelines(self)
 
+	if self:NumberValueExists("Death By Fire") then
+		self:RemoveNumberValue("Death By Fire");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+	end
+
 	-- DEVICE RELATED VOICELINES
 	
 	if (self.attackSuccess == true) and (not self.voiceSound:IsBeingPlayed() or self.attackSuccessTimer:IsPastSimMS(self.attackSuccessTime)) then
@@ -692,7 +702,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 		
 		-- THROWING GRENADES
 	
-		if IsIsThrownDevice(self.EquippedItem) then
+		if IsThrownDevice(self.EquippedItem) then
 			local activated = self.controller:IsState(Controller.WEAPON_FIRE)
 			if (activated) then
 
