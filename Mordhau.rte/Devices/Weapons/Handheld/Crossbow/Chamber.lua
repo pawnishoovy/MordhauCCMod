@@ -49,7 +49,10 @@ function Create(self)
 	-- 2 boltLoad
 	
 	self.reloadPhase = 0;
+	
+	self.Frame = 4;
 	self.Locked = true;
+	self.Loaded = true;
 	
 	self.ReloadTime = 9999;
 	
@@ -67,7 +70,6 @@ function Create(self)
 end
 
 function Update(self)
-	self.Frame = 0;
 	self.rotationTarget = 0 -- ZERO IT FIRST AAAA!!!!!
 	
 	if self.ID == self.RootID then
@@ -136,7 +138,7 @@ function Update(self)
 			
 		elseif self.reloadPhase == 1 then
 			
-			self.Frame = 4;
+			self.Frame = 3;
 		
 			self.reloadDelay = self.lockPrepareDelay;
 			self.afterDelay = self.lockAfterDelay;			
@@ -146,8 +148,6 @@ function Update(self)
 			self.rotationTarget = -40;
 			
 		elseif self.reloadPhase == 2 then
-		
-			self.Frame = 4;
 		
 			self.reloadDelay = self.boltLoadPrepareDelay;
 			self.afterDelay = self.boltLoadAfterDelay;			
@@ -179,7 +179,7 @@ function Update(self)
 				
 				local factor = math.pow(math.min(math.max(self.reloadTimer.ElapsedSimTimeMS - minTime, 0) / (maxTime - minTime), 1), 2)
 				
-				self.Frame = math.floor(factor * (4) + 0.5)
+				self.Frame = math.floor(factor * (3) + 0.5)
 			end
 			
 			if self.afterSoundPlayed ~= true then
@@ -194,6 +194,9 @@ function Update(self)
 					
 				elseif self.reloadPhase == 2 then
 					self.phaseOnStop = 2;
+					
+					self.Loaded = true;
+					self.Frame = 4
 					
 					self.verticalAnim = self.verticalAnim + 1;
 				
@@ -237,8 +240,10 @@ function Update(self)
 		self.afterSoundPlayed = false;
 		self.prepareSoundPlayed = false;
 		
-		if self.Locked == true then
+		if self.Loaded == true then
 			self.Frame = 4;
+		elseif self.Locked == true then
+			self.Frame = 3;
 		else
 			self.Frame = 0;
 		end
@@ -253,8 +258,9 @@ function Update(self)
 	end
 	
 	if self.FiredFrame then
-		self.Frame = 0;
 		self.Locked = false;
+		self.Loaded = false;
+		self.Frame = 0;
 		
 		self.twangSweetenerSound.Pitch = math.random(95, 105) / 100;
 		self.twangSweetenerSound:Play(self.Pos);

@@ -64,7 +64,10 @@ function Create(self)
 	-- 4 boltLoad
 	
 	self.reloadPhase = 0;
+	
+	self.Frame = 4;
 	self.Locked = true;
+	self.Loaded = true;
 	
 	self.ReloadTime = 9999;
 	
@@ -82,7 +85,6 @@ function Create(self)
 end
 
 function Update(self)
-	self.Frame = 0;
 	self.rotationTarget = 0 -- ZERO IT FIRST AAAA!!!!!
 	
 	if self.ID == self.RootID then
@@ -159,7 +161,7 @@ function Update(self)
 			
 		elseif self.reloadPhase == 2 then
 			
-			self.Frame = 4;
+			self.Frame = 3;
 		
 			self.reloadDelay = self.lockPrepareDelay;
 			self.afterDelay = self.lockAfterDelay;			
@@ -170,7 +172,7 @@ function Update(self)
 			
 		elseif self.reloadPhase == 3 then
 			
-			self.Frame = 4;
+			self.Frame = 3;
 		
 			self.reloadDelay = self.detachPrepareDelay;
 			self.afterDelay = self.detachAfterDelay;			
@@ -180,8 +182,6 @@ function Update(self)
 			self.rotationTarget = -75;
 			
 		elseif self.reloadPhase == 4 then
-		
-			self.Frame = 4;
 		
 			self.reloadDelay = self.boltLoadPrepareDelay;
 			self.afterDelay = self.boltLoadAfterDelay;			
@@ -215,7 +215,7 @@ function Update(self)
 				
 				local factor = math.pow(math.min(math.max(self.reloadTimer.ElapsedSimTimeMS - minTime, 0) / (maxTime - minTime), 1), 2)
 				
-				self.Frame = math.floor(factor * (4) + 0.5)
+				self.Frame = math.floor(factor * (3) + 0.5)
 			end
 			
 			if self.afterSoundPlayed ~= true then
@@ -236,6 +236,9 @@ function Update(self)
 					
 				elseif self.reloadPhase == 4 then
 					self.phaseOnStop = 2;
+					
+					self.Loaded = true;
+					self.Frame = 4;
 					
 					self.verticalAnim = self.verticalAnim + 1;
 				
@@ -279,8 +282,10 @@ function Update(self)
 		self.afterSoundPlayed = false;
 		self.prepareSoundPlayed = false;
 		
-		if self.Locked == true then
+		if self.Loaded == true then
 			self.Frame = 4;
+		elseif self.Locked == true then
+			self.Frame = 3;
 		else
 			self.Frame = 0;
 			self.afterSound:Stop(-1) -- seconds long sound... oughta stop it lol
@@ -297,6 +302,7 @@ function Update(self)
 	
 	if self.delayedFire == true then
 		self.Locked = false;
+		self.Loaded = false;
 		local minTime = 0
 		local maxTime = 200
 		
