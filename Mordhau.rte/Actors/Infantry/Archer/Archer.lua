@@ -262,6 +262,7 @@ function Create(self)
 
 	
 	-- leg Collision Detection system
+	self.foot = 0;
     self.feetContact = {false, false}
     self.feetTimers = {Timer(), Timer()}
 	self.footstepTime = 100 -- 2 Timers to avoid noise

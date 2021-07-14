@@ -45,6 +45,10 @@ function YeOldeSongsScript:StartScript()
 	self.evilAmbients = {"Mordhau.rte/Music/EvilAmbient1.ogg", "Mordhau.rte/Music/EvilAmbient2.ogg",
 	"Mordhau.rte/Music/EvilAmbient3.ogg"};
 	
+	self.Interludes = {"Mordhau.rte/Music/Interlude1.ogg", "Mordhau.rte/Music/Interlude2.ogg",
+	"Mordhau.rte/Music/Interlude3.ogg", "Mordhau.rte/Music/Interlude4.ogg",
+	"Mordhau.rte/Music/Interlude5.ogg", "Mordhau.rte/Music/Interlude6.ogg"};
+	
 	
 	self.Tunes.smallBattleA = {};
 	self.Tunes.smallBattleA.Path = "Mordhau.rte/Music/SmallBattleA.ogg";
@@ -839,6 +843,284 @@ function YeOldeSongsScript:StartScript()
 	self.Tunes.paganCombatA.intensityTables[6].Loops = {33, 34, 35, 36, 37, 38};
 	self.Tunes.paganCombatA.intensityTables[6].Transitional = {29, 5, 33};
 	
+	self.Tunes.paganCombatB = {};
+	self.Tunes.paganCombatB.Components = {};
+	self.Tunes.paganCombatB.Components[1] = {};
+	self.Tunes.paganCombatB.Components[1].Container = CreateSoundContainer("Pagan Combat B 01 30", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[1].preLength = 3414;
+	self.Tunes.paganCombatB.Components[1].totalPost = 11900;
+	self.Tunes.paganCombatB.Components[1].Type = "Intro";
+	
+	self.Tunes.paganCombatB.Components[2] = {};
+	self.Tunes.paganCombatB.Components[2].Container = CreateSoundContainer("Pagan Combat B 02 40", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[2].preLength = 3391;
+	self.Tunes.paganCombatB.Components[2].totalPost = 11334	;
+	self.Tunes.paganCombatB.Components[2].Type = "Intro";
+	
+	self.Tunes.paganCombatB.Components[3] = {};
+	self.Tunes.paganCombatB.Components[3].Container = CreateSoundContainer("Pagan Combat B 03 50", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[3].preLength = 3352;
+	self.Tunes.paganCombatB.Components[3].totalPost = 11406;
+	self.Tunes.paganCombatB.Components[3].Type = "Intro";
+	
+	self.Tunes.paganCombatB.Components[4] = {};
+	self.Tunes.paganCombatB.Components[4].Container = CreateSoundContainer("Pagan Combat B 04 60", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[4].preLength = 3384;
+	self.Tunes.paganCombatB.Components[4].totalPost = 11381;
+	self.Tunes.paganCombatB.Components[4].canLinkTo = {5};
+	
+	self.Tunes.paganCombatB.Components[5] = {};
+	self.Tunes.paganCombatB.Components[5].Container = CreateSoundContainer("Pagan Combat B 05 60", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[5].preLength = 3378;
+	self.Tunes.paganCombatB.Components[5].totalPost = 11348;
+	self.Tunes.paganCombatB.Components[5].canLinkTo = {6};
+	
+	self.Tunes.paganCombatB.Components[6] = {};
+	self.Tunes.paganCombatB.Components[6].Container = CreateSoundContainer("Pagan Combat B 06 30", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[6].preLength = 3318;
+	self.Tunes.paganCombatB.Components[6].totalPost = 11384;
+	self.Tunes.paganCombatB.Components[6].canLinkTo = {7};
+	
+	self.Tunes.paganCombatB.Components[7] = {};
+	self.Tunes.paganCombatB.Components[7].Container = CreateSoundContainer("Pagan Combat B 07 70", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[7].preLength = 3384;
+	self.Tunes.paganCombatB.Components[7].totalPost = 11377;
+	self.Tunes.paganCombatB.Components[7].canLinkTo = {8};
+	
+	self.Tunes.paganCombatB.Components[8] = {};
+	self.Tunes.paganCombatB.Components[8].Container = CreateSoundContainer("Pagan Combat B 08 70", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[8].preLength = 3389;
+	self.Tunes.paganCombatB.Components[8].totalPost = 11377;
+	self.Tunes.paganCombatB.Components[8].canLinkTo = {6, 9};
+	
+	self.Tunes.paganCombatB.Components[9] = {};
+	self.Tunes.paganCombatB.Components[9].Container = CreateSoundContainer("Pagan Combat B 09 10", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[9].preLength = 3380;
+	self.Tunes.paganCombatB.Components[9].totalPost = 11370;
+	self.Tunes.paganCombatB.Components[9].canLinkTo = {10};
+	
+	self.Tunes.paganCombatB.Components[10] = {};
+	self.Tunes.paganCombatB.Components[10].Container = CreateSoundContainer("Pagan Combat B 10 10", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[10].preLength = 3369;
+	self.Tunes.paganCombatB.Components[10].totalPost = 11377;
+	self.Tunes.paganCombatB.Components[10].canLinkTo = {11};
+	
+	self.Tunes.paganCombatB.Components[11] = {};
+	self.Tunes.paganCombatB.Components[11].Container = CreateSoundContainer("Pagan Combat B 11 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[11].preLength = 3413;
+	self.Tunes.paganCombatB.Components[11].totalPost = 11033;
+	self.Tunes.paganCombatB.Components[11].canLinkTo = {12};
+	
+	self.Tunes.paganCombatB.Components[12] = {};
+	self.Tunes.paganCombatB.Components[12].Container = CreateSoundContainer("Pagan Combat B 12 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[12].preLength = 3376;
+	self.Tunes.paganCombatB.Components[12].totalPost = 11417;
+	self.Tunes.paganCombatB.Components[12].canLinkTo = {6, 13};
+	
+	self.Tunes.paganCombatB.Components[13] = {};
+	self.Tunes.paganCombatB.Components[13].Container = CreateSoundContainer("Pagan Combat B 13 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[13].preLength = 3387;
+	self.Tunes.paganCombatB.Components[13].totalPost = 11384;
+	self.Tunes.paganCombatB.Components[13].canLinkTo = {14};
+	
+	self.Tunes.paganCombatB.Components[14] = {};
+	self.Tunes.paganCombatB.Components[14].Container = CreateSoundContainer("Pagan Combat B 14 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[14].preLength = 3387;
+	self.Tunes.paganCombatB.Components[14].totalPost = 11355;
+	self.Tunes.paganCombatB.Components[14].canLinkTo = {4, 6};
+
+	self.Tunes.paganCombatB.Components[15] = {};
+	self.Tunes.paganCombatB.Components[15].Container = CreateSoundContainer("Pagan Combat B 15 30", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[15].preLength = 3391;
+	self.Tunes.paganCombatB.Components[15].totalPost = 11384;
+	self.Tunes.paganCombatB.Components[15].canLinkTo = {16};
+	self.Tunes.paganCombatB.Components[15].Type = "Transitional";
+	
+	self.Tunes.paganCombatB.Components[16] = {};
+	self.Tunes.paganCombatB.Components[16].Container = CreateSoundContainer("Pagan Combat B 16 30", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[16].preLength = 3400;
+	self.Tunes.paganCombatB.Components[16].totalPost = 11421;
+	self.Tunes.paganCombatB.Components[16].canLinkTo = {15, 17};
+	
+	self.Tunes.paganCombatB.Components[17] = {};
+	self.Tunes.paganCombatB.Components[17].Container = CreateSoundContainer("Pagan Combat B 17 40", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[17].preLength = 3398;
+	self.Tunes.paganCombatB.Components[17].totalPost = 11406;
+	self.Tunes.paganCombatB.Components[17].canLinkTo = {18};
+	
+	self.Tunes.paganCombatB.Components[18] = {};
+	self.Tunes.paganCombatB.Components[18].Container = CreateSoundContainer("Pagan Combat B 18 40", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[18].preLength = 3391;
+	self.Tunes.paganCombatB.Components[18].totalPost = 11392;
+	self.Tunes.paganCombatB.Components[18].canLinkTo = {17, 19};
+	
+	self.Tunes.paganCombatB.Components[19] = {};
+	self.Tunes.paganCombatB.Components[19].Container = CreateSoundContainer("Pagan Combat B 19 60", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[19].preLength = 3390;
+	self.Tunes.paganCombatB.Components[19].totalPost = 11238;	
+	self.Tunes.paganCombatB.Components[19].canLinkTo = {20};
+	
+	self.Tunes.paganCombatB.Components[20] = {};
+	self.Tunes.paganCombatB.Components[20].Container = CreateSoundContainer("Pagan Combat B 20 60", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[20].preLength = 3346;
+	self.Tunes.paganCombatB.Components[20].totalPost = 11150;
+	self.Tunes.paganCombatB.Components[20].canLinkTo = {21};
+	
+	self.Tunes.paganCombatB.Components[21] = {};
+	self.Tunes.paganCombatB.Components[21].Container = CreateSoundContainer("Pagan Combat B 21 65", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[21].preLength = 3338;
+	self.Tunes.paganCombatB.Components[21].totalPost = 11157;	
+	self.Tunes.paganCombatB.Components[21].canLinkTo = {22};
+	
+	self.Tunes.paganCombatB.Components[22] = {};
+	self.Tunes.paganCombatB.Components[22].Container = CreateSoundContainer("Pagan Combat B 22 70", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[22].preLength = 3324;
+	self.Tunes.paganCombatB.Components[22].totalPost = 11143;
+	self.Tunes.paganCombatB.Components[22].canLinkTo = {23};
+	
+	self.Tunes.paganCombatB.Components[23] = {};
+	self.Tunes.paganCombatB.Components[23].Container = CreateSoundContainer("Pagan Combat B 23 75", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[23].preLength = 3331;
+	self.Tunes.paganCombatB.Components[23].totalPost = 11066;	
+	self.Tunes.paganCombatB.Components[23].canLinkTo = {24};	
+	
+	self.Tunes.paganCombatB.Components[24] = {};
+	self.Tunes.paganCombatB.Components[24].Container = CreateSoundContainer("Pagan Combat B 24 75", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[24].preLength = 3302;
+	self.Tunes.paganCombatB.Components[24].totalPost = 11033;
+	self.Tunes.paganCombatB.Components[24].canLinkTo = {15, 21, 23};	
+	
+	self.Tunes.paganCombatB.Components[25] = {};
+	self.Tunes.paganCombatB.Components[25].Container = CreateSoundContainer("Pagan Combat B 25 80", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[25].preLength = 3302;
+	self.Tunes.paganCombatB.Components[25].totalPost = 10872;
+	self.Tunes.paganCombatB.Components[25].canLinkTo = {26};	
+	self.Tunes.paganCombatB.Components[25].Type = "Transitional";
+	
+	self.Tunes.paganCombatB.Components[26] = {};
+	self.Tunes.paganCombatB.Components[26].Container = CreateSoundContainer("Pagan Combat B 26 80", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[26].preLength = 3243;
+	self.Tunes.paganCombatB.Components[26].totalPost = 10835;
+	self.Tunes.paganCombatB.Components[26].canLinkTo = {25, 27};	
+	
+	self.Tunes.paganCombatB.Components[27] = {};
+	self.Tunes.paganCombatB.Components[27].Container = CreateSoundContainer("Pagan Combat B 27 85", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[27].preLength = 3251;
+	self.Tunes.paganCombatB.Components[27].totalPost = 10813;
+	self.Tunes.paganCombatB.Components[27].canLinkTo = {28};
+	
+	self.Tunes.paganCombatB.Components[28] = {};
+	self.Tunes.paganCombatB.Components[28].Container = CreateSoundContainer("Pagan Combat B 28 50", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[28].preLength = 3265;
+	self.Tunes.paganCombatB.Components[28].totalPost = 10843;
+	self.Tunes.paganCombatB.Components[28].canLinkTo = {29};
+	
+	self.Tunes.paganCombatB.Components[29] = {};
+	self.Tunes.paganCombatB.Components[29].Container = CreateSoundContainer("Pagan Combat B 29 50", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[29].preLength = 3258;
+	self.Tunes.paganCombatB.Components[29].totalPost = 10538;
+	self.Tunes.paganCombatB.Components[29].canLinkTo = {30};
+	
+	self.Tunes.paganCombatB.Components[30] = {};
+	self.Tunes.paganCombatB.Components[30].Container = CreateSoundContainer("Pagan Combat B 30 70", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[30].preLength = 3236;
+	self.Tunes.paganCombatB.Components[30].totalPost = 10403;
+	self.Tunes.paganCombatB.Components[30].canLinkTo = {31};
+	
+	self.Tunes.paganCombatB.Components[31] = {};
+	self.Tunes.paganCombatB.Components[31].Container = CreateSoundContainer("Pagan Combat B 31 70", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[31].preLength = 3214;
+	self.Tunes.paganCombatB.Components[31].totalPost = 10608;
+	self.Tunes.paganCombatB.Components[31].canLinkTo = {25, 28};
+	
+	self.Tunes.paganCombatB.Components[32] = {};
+	self.Tunes.paganCombatB.Components[32].Container = CreateSoundContainer("Pagan Combat B 32 90", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[32].preLength = 3185;
+	self.Tunes.paganCombatB.Components[32].totalPost = 10374;
+	self.Tunes.paganCombatB.Components[32].canLinkTo = {33};
+	self.Tunes.paganCombatB.Components[32].Type = "Transitional";
+	
+	self.Tunes.paganCombatB.Components[33] = {};
+	self.Tunes.paganCombatB.Components[33].Container = CreateSoundContainer("Pagan Combat B 33 90", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[33].preLength = 3111;
+	self.Tunes.paganCombatB.Components[33].totalPost = 10198;
+	self.Tunes.paganCombatB.Components[33].canLinkTo = {34};
+	
+	self.Tunes.paganCombatB.Components[34] = {};
+	self.Tunes.paganCombatB.Components[34].Container = CreateSoundContainer("Pagan Combat B 34 100", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[34].preLength = 3082;
+	self.Tunes.paganCombatB.Components[34].totalPost = 10034;
+	self.Tunes.paganCombatB.Components[34].canLinkTo = {35};
+	
+	self.Tunes.paganCombatB.Components[35] = {};
+	self.Tunes.paganCombatB.Components[35].Container = CreateSoundContainer("Pagan Combat B 35 100", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[35].preLength = 3035;
+	self.Tunes.paganCombatB.Components[35].totalPost = 10019;
+	self.Tunes.paganCombatB.Components[35].canLinkTo = {32, 36};
+	
+	self.Tunes.paganCombatB.Components[36] = {};
+	self.Tunes.paganCombatB.Components[36].Container = CreateSoundContainer("Pagan Combat B 36 80", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[36].preLength = 3035;
+	self.Tunes.paganCombatB.Components[36].totalPost = 10476;
+	self.Tunes.paganCombatB.Components[36].canLinkTo = {37};
+	
+	self.Tunes.paganCombatB.Components[37] = {};
+	self.Tunes.paganCombatB.Components[37].Container = CreateSoundContainer("Pagan Combat B 37 80", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[37].preLength = 3184;
+	self.Tunes.paganCombatB.Components[37].totalPost = 10575;
+	self.Tunes.paganCombatB.Components[37].canLinkTo = {38};
+	
+	self.Tunes.paganCombatB.Components[38] = {};
+	self.Tunes.paganCombatB.Components[38].Container = CreateSoundContainer("Pagan Combat B 38 80", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[38].preLength = 3181;
+	self.Tunes.paganCombatB.Components[38].totalPost = 10769;
+	self.Tunes.paganCombatB.Components[38].canLinkTo = {32, 39};
+	
+	self.Tunes.paganCombatB.Components[39] = {};
+	self.Tunes.paganCombatB.Components[39].Container = CreateSoundContainer("Pagan Combat B 39 40", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[39].preLength = 3251;
+	self.Tunes.paganCombatB.Components[39].totalPost = 11260;
+	self.Tunes.paganCombatB.Components[39].canLinkTo = {40};
+	
+	self.Tunes.paganCombatB.Components[40] = {};
+	self.Tunes.paganCombatB.Components[40].Container = CreateSoundContainer("Pagan Combat B 40 40", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[40].preLength = 3397;
+	self.Tunes.paganCombatB.Components[40].totalPost = 11399;
+	self.Tunes.paganCombatB.Components[40].canLinkTo = {41};
+	
+	self.Tunes.paganCombatB.Components[41] = {};
+	self.Tunes.paganCombatB.Components[41].Container = CreateSoundContainer("Pagan Combat B 41 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[41].preLength = 3376;
+	self.Tunes.paganCombatB.Components[41].totalPost = 11362;
+	self.Tunes.paganCombatB.Components[41].canLinkTo = {42};
+	
+	self.Tunes.paganCombatB.Components[42] = {};
+	self.Tunes.paganCombatB.Components[42].Container = CreateSoundContainer("Pagan Combat B 42 20", "Mordhau.rte");
+	self.Tunes.paganCombatB.Components[42].preLength = 3397;
+	self.Tunes.paganCombatB.Components[42].totalPost = 12674;
+	self.Tunes.paganCombatB.Components[42].canLinkTo = {15};
+	
+	self.Tunes.paganCombatB.intensityTables = {};
+	self.Tunes.paganCombatB.intensityTables[1] = {};
+	self.Tunes.paganCombatB.intensityTables[1].Loops = {1, 2, 3};
+	self.Tunes.paganCombatB.intensityTables[1].Transitional = 3;
+	
+	self.Tunes.paganCombatB.intensityTables[2] = {};
+	self.Tunes.paganCombatB.intensityTables[2].Loops = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+	self.Tunes.paganCombatB.intensityTables[2].Transitional = 15;
+	
+	self.Tunes.paganCombatB.intensityTables[3] = {};
+	self.Tunes.paganCombatB.intensityTables[3].Loops = {15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+	self.Tunes.paganCombatB.intensityTables[3].Transitional = 25;
+	
+	self.Tunes.paganCombatB.intensityTables[4] = {};
+	self.Tunes.paganCombatB.intensityTables[4].Loops = {25, 26, 27, 28, 29, 30, 31};
+	self.Tunes.paganCombatB.intensityTables[4].Transitional = 32;
+	
+	self.Tunes.paganCombatB.intensityTables[5] = {};
+	self.Tunes.paganCombatB.intensityTables[5].Loops = {32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42};
+	self.Tunes.paganCombatB.intensityTables[5].Transitional = {15, 3, 39};
+	
 	if self.activity.ActivityState == Activity.EDITING then
 	
 		self.editingMusic = true;
@@ -991,13 +1273,30 @@ function YeOldeSongsScript:UpdateScript()
 				
 				self.dynamicVolume = AudioMan.MusicVolume / AudioMan.SoundsVolume;
 				
-				if self.currentTune.Components then
-					self.dynamicMusic = true;
-					self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
-					self.currentTune.Components[self.currentIndex].Container:Play();
-				else -- normal music!
+				if math.random(0, 100) < 30 and self.interludePlayed ~= true then
+					self.interludePlayed = true;
 					self.dynamicMusic = false;
-					AudioMan:PlayMusic(self.currentTune.Path, 0, -1);
+					-- interlude! man needs a break and some funky tunes
+					local interludeTable = {};
+					for k, v in pairs(self.Interludes) do
+						if v ~= self.lastInterlude then
+							table.insert(interludeTable, v);
+						end
+					end
+					local randomizedIndex = math.random(1, #interludeTable);
+					local randomizedInterlude = interludeTable[randomizedIndex];
+					self.lastInterlude = randomizedInterlude;
+					AudioMan:PlayMusic(randomizedInterlude, 0, -1);
+				else
+					self.interludePlayed = false;
+					if self.currentTune.Components then
+						self.dynamicMusic = true;
+						self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
+						self.currentTune.Components[self.currentIndex].Container:Play();
+					else -- normal music!
+						self.dynamicMusic = false;
+						AudioMan:PlayMusic(self.currentTune.Path, 0, -1);
+					end
 				end
 				
 				self.componentTimer:Reset();
@@ -1139,6 +1438,9 @@ function YeOldeSongsScript:UpdateScript()
 					
 					self.intensityLowerPreLength = nil;
 					
+					print("intensity:")
+					print(self.Intensity);
+					
 					print(self.currentIndex)
 					
 					self.currentIndex = self.indexToPlay;
@@ -1156,7 +1458,7 @@ function YeOldeSongsScript:UpdateScript()
 			end
 		end
 	else
-		if (self.editingMusic == false and AudioMan:IsMusicPlaying() == false)
+		if (self.editingMusic ~= true and AudioMan:IsMusicPlaying() == false)
 		or (self.editingMusic == true and self.activity.ActivityState ~= Activity.EDITING) then
 			self.editingMusic = false;
 			AudioMan:StopMusic();
@@ -1173,20 +1475,33 @@ function YeOldeSongsScript:UpdateScript()
 			
 			self.dynamicVolume = AudioMan.MusicVolume / AudioMan.SoundsVolume;
 			
-			if self.currentTune.Components then
-				self.dynamicMusic = true;
-				self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
-				self.currentTune.Components[self.currentIndex].Container:Play();
-			else -- normal music!
+			if math.random(0, 100) < 30 and self.interludePlayed ~= true then
+				self.interludePlayed = true;
 				self.dynamicMusic = false;
-				AudioMan:PlayMusic(self.currentTune.Path, 0, -1);
-			end	
+				-- interlude! man needs a break and some funky tunes
+				local interludeTable = {};
+				for k, v in pairs(self.Interludes) do
+					if v ~= self.lastInterlude then
+						table.insert(interludeTable, v);
+					end
+				end
+				local randomizedIndex = math.random(1, #interludeTable);
+				local randomizedInterlude = interludeTable[randomizedIndex];
+				self.lastInterlude = randomizedInterlude;
+				AudioMan:PlayMusic(randomizedInterlude, 0, -1);
+			else
+				self.interludePlayed = false;
+				if self.currentTune.Components then
+					self.dynamicMusic = true;
+					self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
+					self.currentTune.Components[self.currentIndex].Container:Play();
+				else -- normal music!
+					self.dynamicMusic = false;
+					AudioMan:PlayMusic(self.currentTune.Path, 0, -1);
+				end
+			end
 		end
 	end
-		
-		
-	
-	-- PROTOTYPE PLACEHOLDER ONLY ONE SONG TODO MAKE MODULAR
 
 end
 
