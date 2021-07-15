@@ -117,6 +117,9 @@ function Update(self)
 			
 			if active and self.Magazine then
 				if not self.charging then
+					if not self.parent:IsPlayerControlled() then
+						self.AICharging = true;
+					end
 					self.charging = true
 					self.chargeTimer:Reset()
 					self.soundDraw:Play(self.Pos)
@@ -146,7 +149,7 @@ function Update(self)
 					end
 				
 				end
-			else
+			elseif self.parent:IsPlayerControlled() then
 				if self.charging then
 					self.soundDraw:FadeOut(50);
 					self.charging = false
@@ -156,6 +159,14 @@ function Update(self)
 					end
 				end
 				self.chargeTimer:Reset()
+			elseif self.charging and self.AICharging then
+				if self.chargeTimer:IsPastSimMS(self.chargeTime) then
+					self.soundDraw:FadeOut(50);
+					self.charging = false
+					self.lastChargeFactor = chargeFactor
+					self.shoot = true
+					self.AICharging = false;
+				end
 			end
 			
 			self.projectileVel = self.arrowVelocityMin + (self.arrowVelocityMax - self.arrowVelocityMin) * chargeFactor
@@ -194,9 +205,10 @@ function Update(self)
 				self.Magazine.RoundCount = 1
 			end
 		end
-		
-
+	else
+		self.AICharging = false;
 	end
+	
 	local stringMode = 0
 	
 	if self.Magazine then

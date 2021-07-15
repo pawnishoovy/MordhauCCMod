@@ -200,6 +200,8 @@ function Create(self)
 	self.healthUpdateTimer = Timer();
 	self.oldHealth = self.Health;
 	
+	self.headWounds = 0;
+	
 	self.Suppression = 0;
 	self.Suppressed = false;	
 	

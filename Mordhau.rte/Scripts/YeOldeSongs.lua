@@ -4,6 +4,12 @@ function YeOldeSongsScript:StartScript()
 	AudioMan:ClearMusicQueue();
 	AudioMan:StopMusic();
 	
+	self.actorTable = {};
+	
+	for actor in MovableMan.AddedActors do
+		table.insert(self.actorTable, actor);
+	end
+	
 	-- our dynamic music is just normal sound, so get the current ratio between sound and music volume
 	-- to set the container volumes
 	
@@ -21,17 +27,6 @@ function YeOldeSongsScript:StartScript()
 	self.desiredIntensity = 1;
 	self.Intensity = 1;
 	
-	self.intensityCheckTimer = Timer();
-	self.intensityCheckDelay = 10000;
-	
-	self.lowIntensity = 0.7;
-	self.lowIntensityActorThreshold = 6;
-	self.mediumIntensity = 1;
-	self.mediumIntensityActorThreshold = 10;
-	self.highIntensity = 1.5;
-	self.highIntensityActorThreshold = 12;
-	self.totalIntensity = 2;
-	self.totalIntensityActorThreshold = 16;
 
 	self.Tunes = {};
 	
@@ -848,7 +843,7 @@ function YeOldeSongsScript:StartScript()
 	self.Tunes.paganCombatB.Components[1] = {};
 	self.Tunes.paganCombatB.Components[1].Container = CreateSoundContainer("Pagan Combat B 01 30", "Mordhau.rte");
 	self.Tunes.paganCombatB.Components[1].preLength = 3414;
-	self.Tunes.paganCombatB.Components[1].totalPost = 11900;
+	self.Tunes.paganCombatB.Components[1].totalPost = 11600;
 	self.Tunes.paganCombatB.Components[1].Type = "Intro";
 	
 	self.Tunes.paganCombatB.Components[2] = {};
@@ -1163,7 +1158,9 @@ end
 
 function YeOldeSongsScript:UpdateScript()
 
+	-- DEBUG
 	if UInputMan:KeyPressed(39) then
+		-- numpad 2 and up
 		self.desiredIntensity = 2;
 	elseif UInputMan:KeyPressed(40) then
 		self.desiredIntensity = 3;
@@ -1173,6 +1170,60 @@ function YeOldeSongsScript:UpdateScript()
 		self.desiredIntensity = 5;
 	elseif UInputMan:KeyPressed(43) then
 		self.desiredIntensity = 6;
+	elseif UInputMan:KeyPressed(44) then
+		-- debug start new song
+		if self.currentTune.Components and self.currentTune.Components[self.currentIndex].Container:IsBeingPlayed() then
+			self.currentTune.Components[self.currentIndex].Container:Stop(-1);
+		end
+		self.totalLoopNumber = 0;
+		self.endTune = false;
+		self.MUSIC_STATE = "Intro";
+		self.currentIndex = 1;
+		local tuneTable = {};
+		for k, v in pairs(self.Tunes) do
+			if v ~= self.currentTune then
+				table.insert(tuneTable, v);
+			end
+		end
+		self.currentTuneIndex = math.random(1, #tuneTable);
+		self.currentTune = tuneTable[self.currentTuneIndex];
+		
+		self.dynamicVolume = AudioMan.MusicVolume / AudioMan.SoundsVolume;
+		
+		if math.random(0, 100) < 30 and self.interludePlayed ~= true then
+			self.interludePlayed = true;
+			self.dynamicMusic = false;
+			-- interlude! man needs a break and some funky tunes
+			local interludeTable = {};
+			for k, v in pairs(self.Interludes) do
+				if v ~= self.lastInterlude then
+					table.insert(interludeTable, v);
+				end
+			end
+			local randomizedIndex = math.random(1, #interludeTable);
+			local randomizedInterlude = interludeTable[randomizedIndex];
+			self.lastInterlude = randomizedInterlude;
+			AudioMan:PlayMusic(randomizedInterlude, 0, -1);
+		else
+			self.componentTimer:Reset();
+			self.interludePlayed = false;
+			if self.currentTune.Components then
+				self.dynamicMusic = true;
+				self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
+				self.currentTune.Components[self.currentIndex].Container:Play();
+			else -- normal music!
+				self.dynamicMusic = false;
+				AudioMan:PlayMusic(self.currentTune.Path, 0, -1);
+			end
+		end
+		
+		self.componentTimer:Reset();
+	end
+	
+	for actor in MovableMan.AddedActors do
+		if IsAHuman(actor) or IsACrab(actor) then
+			self.actorTable[actor.UniqueID] = actor.Team;
+		end
 	end
 	
 	if self.activity.ActivityState == Activity.EDITING then
@@ -1184,7 +1235,7 @@ function YeOldeSongsScript:UpdateScript()
 				self.endTune = true;
 				self.loopNumber = 10;
 				self.totalLoopNumber = 100;
-				self.desiredIntensity = 6; -- fake an intensity switch so we get around tricky situations
+				self.desiredIntensity = 100; -- fake an intensity switch so we get around tricky situations
 										   -- like being in INTRO
 				
 				
@@ -1259,6 +1310,7 @@ function YeOldeSongsScript:UpdateScript()
 			end
 		elseif self.MUSIC_STATE == "Rest" then
 			if self.restTimer:IsPastRealMS(self.restTime) then
+				self.totalLoopNumber = 0;
 				self.endTune = false;
 				self.MUSIC_STATE = "Intro";
 				self.currentIndex = 1;
@@ -1288,6 +1340,7 @@ function YeOldeSongsScript:UpdateScript()
 					self.lastInterlude = randomizedInterlude;
 					AudioMan:PlayMusic(randomizedInterlude, 0, -1);
 				else
+					self.componentTimer:Reset();
 					self.interludePlayed = false;
 					if self.currentTune.Components then
 						self.dynamicMusic = true;
@@ -1308,12 +1361,42 @@ function YeOldeSongsScript:UpdateScript()
 				if self.nextDecided ~= true then
 					self.nextDecided = true;
 					
+					if self.loopNumber % (math.floor(2.5 + (self.Intensity/2))) == 0 then
+						-- higher intensities decay slower
+						self.desiredIntensity = self.desiredIntensity - 0.5;
+						
+					end
+					
+					for uniqueID, team in pairs(self.actorTable) do
+						local actor = MovableMan:FindObjectByUniqueID(uniqueID);
+						local playerTeamDead = false;
+						
+						if not actor or ToActor(actor):IsDead() then
+							for i = -1, 4 do
+								if self.activity:TeamActive(i) and self.activity:IsHumanTeam(i) then
+									if team == i then
+										self.desiredIntensity = self.desiredIntensity + 1;
+										playerTeamDead = true;
+										break;
+									end
+								end
+							end
+							if playerTeamDead == false then
+								self.desiredIntensity = self.desiredIntensity + 0.5;
+							end
+							self.actorTable[uniqueID] = nil;
+						end
+					end
+								
+					self.desiredIntensity = math.max(2, math.min(#self.currentTune.intensityTables, math.floor(self.desiredIntensity)));
+					
+					print(self.desiredIntensity);
+					
 					local index
 					
 					if self.MUSIC_STATE == "Transitioning" then
 					
 						self.loopNumber = 0;
-						self.totalLoopNumber = 0;
 						
 						if self.endTune == true then
 						
@@ -1438,14 +1521,14 @@ function YeOldeSongsScript:UpdateScript()
 					
 					self.intensityLowerPreLength = nil;
 					
-					print("intensity:")
-					print(self.Intensity);
+					--print("intensity:")
+					--print(self.Intensity);
 					
-					print(self.currentIndex)
+					--print(self.currentIndex)
 					
 					self.currentIndex = self.indexToPlay;
 					
-					print(self.currentIndex)
+					--print(self.currentIndex)
 					
 					self.dynamicVolume = AudioMan.MusicVolume / AudioMan.SoundsVolume;
 					
@@ -1464,6 +1547,7 @@ function YeOldeSongsScript:UpdateScript()
 			AudioMan:StopMusic();
 			self.MUSIC_STATE = "Intro";
 			self.currentIndex = 1;
+			self.totalLoopNumber = 0;
 			local tuneTable = {};
 			for k, v in pairs(self.Tunes) do
 				if v ~= self.currentTune then
@@ -1491,6 +1575,7 @@ function YeOldeSongsScript:UpdateScript()
 				AudioMan:PlayMusic(randomizedInterlude, 0, -1);
 			else
 				self.interludePlayed = false;
+				self.componentTimer:Reset();
 				if self.currentTune.Components then
 					self.dynamicMusic = true;
 					self.currentTune.Components[self.currentIndex].Container.Volume = self.dynamicVolume;
