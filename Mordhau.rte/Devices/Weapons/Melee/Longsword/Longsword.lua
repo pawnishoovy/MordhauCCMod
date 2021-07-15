@@ -35,6 +35,8 @@ function Create(self)
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
+	self.baseRotation = -0.6;
+	
 	self.attackAnimations = {}
 	self.attackAnimationCanHit = false
 	self.attackAnimationsSounds = {}
@@ -45,6 +47,9 @@ function Create(self)
 	self.currentAttackSequence = 0;
 	self.currentAttackStart = false
 	self.attackAnimationIsPlaying = false
+	
+	self.woundCounter = 0;
+	self.breakSound = CreateSoundContainer("Sword Wound Sound Mordhau", "Mordhau.rte");
 	
 	--TODO FIL
 	-- change "charge" to stab and "regular" to slash/strike/normal
@@ -237,7 +242,7 @@ function Create(self)
 	attackPhase[i].frameStart = 6
 	attackPhase[i].frameEnd = 7
 	attackPhase[i].angleStart = -90
-	attackPhase[i].angleEnd = -20
+	attackPhase[i].angleEnd = -40
 	attackPhase[i].offsetStart = Vector(15, -4)
 	attackPhase[i].offsetEnd = Vector(3, 0)
 	
@@ -261,8 +266,8 @@ function Create(self)
 	
 	attackPhase[i].frameStart = 7
 	attackPhase[i].frameEnd = 6
-	attackPhase[i].angleStart = -20
-	attackPhase[i].angleEnd = 0
+	attackPhase[i].angleStart = -40
+	attackPhase[i].angleEnd = -45
 	attackPhase[i].offsetStart = Vector(3, 0)
 	attackPhase[i].offsetEnd = Vector(3, 0)
 	
@@ -294,7 +299,7 @@ function Create(self)
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = 0
+	chargeAttackPhase[i].angleStart = -45
 	chargeAttackPhase[i].angleEnd = -60
 	chargeAttackPhase[i].offsetStart = Vector(0, 0)
 	chargeAttackPhase[i].offsetEnd = Vector(-2, -3)
@@ -440,7 +445,7 @@ function Create(self)
 	chargeAttackPhase[i].frameStart = 7
 	chargeAttackPhase[i].frameEnd = 6
 	chargeAttackPhase[i].angleStart = -60
-	chargeAttackPhase[i].angleEnd = 0
+	chargeAttackPhase[i].angleEnd = -45
 	chargeAttackPhase[i].offsetStart = Vector(7, -3)
 	chargeAttackPhase[i].offsetEnd = Vector(3, 0)
 	
@@ -518,6 +523,21 @@ function Update(self)
 		end
 		]]
 	--else
+	
+	if self.WoundCount > self.woundCounter then
+		if math.random(0, 100) > 85 then
+			if self.parent then
+				self.parent:SetNumberValue("Blocked Bullet Mordhau", 1);
+			end
+		end
+		if math.random(0, 100) > 20 then
+			self:RemoveWounds(self.WoundCount - self.woundCounter);
+		else
+			self.woundCounter = self.WoundCount
+			self.breakSound:Play(self.Pos);
+		end
+	end
+	
 	if (true) then --          :-)
 	
 		-- INPUT
@@ -658,6 +678,7 @@ function Update(self)
 				canDamage = false
 			end
 		else -- default behaviour, modify it if you wish
+			rotationTarget = self.baseRotation;
 			if self:IsAttached() then
 				self.Frame = 6;
 			else

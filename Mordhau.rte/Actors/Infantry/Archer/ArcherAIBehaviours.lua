@@ -610,7 +610,13 @@ function ArcherAIBehaviours.handleVoicelines(self)
 
 	if self:NumberValueExists("Death By Fire") then
 		self:RemoveNumberValue("Death By Fire");
-		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+	end
+	
+	if self:NumberValueExists("Blocked Bullet Mordhau") then
+		self:RemoveNumberValue("Blocked Bullet Mordhau");
+		self.Suppression = self.Suppression + 3;
+		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedLight, 2, 0);
 	end
 
 	-- DEVICE RELATED VOICELINES

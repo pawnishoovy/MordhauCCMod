@@ -1175,6 +1175,8 @@ function YeOldeSongsScript:UpdateScript()
 		if self.currentTune.Components and self.currentTune.Components[self.currentIndex].Container:IsBeingPlayed() then
 			self.currentTune.Components[self.currentIndex].Container:Stop(-1);
 		end
+		self.Intensity = 1;
+		self.desiredIntensity = 1;
 		self.totalLoopNumber = 0;
 		self.endTune = false;
 		self.MUSIC_STATE = "Intro";
@@ -1281,8 +1283,6 @@ function YeOldeSongsScript:UpdateScript()
 			end
 		end
 	end
-				
-	
 	
 	if self.dynamicMusic == true then
 
@@ -1310,6 +1310,10 @@ function YeOldeSongsScript:UpdateScript()
 			end
 		elseif self.MUSIC_STATE == "Rest" then
 			if self.restTimer:IsPastRealMS(self.restTime) then
+				self.Intensity = 1;
+				self.desiredIntensity = 1;
+				self.Intensity = 1;
+				self.desiredIntensity = 1;
 				self.totalLoopNumber = 0;
 				self.endTune = false;
 				self.MUSIC_STATE = "Intro";
@@ -1361,10 +1365,22 @@ function YeOldeSongsScript:UpdateScript()
 				if self.nextDecided ~= true then
 					self.nextDecided = true;
 					
-					if self.loopNumber % (math.floor(2.5 + (self.Intensity/2))) == 0 then
-						-- higher intensities decay slower
+					if self.loopNumber % (math.floor(2 + (self.Intensity/4))) == 0 then
+						-- higher intensities decay a little slower
 						self.desiredIntensity = self.desiredIntensity - 0.5;
 						
+					end
+					
+					if self.totalLoopNumber == 0 then
+						self.actorTable = {};
+						-- game sometimes wigs out and reports a bunch of addedactors that don't exist and then
+						-- causes us to have too many dead
+						-- i'm looking at you dummyassault
+						for actor in MovableMan.Actors do
+							if IsAHuman(actor) or IsACrab(actor) then
+								self.actorTable[actor.UniqueID] = actor.Team;
+							end
+						end
 					end
 					
 					for uniqueID, team in pairs(self.actorTable) do
@@ -1390,7 +1406,7 @@ function YeOldeSongsScript:UpdateScript()
 								
 					self.desiredIntensity = math.max(2, math.min(#self.currentTune.intensityTables, math.floor(self.desiredIntensity)));
 					
-					print(self.desiredIntensity);
+					--print(self.desiredIntensity);
 					
 					local index
 					
@@ -1545,6 +1561,8 @@ function YeOldeSongsScript:UpdateScript()
 		or (self.editingMusic == true and self.activity.ActivityState ~= Activity.EDITING) then
 			self.editingMusic = false;
 			AudioMan:StopMusic();
+			self.Intensity = 1;
+			self.desiredIntensity = 1;
 			self.MUSIC_STATE = "Intro";
 			self.currentIndex = 1;
 			self.totalLoopNumber = 0;

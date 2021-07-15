@@ -289,7 +289,7 @@ function CrusaderAIBehaviours.handleHealth(self)
 	
 		if self:NumberValueExists("Death By Fire") then
 			self:RemoveNumberValue("Death By Fire");
-			KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 		end
 	
 		self.oldHealth = self.Health;
@@ -615,7 +615,13 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 
 	if self:NumberValueExists("Death By Fire") then
 		self:RemoveNumberValue("Death By Fire");
-		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+	end
+	
+	if self:NumberValueExists("Blocked Bullet Mordhau") then
+		self:RemoveNumberValue("Blocked Bullet Mordhau");
+		self.Suppression = self.Suppression + 3;
+		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedLight, 2, 0);
 	end
 
 	-- DEVICE RELATED VOICELINES

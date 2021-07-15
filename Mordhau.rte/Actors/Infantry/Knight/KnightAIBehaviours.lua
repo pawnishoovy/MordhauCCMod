@@ -615,6 +615,12 @@ function KnightAIBehaviours.handleVoicelines(self)
 		self:RemoveNumberValue("Death By Fire");
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
+	
+	if self:NumberValueExists("Blocked Bullet Mordhau") then
+		self:RemoveNumberValue("Blocked Bullet Mordhau");
+		self.Suppression = self.Suppression + 3;
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedLight, 2, 0);
+	end
 
 	-- DEVICE RELATED VOICELINES
 	
