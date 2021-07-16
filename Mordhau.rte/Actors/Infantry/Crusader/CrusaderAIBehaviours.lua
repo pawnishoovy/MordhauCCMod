@@ -618,10 +618,15 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
 	
-	if self:NumberValueExists("Blocked Bullet Mordhau") then
-		self:RemoveNumberValue("Blocked Bullet Mordhau");
+	if self:NumberValueExists("Blocked Mordhau") then
+		self:RemoveNumberValue("Blocked Mordhau");
 		self.Suppression = self.Suppression + 3;
 		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedLight, 2, 0);
+		if self:NumberValueExists("Blocked Heavy Mordhau") then
+			self:RemoveNumberValue("Blocked Heavy Mordhau");
+			self.Suppression = self.Suppression + 7;
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedMedium, 3, 0);
+		end
 	end
 
 	-- DEVICE RELATED VOICELINES
@@ -658,7 +663,10 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 				end			
 				
 			elseif self.EquippedItem:IsInGroup("Weapons - Melee") then
-				if self:NumberValueExists("Light Attack") then
+				if self:NumberValueExists("Block Foley") then
+					self:RemoveNumberValue("Block Foley");
+					self.movementSounds.AttackLight:Play(self.Pos);
+				elseif self:NumberValueExists("Light Attack") then
 					self:RemoveNumberValue("Light Attack");
 					CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
 					self.movementSounds.AttackLight:Play(self.Pos);

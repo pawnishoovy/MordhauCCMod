@@ -7,6 +7,8 @@ function OnDetach(self)
 	self.currentAttackStart = false
 	self.attackAnimationIsPlaying = false
 	
+	self.rotationInterpolationSpeed = 25;
+	
 	self.canBlock = false;
 	
 end

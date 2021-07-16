@@ -10,6 +10,7 @@ function playAttackAnimation(self, animation)
 	self.currentAttackAnimation = animation
 	self.attackAnimationTimer:Reset()
 	self.attackAnimationCanHit = true
+	self.blockedNullifier = true;
 	return
 end
 --[[
@@ -35,12 +36,14 @@ function Create(self)
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
-	self.baseRotation = -0.6;
+	self.originalBaseRotation = -35;
+	self.baseRotation = -35;
 	
 	self.attackAnimations = {}
 	self.attackAnimationCanHit = false
 	self.attackAnimationsSounds = {}
 	self.attackAnimationsGFX = {}
+	self.attackAnimationsTypes = {}
 	self.attackAnimationTimer = Timer();
 	
 	self.currentAttackAnimation = 0;
@@ -74,6 +77,18 @@ function Create(self)
 	local regularAttackSounds = {}
 	local i
 	
+	self.blockedSound = CreateSoundContainer("Blocked Longsword Mordhau", "Mordhau.rte");
+	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Longsword Mordhau", "Mordhau.rte");
+	
+	self.blockSounds = {};
+	self.blockSounds.Slash = CreateSoundContainer("Slash Block Longsword Mordhau", "Mordhau.rte");
+	self.blockSounds.Stab = CreateSoundContainer("Stab Block Longsword Mordhau", "Mordhau.rte");
+	
+	self.blockGFX = {};
+	self.blockGFX.Slash = "Slash Block Effect Mordhau";
+	self.blockGFX.Stab = "Stab Block Effect Mordhau";
+	self.blockGFX.Heavy = "Heavy Block Effect Mordhau";
+	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
@@ -106,18 +121,21 @@ function Create(self)
 	
 	-- Regular Attack
 	attackPhase = {}
+	attackPhase.Type = "Slash";
 	
 	-- Prepare
 	i = 1
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 150
 	
+	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].attackRange = 0
 	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 6
 	attackPhase[i].frameEnd = 6
@@ -137,12 +155,14 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 250
 	
+	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].attackRange = 0
 	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 6
 	attackPhase[i].frameEnd = 6
@@ -162,12 +182,14 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 110
 	
+	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 7
 	attackPhase[i].frameEnd = 11
@@ -185,12 +207,14 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 30
 	
+	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 11
 	attackPhase[i].frameEnd = 11
@@ -208,6 +232,7 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 110
 	
+	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
@@ -232,12 +257,14 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 100
 	
+	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].attackRange = 0
 	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 6
 	attackPhase[i].frameEnd = 7
@@ -257,12 +284,14 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 100
 	
+	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].attackRange = 0
 	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 7
 	attackPhase[i].frameEnd = 6
@@ -281,21 +310,25 @@ function Create(self)
 	self.attackAnimationsSounds[1] = regularAttackSounds
 	self.attackAnimationsGFX[1] = regularAttackGFX
 	self.attackAnimations[1] = attackPhase
+	self.attackAnimationsTypes[1] = attackPhase.Type
 	
 	-- Charge Attack (stab)
 	chargeAttackPhase = {}
+	chargeAttackPhase.Type = "Stab";
 	
 	-- Prepare
 	i = 1
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 150
 	
+	chargeAttackPhase[i].canBeBlocked = false
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
 	chargeAttackPhase[i].attackStunChance = 0
 	chargeAttackPhase[i].attackRange = 0
 	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
@@ -315,12 +348,14 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 350
 	
+	chargeAttackPhase[i].canBeBlocked = false
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
 	chargeAttackPhase[i].attackStunChance = 0
 	chargeAttackPhase[i].attackRange = 0
 	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
@@ -340,12 +375,14 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 110
 	
+	chargeAttackPhase[i].canBeBlocked = true
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 4
 	chargeAttackPhase[i].attackStunChance = 0.15
 	chargeAttackPhase[i].attackRange = 20
 	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
@@ -363,12 +400,14 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 30
 	
+	chargeAttackPhase[i].canBeBlocked = true
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 4
 	chargeAttackPhase[i].attackStunChance = 0.15
 	chargeAttackPhase[i].attackRange = 20
 	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(0, -8) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 6
@@ -386,6 +425,7 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 110
 	
+	chargeAttackPhase[i].canBeBlocked = true
 	chargeAttackPhase[i].canDamage = true
 	chargeAttackPhase[i].attackDamage = 4
 	chargeAttackPhase[i].attackStunChance = 0.15
@@ -410,12 +450,14 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 100
 	
+	chargeAttackPhase[i].canBeBlocked = false
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
 	chargeAttackPhase[i].attackStunChance = 0
 	chargeAttackPhase[i].attackRange = 0
 	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 6
 	chargeAttackPhase[i].frameEnd = 7
@@ -435,12 +477,14 @@ function Create(self)
 	chargeAttackPhase[i] = {}
 	chargeAttackPhase[i].durationMS = 100
 	
+	chargeAttackPhase[i].canBeBlocked = false
 	chargeAttackPhase[i].canDamage = false
 	chargeAttackPhase[i].attackDamage = 0
 	chargeAttackPhase[i].attackStunChance = 0
 	chargeAttackPhase[i].attackRange = 0
 	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	chargeAttackPhase[i].attackAngle = 90;
 	
 	chargeAttackPhase[i].frameStart = 7
 	chargeAttackPhase[i].frameEnd = 6
@@ -459,6 +503,7 @@ function Create(self)
 	self.attackAnimationsSounds[2] = chargeAttackSounds
 	self.attackAnimationsGFX[2] = regularAttackGFX
 	self.attackAnimations[2] = chargeAttackPhase
+	self.attackAnimationsTypes[2] = chargeAttackPhase.Type
 	
 	-- replace with your own code if you wish
 	
@@ -482,7 +527,7 @@ function Create(self)
 	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
-	self.rotationInterpolationSpeed = 35
+	self.rotationInterpolationSpeed = 25
 	
 	self.stance = Vector(0, 0)
 	self.stanceInterpolation = 0 -- 0 instant, 1 smooth
@@ -490,6 +535,11 @@ function Create(self)
 end
 
 function Update(self)
+
+	if UInputMan:KeyPressed(38) then
+		self:ReloadScripts();
+	end
+
 	local act = self:GetRootParent();
 	local actor = MovableMan:IsActor(act) and ToActor(act) or nil;
 	local player = false
@@ -523,21 +573,7 @@ function Update(self)
 		end
 		]]
 	--else
-	
-	if self.WoundCount > self.woundCounter then
-		if math.random(0, 100) > 85 then
-			if self.parent then
-				self.parent:SetNumberValue("Blocked Bullet Mordhau", 1);
-			end
-		end
-		if math.random(0, 100) > 20 then
-			self:RemoveWounds(self.WoundCount - self.woundCounter);
-		else
-			self.woundCounter = self.WoundCount
-			self.breakSound:Play(self.Pos);
-		end
-	end
-	
+
 	if (true) then --          :-)
 	
 		-- INPUT
@@ -593,6 +629,12 @@ function Update(self)
 		-- replace with your own code if you wish
 		-- default "regular attack and charged attack behaviour"
 		if attacked then
+			self.Blocking = false;
+			
+			stanceTarget = Vector(0, 0);
+			
+			self.originalBaseRotation = -35;
+			self.baseRotation = -35;
 			if self.isCharged then
 				self.isCharged = false
 				self.wasCharged = true;
@@ -607,12 +649,34 @@ function Update(self)
 		local stanceTarget = Vector(0, 0)
 		local rotationTarget = 0
 		
+		local canBeBlocked = false
 		local canDamage = false
 		local damageVector = Vector(0,0)
 		local damageRange = 1
 		local damageStun = 0
 		local damagePush = 1
 		local damage = 0
+		
+		if self.WoundCount > self.woundCounter then
+			self.rotationInterpolationSpeed = 50;
+			local mult = 1 * (self.WoundCount - self.woundCounter);
+			if math.random(0, 100) > 50 then
+				mult = mult * -1;
+			end
+			self.baseRotation = self.baseRotation - math.random(1, 15) * mult
+			if math.random(0, 100) > 85 then
+				if self.parent then
+					self.parent:SetNumberValue("Blocked Mordhau", 1);
+				end
+			end
+			if math.random(0, 100) > 20 then
+				self:RemoveWounds(self.WoundCount - self.woundCounter);
+			else
+				self.woundCounter = self.WoundCount
+				self.breakSound:Play(self.Pos);
+			end
+		end
+	
 		
 		-- charge animation, remove/replace it if you wish
 		local chargeFactor = math.min(self.chargeTimer.ElapsedSimTimeMS / self.chargeTime, 1)
@@ -621,6 +685,8 @@ function Update(self)
 		
 		
 		if self.attackAnimationIsPlaying and currentAttackAnimation ~= 0 then -- play the animation
+		
+			self.rotationInterpolationSpeed = 25;
 		
 			if self.VOValueSet ~= true then
 				self.parent:SetNumberValue("Medium Attack", 1);
@@ -640,7 +706,12 @@ function Update(self)
 				end
 			end
 			
+			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
+			if self.blockedNullifier == false then
+				canDamage = false;
+				canBeBlocked = false;
+			end
 			damage = currentPhase.attackDamage or 0
 			damageVector = currentPhase.attackVector or Vector(0,0)
 			damageAngle = currentPhase.attackAngle or 0
@@ -678,11 +749,101 @@ function Update(self)
 				canDamage = false
 			end
 		else -- default behaviour, modify it if you wish
-			rotationTarget = self.baseRotation;
+		
+			if self.baseRotation < self.originalBaseRotation then
+				self.baseRotation = self.baseRotation + 1;
+			elseif self.baseRotation > self.originalBaseRotation then
+				self.baseRotation = self.baseRotation + -1;
+			end
+			
+			rotationTarget = self.baseRotation / 180 * math.pi;
+			
+			if player then
+				local keyPress = UInputMan:KeyPressed(18) or (UInputMan:KeyHeld(18) and self.Blocking == false);
+				if keyPress and not (self.isCharging or self.attackAnimationIsPlaying) then
+				
+					self.parent:SetNumberValue("Block Foley", 1);
+				
+					self.Blocking = true;
+					
+					self:SetNumberValue("Blocking", 1);
+					
+					stanceTarget = Vector(4, -10);
+					
+					self.originalBaseRotation = -160;
+					self.baseRotation = -145;
+				
+				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.isCharging or self.attackAnimationIsPlaying) then
+				
+					self.originalBaseRotation = -160;
+				
+					stanceTarget = Vector(4, -10);
+				
+				elseif UInputMan:KeyReleased(18) then
+				
+					self.parent:SetNumberValue("Block Foley", 1);
+				
+					self.Blocking = false;
+					
+					self:RemoveNumberValue("Blocking");
+					
+					self.originalBaseRotation = -35;
+					self.baseRotation = -45;
+				
+				else
+					
+					self.Blocking = false;
+					
+					self:RemoveNumberValue("Blocking");
+					
+					self.originalBaseRotation = -35;
+					self.baseRotation = -45;
+					
+				end
+			else
+			
+				self.Blocking = true;
+				
+				self:SetNumberValue("Blocking", 1);
+				
+				stanceTarget = Vector(4, -10);
+				
+				self.originalBaseRotation = -160;
+				self.baseRotation = -160;
+				
+			end
+				
+			
 			if self:IsAttached() then
 				self.Frame = 6;
 			else
 				self.Frame = 1;
+			end
+		end
+		
+		if self.Blocking == true then
+			
+			if self:StringValueExists("Blocked Type") then
+			
+				if self.parent then
+					self.parent:SetNumberValue("Blocked Mordhau", 1);
+				end
+			
+				self.rotationInterpolationSpeed = 50;
+				self.baseRotation = self.baseRotation - (math.random(15, 20) * -1)
+				
+				self.blockSounds[self:GetStringValue("Blocked Type")]:Play(self.Pos);
+				self:RemoveStringValue("Blocked Type");
+				if self:NumberValueExists("Blocked Heavy") then
+				
+					if self.parent then
+						self.parent:SetNumberValue("Blocked Heavy Mordhau", 1);
+					end				
+				
+					self:RemoveNumberValue("Blocked Heavy");
+					self.heavyBlockAddSound:Play(self.Pos);
+					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
+				end
 			end
 		end
 		
@@ -696,7 +857,7 @@ function Update(self)
 		if self.rotationInterpolation == 0 then
 			self.rotation = rotationTarget
 		elseif self.rotationInterpolation == 1 then
-			self.rotation = (self.rotation + rotationTarget * TimerMan.DeltaTimeSecs * self.stanceInterpolationSpeed) / (1 + TimerMan.DeltaTimeSecs * self.stanceInterpolationSpeed);
+			self.rotation = (self.rotation + rotationTarget * TimerMan.DeltaTimeSecs * self.rotationInterpolationSpeed) / (1 + TimerMan.DeltaTimeSecs * self.rotationInterpolationSpeed);
 		end
 		local pushVector = Vector(10 * self.FlipFactor, 0):RadRotate(self.RotAngle)
 		
@@ -710,7 +871,7 @@ function Update(self)
 		-- COLLISION DETECTION
 		
 		--self.attackAnimationsSounds[1]
-		if canDamage and self.attackAnimationCanHit then -- Detect collision
+		if canBeBlocked and self.attackAnimationCanHit then -- Detect collision
 			--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + attackOffset,  13);
 			local hit = false
 			local hitType = 0
@@ -722,12 +883,13 @@ function Update(self)
 			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
-			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
+			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, -3, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
-				hit = true
-				if IsMOSRotating(MO) then
+				if (IsMOSRotating(MO) and canDamage) and not MO:IsInGroup("Weapons - Mordhau Melee") then
+					self.isCharged = false
+					hit = true
 					MO = ToMOSRotating(MO)
 					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
 					local crit = RangeRand(0, 1) < damageStun
@@ -856,9 +1018,34 @@ function Update(self)
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end
 					end
+				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
+					hit = true;
+					MO = ToHeldDevice(MO);
+					if MO:NumberValueExists("Blocking") then
+						self.blockedNullifier = false;
+						self.attackAnimationCanHit = false;
+						self.blockedSound:Play(self.Pos);
+						MO:SetStringValue("Blocked Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+						local effect = CreateMOSRotating(self.blockGFX[self.attackAnimationsTypes[self.currentAttackAnimation]], "Mordhau.rte");
+						if effect then
+							effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+							MovableMan:AddParticle(effect);
+							effect:GibThis();
+						end
+						if self.wasCharged then
+							local effect = CreateMOSRotating(self.blockGFX.Heavy, "Mordhau.rte");
+							if effect then
+								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+								MovableMan:AddParticle(effect);
+								effect:GibThis();
+							end
+							MO:SetNumberValue("Blocked Heavy", 1);
+						end
+					else
+						hit = false; -- keep going and looking
+					end
 				end
-				self.isCharged = false
-			else
+			elseif canDamage then
 				local terrCheck = SceneMan:CastMaxStrengthRay(rayOrigin, rayOrigin + rayVec, 2); -- Raycast
 				if terrCheck > 5 then
 					local rayHitPos = SceneMan:GetLastRayHitPos()
