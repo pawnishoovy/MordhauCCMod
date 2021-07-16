@@ -11,6 +11,11 @@ function playAttackAnimation(self, animation)
 	self.attackAnimationTimer:Reset()
 	self.attackAnimationCanHit = true
 	self.blockedNullifier = true;
+	self.Recovering = false;
+	self.attackBuffered = false;
+	self.stabBuffered = false;
+	self.overheadBuffered = false;
+	
 	return
 end
 --[[
@@ -99,17 +104,17 @@ function Create(self)
 	
 	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
 	
-	local chargeAttackSounds = {}
+	local stabAttackSounds = {}
 	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
-	--chargeAttackSounds.hitDefaultSound
-	--chargeAttackSounds.hitDefaultSoundVariations
+	--stabAttackSounds.hitDefaultSound
+	--stabAttackSounds.hitDefaultSoundVariations
 	
-	chargeAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Longsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
 	
 	local regularAttackGFX = {}
 	
@@ -155,6 +160,7 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 250
 	
+	attackPhase[i].lastPrepare = true
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -188,7 +194,7 @@ function Create(self)
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 7
@@ -213,7 +219,7 @@ function Create(self)
 	attackPhase[i].attackStunChance = 0.15
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 11
@@ -257,6 +263,7 @@ function Create(self)
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 100
 	
+	attackPhase[i].firstRecvoery = true
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -312,218 +319,345 @@ function Create(self)
 	self.attackAnimations[1] = attackPhase
 	self.attackAnimationsTypes[1] = attackPhase.Type
 	
-	-- Charge Attack (stab)
-	chargeAttackPhase = {}
-	chargeAttackPhase.Type = "Stab";
+	-- (stab)
+	stabAttackPhase = {}
+	stabAttackPhase.Type = "Stab";
 	
 	-- Prepare
 	i = 1
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 150
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 150
 	
-	chargeAttackPhase[i].canBeBlocked = false
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 0
-	chargeAttackPhase[i].attackStunChance = 0
-	chargeAttackPhase[i].attackRange = 0
-	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -45
-	chargeAttackPhase[i].angleEnd = -60
-	chargeAttackPhase[i].offsetStart = Vector(0, 0)
-	chargeAttackPhase[i].offsetEnd = Vector(-2, -3)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -45
+	stabAttackPhase[i].angleEnd = -60
+	stabAttackPhase[i].offsetStart = Vector(0, 0)
+	stabAttackPhase[i].offsetEnd = Vector(-2, -3)
 	
-	chargeAttackPhase[i].soundStart = nil
-	chargeAttackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	chargeAttackPhase[i].soundEnd = nil
-	chargeAttackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Late Prepare
 	i = 2
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 350
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 350
 	
-	chargeAttackPhase[i].canBeBlocked = false
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 0
-	chargeAttackPhase[i].attackStunChance = 0
-	chargeAttackPhase[i].attackRange = 0
-	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].lastPrepare = true
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -60
-	chargeAttackPhase[i].angleEnd = -70
-	chargeAttackPhase[i].offsetStart = Vector(-2, -3)
-	chargeAttackPhase[i].offsetEnd = Vector(-3, -4)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -60
+	stabAttackPhase[i].angleEnd = -70
+	stabAttackPhase[i].offsetStart = Vector(-2, -3)
+	stabAttackPhase[i].offsetEnd = Vector(-3, -4)
 	
-	chargeAttackPhase[i].soundStart = nil
-	chargeAttackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	chargeAttackPhase[i].soundEnd = nil
-	chargeAttackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Early Attack
 	i = 3
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 110
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 110
 	
-	chargeAttackPhase[i].canBeBlocked = true
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
-	chargeAttackPhase[i].attackRange = 20
-	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackRange = 20
+	stabAttackPhase[i].attackPush = 0.8
+	stabAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -70
-	chargeAttackPhase[i].angleEnd = -80
-	chargeAttackPhase[i].offsetStart = Vector(-3, -4)
-	chargeAttackPhase[i].offsetEnd = Vector(0, -5)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -70
+	stabAttackPhase[i].angleEnd = -80
+	stabAttackPhase[i].offsetStart = Vector(-3, -4)
+	stabAttackPhase[i].offsetEnd = Vector(0, -5)
 	
-	chargeAttackPhase[i].soundStart = CreateSoundContainer("Stab Longsword Mordhau", "Mordhau.rte");
+	stabAttackPhase[i].soundStart = CreateSoundContainer("Stab Longsword Mordhau", "Mordhau.rte");
 	
-	chargeAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
 	-- Early Attack
 	i = 4
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 30
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 30
 	
-	chargeAttackPhase[i].canBeBlocked = true
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
-	chargeAttackPhase[i].attackRange = 20
-	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackRange = 20
+	stabAttackPhase[i].attackPush = 0.8
+	stabAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -80
-	chargeAttackPhase[i].angleEnd = -90
-	chargeAttackPhase[i].offsetStart = Vector(0, -5)
-	chargeAttackPhase[i].offsetEnd = Vector(4, -6)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -80
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(0, -5)
+	stabAttackPhase[i].offsetEnd = Vector(4, -6)
 	
-	chargeAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStart = nil
 	
-	chargeAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
 	-- Attack
 	i = 5
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 110
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 110
 	
-	chargeAttackPhase[i].canBeBlocked = true
-	chargeAttackPhase[i].canDamage = true
-	chargeAttackPhase[i].attackDamage = 4
-	chargeAttackPhase[i].attackStunChance = 0.15
-	chargeAttackPhase[i].attackRange = 15
-	chargeAttackPhase[i].attackPush = 0.8
-	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = true
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackRange = 15
+	stabAttackPhase[i].attackPush = 0.8
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -90
-	chargeAttackPhase[i].angleEnd = -90
-	chargeAttackPhase[i].offsetStart = Vector(4 , -6)
-	chargeAttackPhase[i].offsetEnd = Vector(15, -6)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(4 , -6)
+	stabAttackPhase[i].offsetEnd = Vector(15, -6)
 	
-	chargeAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStart = nil
 	
-	chargeAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
 	-- Early Recover
 	i = 6
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 100
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 100
 	
-	chargeAttackPhase[i].canBeBlocked = false
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 0
-	chargeAttackPhase[i].attackStunChance = 0
-	chargeAttackPhase[i].attackRange = 0
-	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].firstRecvoery = true
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 6
-	chargeAttackPhase[i].frameEnd = 7
-	chargeAttackPhase[i].angleStart = -90
-	chargeAttackPhase[i].angleEnd = -60
-	chargeAttackPhase[i].offsetStart = Vector(15, -6)
-	chargeAttackPhase[i].offsetEnd = Vector(7, -3)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 7
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -60
+	stabAttackPhase[i].offsetStart = Vector(15, -6)
+	stabAttackPhase[i].offsetEnd = Vector(7, -3)
 	
-	chargeAttackPhase[i].soundStart = nil
-	chargeAttackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	chargeAttackPhase[i].soundEnd = nil
-	chargeAttackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Recover
 	i = 7
-	chargeAttackPhase[i] = {}
-	chargeAttackPhase[i].durationMS = 100
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 100
 	
-	chargeAttackPhase[i].canBeBlocked = false
-	chargeAttackPhase[i].canDamage = false
-	chargeAttackPhase[i].attackDamage = 0
-	chargeAttackPhase[i].attackStunChance = 0
-	chargeAttackPhase[i].attackRange = 0
-	chargeAttackPhase[i].attackPush = 0
-	chargeAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	chargeAttackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	chargeAttackPhase[i].frameStart = 7
-	chargeAttackPhase[i].frameEnd = 6
-	chargeAttackPhase[i].angleStart = -60
-	chargeAttackPhase[i].angleEnd = -45
-	chargeAttackPhase[i].offsetStart = Vector(7, -3)
-	chargeAttackPhase[i].offsetEnd = Vector(3, 0)
+	stabAttackPhase[i].frameStart = 7
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -60
+	stabAttackPhase[i].angleEnd = -45
+	stabAttackPhase[i].offsetStart = Vector(7, -3)
+	stabAttackPhase[i].offsetEnd = Vector(3, 0)
 	
-	chargeAttackPhase[i].soundStart = nil
-	chargeAttackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	chargeAttackPhase[i].soundEnd = nil
-	chargeAttackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Add the animation to the animation table
-	self.attackAnimationsSounds[2] = chargeAttackSounds
+	self.attackAnimationsSounds[2] = stabAttackSounds
 	self.attackAnimationsGFX[2] = regularAttackGFX
-	self.attackAnimations[2] = chargeAttackPhase
-	self.attackAnimationsTypes[2] = chargeAttackPhase.Type
+	self.attackAnimations[2] = stabAttackPhase
+	self.attackAnimationsTypes[2] = stabAttackPhase.Type
 	
-	-- replace with your own code if you wish
+	-- Charged Attack
+
+	overheadAttackPhase = {}
+	overheadAttackPhase.Type = "Slash";
 	
-	-- default "regular attack and charged attack behaviour"
+	-- Prepare
+	i = 1
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 150
 	
-	self.startedCharging = false
-	self.isCharging = false
-	self.isCharged = false
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	self.chargeStartTimer = Timer()
-	self.chargeStartTime = 200
-	self.chargeTimer = Timer()
-	self.chargeTime = 700
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 0
+	overheadAttackPhase[i].angleEnd = 25
+	overheadAttackPhase[i].offsetStart = Vector(0, 0)
+	overheadAttackPhase[i].offsetEnd = Vector(4,-13)
 	
-	self.chargeStanceOffset = Vector(-1,-6)
-	self.chargeAngle = 3
+	-- Late Prepare
+	i = 2
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 350
 	
-	self.chargeSound = nil;
+	overheadAttackPhase[i].lastPrepare = true
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	self.chargeEndSound = nil;
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 25
+	overheadAttackPhase[i].angleEnd = 27
+	overheadAttackPhase[i].offsetStart = Vector(4, -13)
+	overheadAttackPhase[i].offsetEnd = Vector(4, -13)
+	
+	overheadAttackPhase[i].soundStart = nil
+	overheadAttackPhase[i].soundStartVariations = 0
+	
+	overheadAttackPhase[i].soundEnd = nil
+	overheadAttackPhase[i].soundEndVariations = 0
+	
+	-- Early Attack
+	i = 3
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 40
+	
+	overheadAttackPhase[i].canBeBlocked = true
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 5
+	overheadAttackPhase[i].attackStunChance = 0.3
+	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackPush = 0.8
+	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackAngle = 55;
+	
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 27
+	overheadAttackPhase[i].angleEnd = 20
+	overheadAttackPhase[i].offsetStart = Vector(4, -13)
+	overheadAttackPhase[i].offsetEnd = Vector(6, -10)
+	
+	overheadAttackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	
+	overheadAttackPhase[i].soundEnd = nil
+	
+	-- Attack
+	i = 4
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 120
+	
+	overheadAttackPhase[i].canBeBlocked = true
+	overheadAttackPhase[i].canDamage = true
+	overheadAttackPhase[i].attackDamage = 5
+	overheadAttackPhase[i].attackStunChance = 0.3
+	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackPush = 0.8
+	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackAngle = 55;
+	
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 20
+	overheadAttackPhase[i].angleEnd = -150
+	overheadAttackPhase[i].offsetStart = Vector(6, -10)
+	overheadAttackPhase[i].offsetEnd = Vector(15, 15)
+	
+	-- Early Recover
+	i = 5
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 60
+	
+	overheadAttackPhase[i].firstRecvoery = true	
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = -120
+	overheadAttackPhase[i].angleEnd = -150
+	overheadAttackPhase[i].offsetStart = Vector(15, 15)
+	overheadAttackPhase[i].offsetEnd = Vector(10, 15)
+	
+	-- Recover
+	i = 6
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 250
+	
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = -120
+	overheadAttackPhase[i].angleEnd = -50
+	overheadAttackPhase[i].offsetStart = Vector(10, 15)
+	overheadAttackPhase[i].offsetEnd = Vector(3, -5)
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[3] = regularAttackSounds
+	self.attackAnimationsGFX[3] = regularAttackGFX
+	self.attackAnimations[3] = overheadAttackPhase
+	self.attackAnimationsTypes[3] = overheadAttackPhase.Type
 	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
@@ -543,9 +677,11 @@ function Update(self)
 	local act = self:GetRootParent();
 	local actor = MovableMan:IsActor(act) and ToActor(act) or nil;
 	local player = false
+	local controller = nil
 	if actor then
 		--ToActor(actor):GetController():SetState(Controller.WEAPON_RELOAD,false);
-		actor:GetController():SetState(Controller.AIM_SHARP,false);
+		controller = actor:GetController();
+		controller:SetState(Controller.AIM_SHARP,false);
 		self.parent = actor;
 		if actor:IsPlayerControlled() then
 			player = true
@@ -577,72 +713,93 @@ function Update(self)
 	if (true) then --          :-)
 	
 		-- INPUT
-		local charge = false
+		local stab = (player and UInputMan:KeyPressed(3)) or self.stabBuffered;
+		local overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
+		if stab or overhead or self.attackBuffered == true then
+			controller:SetState(Controller.PRESS_PRIMARY, true)
+			self:Activate();
+		end
+		local attack = controller:IsState(Controller.PRESS_PRIMARY);
+		if self:IsActivated() and self.attackCooldown == true then
+			self:Deactivate();
+		else
+			self.attackBuffered = false;
+			self.attackCooldown = false;
+		end
+		local activated = self:IsActivated();
 		local attacked = false
 		
-		if player then -- PLAYER INPUT
-			charge = (self:IsActivated() and not self.isCharged) or (self.isCharging and not self.isCharged)
-		else -- AI
-			attacked = self:IsActivated() and not self.attackAnimationIsPlaying
-		end
+		-- if player then -- PLAYER INPUT
+			-- charge = (self:IsActivated() and not self.isCharged) or (self.isCharging and not self.isCharged)
+		-- else -- AI
+		attacked = activated and not self.attackAnimationIsPlaying
+		-- end
 		
 		-- replace with your own code if you wish
 		-- default "regular attack and charged attack behaviour"
 		
-		if charge and not self.attackAnimationIsPlaying then
-			if not self.startedCharging then
-				self.startedCharging = true
-			end
-			if not self.isCharging and self.chargeStartTimer:IsPastSimMS(self.chargeStartTime) then
-				self.isCharging = true
-				if self.chargeSound then
-					self.chargeSound:Play(self.Pos);
-				end
-				if self.VOValueSet ~= true then
-					self.parent:SetNumberValue("Large Attack", 1);
-					self.VOValueSet = true;
-				end
-			end
+		-- if charge and not self.attackAnimationIsPlaying then
+			-- if not self.startedCharging then
+				-- self.startedCharging = true
+			-- end
+			-- if not self.isCharging and self.chargeStartTimer:IsPastSimMS(self.chargeStartTime) then
+				-- self.isCharging = true
+				-- if self.chargeSound then
+					-- self.chargeSound:Play(self.Pos);
+				-- end
+			-- end
 			
-			if self.isCharging then
-				if self.chargeTimer:IsPastSimMS(self.chargeTime) then
-					if not self.isCharged then
-						self.isCharged = true
-					end
-				end
-			end
-		else
-			self.chargeStartTimer:Reset()
-			self.chargeTimer:Reset()
-			if self.isCharging or self.startedCharging then
-				self.isCharging = false
-				self.startedCharging = false
-				if self.chargeEndSound then
-					self.chargeEndSound:Play(self.Pos);
-				end
-				attacked = true
-			end
-		end
+			-- if self.isCharging then
+				-- if self.chargeTimer:IsPastSimMS(self.chargeTime) then
+					-- if not self.isCharged then
+						-- self.isCharged = true
+					-- end
+				-- end
+			-- end
+		-- else
+			-- self.chargeStartTimer:Reset()
+			-- self.chargeTimer:Reset()
+			-- if self.isCharging or self.startedCharging then
+				-- self.isCharging = false
+				-- self.startedCharging = false
+				-- if self.chargeEndSound then
+					-- self.chargeEndSound:Play(self.Pos);
+				-- end
+				-- attacked = true
+			-- end
+		-- end
 		
 		-- INPUT TO OUTPUT
 		
 		-- replace with your own code if you wish
 		-- default "regular attack and charged attack behaviour"
 		if attacked then
+		
+			self.chargeDecided = false;
+		
 			self.Blocking = false;
 			
 			stanceTarget = Vector(0, 0);
 			
 			self.originalBaseRotation = -35;
 			self.baseRotation = -35;
-			if self.isCharged then
-				self.isCharged = false
-				self.wasCharged = true;
-				playAttackAnimation(self, 2) -- charged attack
-				self.parent:SetNumberValue("Medium Attack", 1); --here for extra movement sounds on parent knight
-			else
+			
+			if not stab and not overhead then
 				playAttackAnimation(self, 1) -- regular attack
+			elseif stab then
+				playAttackAnimation(self, 2) -- stab
+			elseif overhead then
+				playAttackAnimation(self, 3) -- overhead
 			end
+			
+			-- if self.isCharged then
+				-- self.isCharged = false
+				-- self.wasCharged = true;
+				-- playAttackAnimation(self, 2) -- charged attack
+				-- self.parent:SetNumberValue("Medium Attack", 1); --here for extra movement sounds on parent knight
+			-- else
+				--playAttackAnimation(self, 1) -- regular attack
+			-- end
 		end
 		
 		-- ANIMATION PLAYER
@@ -677,34 +834,49 @@ function Update(self)
 			end
 		end
 	
-		
-		-- charge animation, remove/replace it if you wish
-		local chargeFactor = math.min(self.chargeTimer.ElapsedSimTimeMS / self.chargeTime, 1)
-		stanceTarget = stanceTarget + self.chargeStanceOffset * chargeFactor
-		rotationTarget = rotationTarget + self.chargeAngle / 180 * math.pi * chargeFactor
-		
-		
 		if self.attackAnimationIsPlaying and currentAttackAnimation ~= 0 then -- play the animation
 		
 			self.rotationInterpolationSpeed = 25;
 		
-			if self.VOValueSet ~= true then
-				self.parent:SetNumberValue("Medium Attack", 1);
-				self.VOValueSet = true;
-			end
-		
 			local animation = self.currentAttackAnimation
 			local attackPhases = self.attackAnimations[animation]
 			local currentPhase = attackPhases[self.currentAttackSequence]
+			local nextPhase = attackPhases[self.currentAttackSequence + 1]
+			
+			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
+				self.chargeDecided = true;
+				if activated then
+					self.wasCharged = true;
+					self.parent:SetNumberValue("Large Attack", 1);
+				else
+					self.wasCharged = false;
+					self.parent:SetNumberValue("Medium Attack", 1);				
+				end
+			elseif currentPhase.firstRecvoery == true then
+				self.Recovering = true;
+			end
+			
+			if self.Recovering == true and attack and not self.attackBuffered then
+				self.attackBuffered = true;
+				if stab then
+					self.stabBuffered = true;
+				elseif overhead then
+					self.overheadBuffered = true;
+				end
+			end
 			
 			local factor = self.attackAnimationTimer.ElapsedSimTimeMS / currentPhase.durationMS
 			
 			if not self.currentAttackStart then -- Start of the sequence
 				self.currentAttackStart = true
 				if currentPhase.soundStart then
+					currentPhase.soundStart.Pitch = self.wasCharged and 0.9 or 1.0;
 					currentPhase.soundStart:Play(self.Pos);
 				end
 			end
+			
+			local heavyAttackFactor = (self.wasCharged and currentPhase.lastPrepare == true) and (currentPhase.durationMS * 2) or 0;
+			local workingDuration = currentPhase.durationMS + heavyAttackFactor;
 			
 			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
@@ -728,11 +900,13 @@ function Update(self)
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 40), "animation = "..animation, true, 0);
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 20), "sequence = "..self.currentAttackSequence, true, 0);
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 30), "factor = "..math.floor(factor * 100).."/100", true, 0);
-			if self.attackAnimationTimer:IsPastSimMS(currentPhase.durationMS) then
+			if self.attackAnimationTimer:IsPastSimMS(workingDuration) then
 				if (self.currentAttackSequence+1) <= #attackPhases then
 					self.currentAttackSequence = self.currentAttackSequence + 1
 				else
-					self.VOValueSet = false;
+					if not self.attackBuffered == true then
+						self.attackCooldown = true;
+					end
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
@@ -760,7 +934,7 @@ function Update(self)
 			
 			if player then
 				local keyPress = UInputMan:KeyPressed(18) or (UInputMan:KeyHeld(18) and self.Blocking == false);
-				if keyPress and not (self.isCharging or self.attackAnimationIsPlaying) then
+				if keyPress and not (self.attackAnimationIsPlaying) then
 				
 					self.parent:SetNumberValue("Block Foley", 1);
 				
@@ -773,7 +947,7 @@ function Update(self)
 					self.originalBaseRotation = -160;
 					self.baseRotation = -145;
 				
-				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.isCharging or self.attackAnimationIsPlaying) then
+				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
 				
 					self.originalBaseRotation = -160;
 				
@@ -888,7 +1062,6 @@ function Update(self)
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
 				if (IsMOSRotating(MO) and canDamage) and not MO:IsInGroup("Weapons - Mordhau Melee") then
-					self.isCharged = false
 					hit = true
 					MO = ToMOSRotating(MO)
 					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)

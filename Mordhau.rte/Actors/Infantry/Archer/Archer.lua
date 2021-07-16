@@ -415,18 +415,6 @@ function Update(self)
 	
 	-- Start modded code--
 	
-	if (UInputMan:KeyPressed(26)) and self:IsPlayerControlled() then
-		self.Health = self.Health -26
-	end
-	
-	if UInputMan:KeyPressed(3) and self:IsPlayerControlled() then
-		self.Health = self.Health -51
-	end
-	
-	if (UInputMan:KeyPressed(24)) and self:IsPlayerControlled() then
-		self.Health = self.Health -6
-	end
-	
 	self.impulse = (self.Vel - self.lastVel) / TimerMan.DeltaTimeSecs * self.Vel.Magnitude * 0.1
 	self.lastVel = Vector(self.Vel.X, self.Vel.Y)
 	
