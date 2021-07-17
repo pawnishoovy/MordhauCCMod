@@ -100,6 +100,10 @@ function Create(self)
 	self.blockGFX.Heavy = "Heavy Block Effect Mordhau";
 	self.blockGFX.Parry = "Parry Effect Mordhau";
 	
+	self.parriedCooldown = false;
+	self.parriedCooldownTimer = Timer();
+	self.parriedCooldownDelay = 1200;
+	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
@@ -665,6 +669,116 @@ function Create(self)
 	self.attackAnimations[3] = overheadAttackPhase
 	self.attackAnimationsTypes[3] = overheadAttackPhase.Type
 	
+	-- Flourish... obviously
+	flourishPhase = {}
+	flourishPhase.Type = "Flourish";
+	
+	-- Surprise
+	i = 1
+	flourishPhase[i] = {}
+	flourishPhase[i].durationMS = 300
+	
+	flourishPhase[i].canBeBlocked = false
+	flourishPhase[i].canDamage = false
+	flourishPhase[i].attackDamage = 0
+	flourishPhase[i].attackStunChance = 0
+	flourishPhase[i].attackRange = 0
+	flourishPhase[i].attackPush = 0
+	flourishPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	flourishPhase[i].attackAngle = 90;
+	
+	flourishPhase[i].frameStart = 6
+	flourishPhase[i].frameEnd = 10
+	flourishPhase[i].angleStart = -25
+	flourishPhase[i].angleEnd = -60
+	flourishPhase[i].offsetStart = Vector(0, 0)
+	flourishPhase[i].offsetEnd = Vector(-6, -5)
+	
+	flourishPhase[i].soundStart = CreateSoundContainer("Flourish Greatsword Mordhau", "Mordhau.rte");
+	
+	-- Bedazzle
+	i = 2
+	flourishPhase[i] = {}
+	flourishPhase[i].durationMS = 300
+	
+	flourishPhase[i].canBeBlocked = false
+	flourishPhase[i].canDamage = false
+	flourishPhase[i].attackDamage = 0
+	flourishPhase[i].attackStunChance = 0
+	flourishPhase[i].attackRange = 0
+	flourishPhase[i].attackPush = 0
+	flourishPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	flourishPhase[i].attackAngle = 0;
+	
+	flourishPhase[i].frameStart = 10
+	flourishPhase[i].frameEnd = 8
+	flourishPhase[i].angleStart = -60
+	flourishPhase[i].angleEnd = 70
+	flourishPhase[i].offsetStart = Vector(-6, -5)
+	flourishPhase[i].offsetEnd = Vector(-6, -5)
+	
+	flourishPhase[i].soundStart = nil
+	flourishPhase[i].soundStartVariations = 0
+	
+	flourishPhase[i].soundEnd = nil
+	flourishPhase[i].soundEndVariations = 0
+	
+	-- Amaze
+	i = 3
+	flourishPhase[i] = {}
+	flourishPhase[i].durationMS = 300
+	
+	flourishPhase[i].lastPrepare = true
+	flourishPhase[i].canBeBlocked = false
+	flourishPhase[i].canDamage = false
+	flourishPhase[i].attackDamage = 3.4
+	flourishPhase[i].attackStunChance = 0.15
+	flourishPhase[i].attackRange = 20
+	flourishPhase[i].attackPush = 0.8
+	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	flourishPhase[i].attackAngle = 0;
+	
+	flourishPhase[i].frameStart = 8
+	flourishPhase[i].frameEnd = 11
+	flourishPhase[i].angleStart = 70
+	flourishPhase[i].angleEnd = 70
+	flourishPhase[i].offsetStart = Vector(-6, -5)
+	flourishPhase[i].offsetEnd = Vector(7, -2)
+	
+	flourishPhase[i].soundEnd = nil
+	
+	-- Bask
+	i = 4
+	flourishPhase[i] = {}
+	flourishPhase[i].durationMS = 300
+	
+	flourishPhase[i].firstRecvoery = false
+	flourishPhase[i].canBeBlocked = false
+	flourishPhase[i].canDamage = false
+	flourishPhase[i].attackDamage = 3.4
+	flourishPhase[i].attackStunChance = 0.15
+	flourishPhase[i].attackRange = 20
+	flourishPhase[i].attackPush = 0.8
+	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	flourishPhase[i].attackAngle = 0;
+	
+	flourishPhase[i].frameStart = 10
+	flourishPhase[i].frameEnd = 6
+	flourishPhase[i].angleStart = 70
+	flourishPhase[i].angleEnd = -25
+	flourishPhase[i].offsetStart = Vector(7, -2)
+	flourishPhase[i].offsetEnd = Vector(7, -2)
+	
+	flourishPhase[i].soundStart = nil
+	
+	flourishPhase[i].soundEnd = nil
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[4] = regularAttackSounds
+	self.attackAnimationsGFX[4] = regularAttackGFX
+	self.attackAnimations[4] = flourishPhase
+	self.attackAnimationsTypes[4] = flourishPhase.Type
+	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
 	self.rotationInterpolationSpeed = 25
@@ -681,7 +795,7 @@ function Update(self)
 	end
 
 	local act = self:GetRootParent();
-	local actor = MovableMan:IsActor(act) and ToActor(act) or nil;
+	local actor = IsAHuman(act) and ToAHuman(act) or nil;
 	local player = false
 	local controller = nil
 	if actor then
@@ -718,36 +832,41 @@ function Update(self)
 
 	if controller then --          :-)
 	
-		-- INPUT
+		local flourish
 		local stab
 		local overhead
 		local attack
-		if player then
-		
-			stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
-			overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
-			if stab or overhead or self.attackBuffered == true then
-				controller:SetState(Controller.PRESS_PRIMARY, true)
-				self:Activate();
-			end
-			attack = controller:IsState(Controller.PRESS_PRIMARY);
-			if self:IsActivated() and self.attackCooldown == true then
-				self:Deactivate();
+		local activated
+		if self.parriedCooldown == false then
+			if player then
+				flourish = (player and UInputMan:KeyPressed(8));
+				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
+				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
+				if stab or overhead or flourish or self.attackBuffered == true then
+					controller:SetState(Controller.PRESS_PRIMARY, true)
+					self:Activate();
+				end
+				attack = controller:IsState(Controller.PRESS_PRIMARY);
+				if self:IsActivated() and self.attackCooldown == true then
+					self:Deactivate();
+				else
+					self.attackBuffered = false;
+					self.stabBuffered = false;
+					self.overheadBuffered = false;
+					self.attackCooldown = false;
+				end
 			else
-				self.attackBuffered = false;
-				self.stabBuffered = false;
-				self.overheadBuffered = false;
-				self.attackCooldown = false;
+				-- stab = (math.random(0, 100) < 50) and true;
+				-- overhead = true;
+				-- if stab or overhead or self.attackBuffered == true then
+					-- controller:SetState(Controller.PRESS_PRIMARY, true)
+					-- self:Activate();
+				-- end
 			end
-		else
-			-- stab = (math.random(0, 100) < 50) and true;
-			-- overhead = true;
-			-- if stab or overhead or self.attackBuffered == true then
-				-- controller:SetState(Controller.PRESS_PRIMARY, true)
-				-- self:Activate();
-			-- end
+			activated = self:IsActivated();
+		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
+			self.parriedCooldown = false;
 		end
-		local activated = self:IsActivated();
 		local attacked = false
 		
 		-- if player then -- PLAYER INPUT
@@ -802,6 +921,13 @@ function Update(self)
 			if self.Blocking == true then
 				
 				self.Parrying = true;
+				
+				-- make our parrying shield counter alongside us
+				-- and here i sit and wonder... parrying daggers?
+				local BGItem = self.parent.EquippedBGItem;				
+				if BGItem and BGItem:IsInGroup("Weapons - Mordhau Melee") then
+					ToHeldDevice(BGItem):SetStringValue("Parrying Type", "Flourish");
+				end	
 			
 				self.Blocking = false;
 				self:RemoveNumberValue("Blocking");
@@ -813,12 +939,15 @@ function Update(self)
 				
 			end
 			
-			if not stab and not overhead then
+			if not stab and not overhead and not flourish then
 				playAttackAnimation(self, 1) -- regular attack
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
 			elseif overhead then
 				playAttackAnimation(self, 3) -- overhead
+			elseif flourish then
+				self.parent:SetNumberValue("Block Foley", 1);
+				playAttackAnimation(self, 4) -- fancypants shit
 			end
 			
 			-- if self.isCharged then
@@ -1195,6 +1324,10 @@ function Update(self)
 						crit = true
 					end
 					
+					if MO:IsInGroup("Shields") then
+						self.blockedSound:Play(self.Pos);
+					end					
+					
 					local woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
 					
 					-- Hurt the actor, add extra damage
@@ -1279,9 +1412,12 @@ function Update(self)
 				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
 					hit = true;
 					MO = ToHeldDevice(MO);
-					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type") and MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]) then
+					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
+					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
 						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") then
+							self.parriedCooldown = true;
+							self.parriedCooldownTimer:Reset();
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
 							if effect then
 								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
