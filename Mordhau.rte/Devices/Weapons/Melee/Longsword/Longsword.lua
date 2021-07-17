@@ -16,6 +16,10 @@ function playAttackAnimation(self, animation)
 	self.stabBuffered = false;
 	self.overheadBuffered = false;
 	
+	if self.Parrying == true then
+		self:SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+	end
+	
 	return
 end
 --[[
@@ -83,6 +87,7 @@ function Create(self)
 	local i
 	
 	self.blockedSound = CreateSoundContainer("Blocked Longsword Mordhau", "Mordhau.rte");
+	self.parrySound = CreateSoundContainer("Parry Longsword Mordhau", "Mordhau.rte");
 	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Longsword Mordhau", "Mordhau.rte");
 	
 	self.blockSounds = {};
@@ -93,6 +98,7 @@ function Create(self)
 	self.blockGFX.Slash = "Slash Block Effect Mordhau";
 	self.blockGFX.Stab = "Stab Block Effect Mordhau";
 	self.blockGFX.Heavy = "Heavy Block Effect Mordhau";
+	self.blockGFX.Parry = "Parry Effect Mordhau";
 	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
 	--regularAttackSounds.hitDefaultSound
@@ -131,7 +137,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 150
+	attackPhase[i].durationMS = 300
 	
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
@@ -158,7 +164,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 250
+	attackPhase[i].durationMS = 100
 	
 	attackPhase[i].lastPrepare = true
 	attackPhase[i].canBeBlocked = false
@@ -241,7 +247,7 @@ function Create(self)
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 3.4
-	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].attackStunChance = 0.05
 	attackPhase[i].attackRange = 15
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
@@ -326,7 +332,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	stabAttackPhase[i] = {}
-	stabAttackPhase[i].durationMS = 150
+	stabAttackPhase[i].durationMS = 200
 	
 	stabAttackPhase[i].canBeBlocked = false
 	stabAttackPhase[i].canDamage = false
@@ -340,7 +346,7 @@ function Create(self)
 	stabAttackPhase[i].frameStart = 6
 	stabAttackPhase[i].frameEnd = 6
 	stabAttackPhase[i].angleStart = -45
-	stabAttackPhase[i].angleEnd = -60
+	stabAttackPhase[i].angleEnd = -85
 	stabAttackPhase[i].offsetStart = Vector(0, 0)
 	stabAttackPhase[i].offsetEnd = Vector(-2, -3)
 	
@@ -353,7 +359,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	stabAttackPhase[i] = {}
-	stabAttackPhase[i].durationMS = 350
+	stabAttackPhase[i].durationMS = 200
 	
 	stabAttackPhase[i].lastPrepare = true
 	stabAttackPhase[i].canBeBlocked = false
@@ -367,8 +373,8 @@ function Create(self)
 	
 	stabAttackPhase[i].frameStart = 6
 	stabAttackPhase[i].frameEnd = 6
-	stabAttackPhase[i].angleStart = -60
-	stabAttackPhase[i].angleEnd = -70
+	stabAttackPhase[i].angleStart = -85
+	stabAttackPhase[i].angleEnd = -90
 	stabAttackPhase[i].offsetStart = Vector(-2, -3)
 	stabAttackPhase[i].offsetEnd = Vector(-3, -4)
 	
@@ -435,8 +441,8 @@ function Create(self)
 	
 	stabAttackPhase[i].canBeBlocked = true
 	stabAttackPhase[i].canDamage = true
-	stabAttackPhase[i].attackDamage = 4
-	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackDamage = 4.5
+	stabAttackPhase[i].attackStunChance = 0.05
 	stabAttackPhase[i].attackRange = 15
 	stabAttackPhase[i].attackPush = 0.8
 	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
@@ -522,7 +528,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 150
+	overheadAttackPhase[i].durationMS = 300
 	
 	overheadAttackPhase[i].canBeBlocked = false
 	overheadAttackPhase[i].canDamage = false
@@ -542,7 +548,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 350
+	overheadAttackPhase[i].durationMS = 200
 	
 	overheadAttackPhase[i].lastPrepare = true
 	overheadAttackPhase[i].canBeBlocked = false
@@ -598,10 +604,10 @@ function Create(self)
 	
 	overheadAttackPhase[i].canBeBlocked = true
 	overheadAttackPhase[i].canDamage = true
-	overheadAttackPhase[i].attackDamage = 5
+	overheadAttackPhase[i].attackDamage = 4
 	overheadAttackPhase[i].attackStunChance = 0.3
 	overheadAttackPhase[i].attackRange = 14
-	overheadAttackPhase[i].attackPush = 0.8
+	overheadAttackPhase[i].attackPush = 1.0
 	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
@@ -710,21 +716,36 @@ function Update(self)
 		]]
 	--else
 
-	if (true) then --          :-)
+	if controller then --          :-)
 	
 		-- INPUT
-		local stab = (player and UInputMan:KeyPressed(3)) or self.stabBuffered;
-		local overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
-		if stab or overhead or self.attackBuffered == true then
-			controller:SetState(Controller.PRESS_PRIMARY, true)
-			self:Activate();
-		end
-		local attack = controller:IsState(Controller.PRESS_PRIMARY);
-		if self:IsActivated() and self.attackCooldown == true then
-			self:Deactivate();
+		local stab
+		local overhead
+		local attack
+		if player then
+		
+			stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
+			overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
+			if stab or overhead or self.attackBuffered == true then
+				controller:SetState(Controller.PRESS_PRIMARY, true)
+				self:Activate();
+			end
+			attack = controller:IsState(Controller.PRESS_PRIMARY);
+			if self:IsActivated() and self.attackCooldown == true then
+				self:Deactivate();
+			else
+				self.attackBuffered = false;
+				self.stabBuffered = false;
+				self.overheadBuffered = false;
+				self.attackCooldown = false;
+			end
 		else
-			self.attackBuffered = false;
-			self.attackCooldown = false;
+			stab = (math.random(0, 100) < 50) and true;
+			overhead = true;
+			if stab or overhead or self.attackBuffered == true then
+				controller:SetState(Controller.PRESS_PRIMARY, true)
+				self:Activate();
+			end
 		end
 		local activated = self:IsActivated();
 		local attacked = false
@@ -777,12 +798,20 @@ function Update(self)
 		
 			self.chargeDecided = false;
 		
-			self.Blocking = false;
+		
+			if self.Blocking == true then
+				
+				self.Parrying = true;
 			
-			stanceTarget = Vector(0, 0);
-			
-			self.originalBaseRotation = -35;
-			self.baseRotation = -35;
+				self.Blocking = false;
+				self:RemoveNumberValue("Blocking");
+				
+				stanceTarget = Vector(0, 0);
+				
+				self.originalBaseRotation = -35;
+				self.baseRotation = -35;
+				
+			end
 			
 			if not stab and not overhead then
 				playAttackAnimation(self, 1) -- regular attack
@@ -854,8 +883,28 @@ function Update(self)
 				end
 			elseif currentPhase.firstRecvoery == true then
 				self.Recovering = true;
+			elseif self.chargeDecided == false then
+				-- block cancelling
+				if player then
+					local keyPress = UInputMan:KeyPressed(18);
+					if keyPress then
+						self.wasCharged = false;
+						self.currentAttackAnimation = 0
+						self.currentAttackSequence = 0
+						self.attackAnimationIsPlaying = false			
+						self.parent:SetNumberValue("Block Foley", 1);
+					
+						self.Blocking = true;
+						
+						self:SetNumberValue("Blocking", 1);
+						
+						stanceTarget = Vector(4, -10);
+						
+						self.originalBaseRotation = -160;
+						self.baseRotation = -145;
+					end
+				end
 			end
-			
 			if self.Recovering == true and attack and not self.attackBuffered then
 				self.attackBuffered = true;
 				if stab then
@@ -866,6 +915,9 @@ function Update(self)
 			end
 			
 			local factor = self.attackAnimationTimer.ElapsedSimTimeMS / currentPhase.durationMS
+			if factor > 1 then
+				factor = 1;
+			end
 			
 			if not self.currentAttackStart then -- Start of the sequence
 				self.currentAttackStart = true
@@ -890,6 +942,13 @@ function Update(self)
 			damageRange = currentPhase.attackRange or 0
 			damageStun = currentPhase.attackStunChance or 0
 			damagePush = currentPhase.attackPush or 0
+			
+			if self.wasCharged == true then
+				damage = damage * 1.3;
+				damageStun = damageStun * 1.3;
+				damagePush = damagePush * 1.3;
+			end
+				
 			
 			rotationTarget = rotationTarget + (currentPhase.angleStart * (1 - factor) + currentPhase.angleEnd * factor) / 180 * math.pi -- interpolate rotation
 			stanceTarget = stanceTarget + (currentPhase.offsetStart * (1 - factor) + currentPhase.offsetEnd * factor) -- interpolate stance offset
@@ -917,13 +976,32 @@ function Update(self)
 					currentPhase.soundEnd:Play(self.Pos);
 				end
 				
+				self:RemoveStringValue("Parrying Type");
+				self.Parrying = false;
+				
 				self.currentAttackStart = false
 				self.attackAnimationTimer:Reset()
 				self.attackAnimationCanHit = true
 				canDamage = false
 			end
+			
+			if self:NumberValueExists("Mordhau Flinched") or self.parent:NumberValueExists("Mordhau Flinched") then
+				self:RemoveNumberValue("Mordhau Flinched")
+				self.parent:RemoveNumberValue("Mordhau Flinched");
+				self.attackCooldown = true;
+				self.wasCharged = false;
+				self.currentAttackAnimation = 0
+				self.currentAttackSequence = 0
+				self.attackAnimationIsPlaying = false
+				self.Parrying = false;
+				self:RemoveStringValue("Parrying Type");
+			end
+			
 		else -- default behaviour, modify it if you wish
-		
+			if self:NumberValueExists("Mordhau Flinched") or self.parent:NumberValueExists("Mordhau Flinched") then
+				self:RemoveNumberValue("Mordhau Flinched")
+				self.parent:RemoveNumberValue("Mordhau Flinched");
+			end		
 			if self.baseRotation < self.originalBaseRotation then
 				self.baseRotation = self.baseRotation + 1;
 			elseif self.baseRotation > self.originalBaseRotation then
@@ -974,7 +1052,7 @@ function Update(self)
 					self.baseRotation = -45;
 					
 				end
-			else
+			elseif not self.attackAnimationIsPlaying then
 			
 				self.Blocking = true;
 				
@@ -995,7 +1073,7 @@ function Update(self)
 			end
 		end
 		
-		if self.Blocking == true then
+		if self.Blocking == true or self.Parrying == true then
 			
 			if self:StringValueExists("Blocked Type") then
 			
@@ -1018,6 +1096,11 @@ function Update(self)
 					self.heavyBlockAddSound:Play(self.Pos);
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
+				
+				if self.Parrying == true then
+					self.parrySound:Play(self.Pos);
+				end
+				
 			end
 		end
 		
@@ -1132,7 +1215,7 @@ function Update(self)
 								self.parent:SetNumberValue("Attack Killed", 1); -- celebration!!
 							end
 						end
-						if IsAHuman(actorHit) then
+						if IsAHuman(actorHit) and self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" then
 							local actorHuman = ToAHuman(actorHit)
 							if MO.ID == actorHuman.Head.ID or MO.ID == actorHuman.FGArm.ID or MO.ID == actorHuman.BGArm.ID or MO.ID == actorHuman.FGLeg.ID or MO.ID == actorHuman.BGLeg.ID then
 								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
@@ -1147,6 +1230,9 @@ function Update(self)
 						end
 						
 						if addWounds == true then
+							MO:SetNumberValue("Mordhau Flinched", 1);
+							local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
+							MO:AddAttachable(flincher)
 							for i = 1, woundsToAdd do
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
@@ -1160,7 +1246,7 @@ function Update(self)
 								actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
 								actorHit:GetController():SetState(Controller.AIM_SHARP,false);
 								actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_DROP,true);
+								actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
 								actorHit:GetController():SetState(Controller.BODY_JUMP,false);
 								actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
 								actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
@@ -1194,7 +1280,16 @@ function Update(self)
 				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
 					hit = true;
 					MO = ToHeldDevice(MO);
-					if MO:NumberValueExists("Blocking") then
+					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type") and MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]) then
+						self.attackCooldown = true;
+						if MO:StringValueExists("Parrying Type") then
+							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
+							if effect then
+								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+								MovableMan:AddParticle(effect);
+								effect:GibThis();
+							end
+						end
 						self.blockedNullifier = false;
 						self.attackAnimationCanHit = false;
 						self.blockedSound:Play(self.Pos);
@@ -1214,6 +1309,7 @@ function Update(self)
 							end
 							MO:SetNumberValue("Blocked Heavy", 1);
 						end
+						
 					else
 						hit = false; -- keep going and looking
 					end

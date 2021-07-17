@@ -15,6 +15,16 @@ function Create(self)
 	self.lastChargeFactor = 0
 	self.charging = false
 	
+	local parent = self:GetRootParent();
+	
+	if parent and IsAHuman(parent) and parent.PresetName == "Cunning Lady Rage" then
+		self.chargeTime = 600;
+		self.soundDraw = CreateSoundContainer("RecurveBow Draw", "Mordhau.rte");
+	else
+		self.chargeTime = 1200;
+		self.soundDraw = CreateSoundContainer("RecurveBow DrawQuick", "Mordhau.rte");
+	end
+	
 	self.arrowVelocityMax = 55
 	self.arrowVelocityMin = 20
 	
