@@ -16,6 +16,10 @@ function playAttackAnimation(self, animation)
 	self.attackBuffered = false;
 	self.stabBuffered = false;
 	self.overheadBuffered = false;
+	self.wasParried = false;
+	
+	self.Hits = 0;
+	self.hitMOTable = {};
 	
 	if self.Parrying == true then
 		self:SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
@@ -101,6 +105,8 @@ function Create(self)
 	
 	
 	self.equipAnimationTimer = Timer();
+	
+	self.Hits = 0;
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
@@ -161,7 +167,7 @@ function Create(self)
 	
 	self.parriedCooldown = false;
 	self.parriedCooldownTimer = Timer();
-	self.parriedCooldownDelay = 1200;
+	self.parriedCooldownDelay = 1400;
 	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
 	--regularAttackSounds.hitDefaultSound
@@ -309,7 +315,7 @@ function Create(self)
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = true
-	doubleSlashAttackPhase[i].attackDamage = 7
+	doubleSlashAttackPhase[i].attackDamage = 10
 	doubleSlashAttackPhase[i].attackStunChance = 0.15
 	doubleSlashAttackPhase[i].attackRange = 15
 	doubleSlashAttackPhase[i].attackPush = 0.85
@@ -495,7 +501,7 @@ function Create(self)
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = true
-	doubleSlashAttackPhase[i].attackDamage = 6
+	doubleSlashAttackPhase[i].attackDamage = 9
 	doubleSlashAttackPhase[i].attackStunChance = 0.15
 	doubleSlashAttackPhase[i].attackRange = 15
 	doubleSlashAttackPhase[i].attackPush = 0.85
@@ -690,7 +696,7 @@ function Create(self)
 	
 	slashOverheadAttackPhase[i].canBeBlocked = true
 	slashOverheadAttackPhase[i].canDamage = true
-	slashOverheadAttackPhase[i].attackDamage = 6
+	slashOverheadAttackPhase[i].attackDamage = 10
 	slashOverheadAttackPhase[i].attackStunChance = 0.15
 	slashOverheadAttackPhase[i].attackRange = 15
 	slashOverheadAttackPhase[i].attackPush = 0.85
@@ -1040,7 +1046,7 @@ function Create(self)
 	
 	downwardShoveAttackPhase[i].canBeBlocked = true
 	downwardShoveAttackPhase[i].canDamage = true
-	downwardShoveAttackPhase[i].attackDamage = 1
+	downwardShoveAttackPhase[i].attackDamage = 3
 	downwardShoveAttackPhase[i].attackStunChance = 0.8
 	downwardShoveAttackPhase[i].attackRange = 15
 	downwardShoveAttackPhase[i].attackPush = 1.3
@@ -1235,7 +1241,7 @@ function Create(self)
 	
 	massiveShoveAttackPhase[i].canBeBlocked = true
 	massiveShoveAttackPhase[i].canDamage = true
-	massiveShoveAttackPhase[i].attackDamage = 1
+	massiveShoveAttackPhase[i].attackDamage = 6
 	massiveShoveAttackPhase[i].attackStunChance = 1.0
 	massiveShoveAttackPhase[i].attackRange = 15
 	massiveShoveAttackPhase[i].attackPush = 1.3
@@ -1314,59 +1320,110 @@ function Create(self)
 	self.attackAnimations[4] = massiveShoveAttackPhase
 	self.attackAnimationsTypes[4] = massiveShoveAttackPhase.Type	
 	
-	-- Charged Attack
+	-- insane shit
 
 	underhandComboAttackPhase = {}
 	underhandComboAttackPhase.Type = "Slash";
 	
+	-- Prepare
+	
 	i = 1
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 330
-	
+
 	underhandComboAttackPhase[i].canBeBlocked = false
 	underhandComboAttackPhase[i].canDamage = false
-	underhandComboAttackPhase[i].attackDamage = 0
-	underhandComboAttackPhase[i].attackStunChance = 0
-	underhandComboAttackPhase[i].attackRange = 0
-	underhandComboAttackPhase[i].attackPush = 0
-	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackDamage = 8
+	underhandComboAttackPhase[i].attackStunChance = 1.0
+	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackPush = 0.6
+	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 55;
 	
 	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameEnd = 8
 	underhandComboAttackPhase[i].angleStart = 25
-	underhandComboAttackPhase[i].angleEnd = -180
+	underhandComboAttackPhase[i].angleEnd = 85
 	underhandComboAttackPhase[i].offsetStart = Vector(0, 0)
-	underhandComboAttackPhase[i].offsetEnd = Vector(5, 5)
+	underhandComboAttackPhase[i].offsetEnd = Vector(-10, -15)
 	
 	-- Late Prepare
+	
 	i = 2
 	underhandComboAttackPhase[i] = {}
-	underhandComboAttackPhase[i].durationMS = 350
+	underhandComboAttackPhase[i].durationMS = 330
 	
 	underhandComboAttackPhase[i].lastPrepare = true
 	underhandComboAttackPhase[i].canBeBlocked = false
 	underhandComboAttackPhase[i].canDamage = false
-	underhandComboAttackPhase[i].attackDamage = 0
-	underhandComboAttackPhase[i].attackStunChance = 0
-	underhandComboAttackPhase[i].attackRange = 0
-	underhandComboAttackPhase[i].attackPush = 0
-	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackDamage = 8
+	underhandComboAttackPhase[i].attackStunChance = 1.0
+	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackPush = 0.6
+	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 55;
+	
+	underhandComboAttackPhase[i].frameStart = 8
+	underhandComboAttackPhase[i].frameEnd = 7
+	underhandComboAttackPhase[i].angleStart = 85
+	underhandComboAttackPhase[i].angleEnd = 90
+	underhandComboAttackPhase[i].offsetStart = Vector(-10, -15)
+	underhandComboAttackPhase[i].offsetEnd = Vector(-11, -15)
+	
+	-- Late Prepare Attack
+	i = 3
+	underhandComboAttackPhase[i] = {}
+	underhandComboAttackPhase[i].durationMS = 350
+	
+	underhandComboAttackPhase[i].ignoreTerrain = true
+	underhandComboAttackPhase[i].canBeBlocked = true
+	underhandComboAttackPhase[i].canDamage = true
+	underhandComboAttackPhase[i].attackDamage = 8
+	underhandComboAttackPhase[i].attackStunChance = 1.0
+	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackPush = 0.6
+	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 55;
+	
+	underhandComboAttackPhase[i].frameStart = 7
+	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].angleStart = 90
+	underhandComboAttackPhase[i].angleEnd = -125
+	underhandComboAttackPhase[i].offsetStart = Vector(-11, -15)
+	underhandComboAttackPhase[i].offsetEnd = Vector(2, 11)
+	
+	underhandComboAttackPhase[i].soundStart = CreateSoundContainer("Slash Greataxe Mordhau", "Mordhau.rte");
+	
+	underhandComboAttackPhase[i].soundEnd = nil
+	underhandComboAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Late Prepare Not Attack
+	i = 4
+	underhandComboAttackPhase[i] = {}
+	underhandComboAttackPhase[i].durationMS = 350
+	
+	underhandComboAttackPhase[i].attackReset = true
+	underhandComboAttackPhase[i].canBeBlocked = false
+	underhandComboAttackPhase[i].canDamage = false
+	underhandComboAttackPhase[i].attackDamage = 8
+	underhandComboAttackPhase[i].attackStunChance = 1.0
+	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackPush = 0.6
+	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 55;
 	
 	underhandComboAttackPhase[i].frameStart = 6
 	underhandComboAttackPhase[i].frameEnd = 6
-	underhandComboAttackPhase[i].angleStart = -180
-	underhandComboAttackPhase[i].angleEnd = -240
-	underhandComboAttackPhase[i].offsetStart = Vector(5, 5)
-	underhandComboAttackPhase[i].offsetEnd = Vector(0, 15)
-	
-	underhandComboAttackPhase[i].soundStart = nil
-	underhandComboAttackPhase[i].soundStartVariations = 0
+	underhandComboAttackPhase[i].angleStart = -125
+	underhandComboAttackPhase[i].angleEnd = -130
+	underhandComboAttackPhase[i].offsetStart = Vector(2, 11)
+	underhandComboAttackPhase[i].offsetEnd = Vector(2, 15)
 	
 	underhandComboAttackPhase[i].soundEnd = nil
 	underhandComboAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Attack
-	i = 3
+	i = 5
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 70
 	
@@ -1381,9 +1438,9 @@ function Create(self)
 	
 	underhandComboAttackPhase[i].frameStart = 6
 	underhandComboAttackPhase[i].frameEnd = 6
-	underhandComboAttackPhase[i].angleStart = -240
-	underhandComboAttackPhase[i].angleEnd = -180
-	underhandComboAttackPhase[i].offsetStart = Vector(0, 15)
+	underhandComboAttackPhase[i].angleStart = -130
+	underhandComboAttackPhase[i].angleEnd = -125
+	underhandComboAttackPhase[i].offsetStart = Vector(2, 15)
 	underhandComboAttackPhase[i].offsetEnd = Vector(3, 10)
 	
 	underhandComboAttackPhase[i].soundStart = CreateSoundContainer("Slash Greataxe Mordhau", "Mordhau.rte");
@@ -1391,14 +1448,15 @@ function Create(self)
 	underhandComboAttackPhase[i].soundEnd = nil
 	
 	-- Attack
-	i = 4
+	i = 6
 	underhandComboAttackPhase[i] = {}
-	underhandComboAttackPhase[i].durationMS = 170
+	underhandComboAttackPhase[i].durationMS = 259
 	
+	underhandComboAttackPhase[i].attackReset = true
 	underhandComboAttackPhase[i].ignoreTerrain = true
 	underhandComboAttackPhase[i].canBeBlocked = true
 	underhandComboAttackPhase[i].canDamage = true
-	underhandComboAttackPhase[i].attackDamage = 10
+	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 0.8
 	underhandComboAttackPhase[i].attackRange = 14
 	underhandComboAttackPhase[i].attackPush = 1.2
@@ -1407,13 +1465,13 @@ function Create(self)
 	
 	underhandComboAttackPhase[i].frameStart = 6
 	underhandComboAttackPhase[i].frameEnd = 6
-	underhandComboAttackPhase[i].angleStart = -180
+	underhandComboAttackPhase[i].angleStart = -125
 	underhandComboAttackPhase[i].angleEnd = 25
 	underhandComboAttackPhase[i].offsetStart = Vector(3, 10)
 	underhandComboAttackPhase[i].offsetEnd = Vector(10, -15)
 	
 	-- Early Recover
-	i = 5
+	i = 7
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 100
 	
@@ -1434,7 +1492,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(11, -15)
 	
 	-- Recover
-	i = 6
+	i = 8
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 350
 	
@@ -1454,7 +1512,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(2, -13)
 	
 	-- Prepare
-	i = 7
+	i = 9
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 300
 	
@@ -1475,7 +1533,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(-4,-15)
 	
 	-- Late Prepare
-	i = 8
+	i = 10
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 100
 	
@@ -1502,7 +1560,7 @@ function Create(self)
 	underhandComboAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Attack
-	i = 9
+	i = 11
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 70
 	
@@ -1527,13 +1585,13 @@ function Create(self)
 	underhandComboAttackPhase[i].soundEnd = nil
 	
 	-- Attack
-	i = 10
+	i = 12
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 170
 	
 	underhandComboAttackPhase[i].canBeBlocked = true
 	underhandComboAttackPhase[i].canDamage = true
-	underhandComboAttackPhase[i].attackDamage = 15
+	underhandComboAttackPhase[i].attackDamage = 16
 	underhandComboAttackPhase[i].attackStunChance = 0.5
 	underhandComboAttackPhase[i].attackRange = 14
 	underhandComboAttackPhase[i].attackPush = 1.1
@@ -1548,7 +1606,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(15, 15)
 	
 	-- Early Recover
-	i = 11
+	i = 13
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 100
 	
@@ -1569,7 +1627,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(10, 15)
 	
 	-- Recover
-	i = 12
+	i = 14
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 350
 	
@@ -1589,7 +1647,7 @@ function Create(self)
 	underhandComboAttackPhase[i].offsetEnd = Vector(3, -5)
 	
 	-- Late Recover
-	i = 13
+	i = 15
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 350
 	
@@ -1715,7 +1773,7 @@ function Create(self)
 	-- Early Recover
 	i = 5
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 100
+	overheadAttackPhase[i].durationMS = 300
 	
 	overheadAttackPhase[i].firstRecvoery = true	
 	overheadAttackPhase[i].canBeBlocked = false
@@ -1736,7 +1794,7 @@ function Create(self)
 	-- Recover
 	i = 6
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 600
+	overheadAttackPhase[i].durationMS = 900
 	
 	overheadAttackPhase[i].canBeBlocked = false
 	overheadAttackPhase[i].canDamage = false
@@ -2050,12 +2108,12 @@ function Update(self)
 					self.attackCooldown = false;
 				end
 			else
-				-- stab = (math.random(0, 100) < 50) and true;
-				-- overhead = true;
-				-- if stab or overhead or self.attackBuffered == true then
-					-- controller:SetState(Controller.PRESS_PRIMARY, true)
-					-- self:Activate();
-				-- end
+				activated = (math.random(0, 100) < 50) and true;
+				overhead = (math.random(0, 100) < 50);
+				if activated or overhead or self.attackBuffered == true then
+					controller:SetState(Controller.PRESS_PRIMARY, true)
+					self:Activate();
+				end
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
@@ -2204,15 +2262,17 @@ function Update(self)
 				self.chargeDecided = true;
 				if activated then
 					self.wasCharged = true;
+					self.hitMax = 4;
 					self.parent:SetNumberValue("Extreme Attack", 1);
 				else
 					self.wasCharged = false;
+					self.hitMax = 3;
 					self.parent:SetNumberValue("Large Attack", 1);				
 				end
 			elseif currentPhase.firstRecvoery == true then
 				self.Recovering = true;
 			elseif self.chargeDecided == false then
-				-- block cancelling
+				-- block, getting parried cancelling
 				if player then
 					local keyPress = UInputMan:KeyPressed(18);
 					if keyPress then
@@ -2229,9 +2289,17 @@ function Update(self)
 						
 						stanceTarget = Vector(4, -10);
 						
-						self.originalBaseRotation = -60;
-						self.baseRotation = -60;
+						self.originalBaseRotation = -160;
+						self.baseRotation = -145;
 					end
+				end
+				if self.wasParried then
+					self.wasParried = false;
+					self.Throwing = false;
+					self.wasCharged = false;
+					self.currentAttackAnimation = 0
+					self.currentAttackSequence = 0
+					self.attackAnimationIsPlaying = false
 				end
 			end
 			if self.Recovering == true and attack and not self.attackBuffered then
@@ -2291,6 +2359,8 @@ function Update(self)
 			if self.attackAnimationTimer:IsPastSimMS(workingDuration) then
 				if (self.currentAttackSequence+1) <= #attackPhases then
 					if nextPhase.attackReset == true then
+						self.Hits = 0;
+						self.hitMOTable = {};
 						self.blockedNullifier = true;
 						self.wasCharged = false;
 						self.chargeDecided = false;
@@ -2306,11 +2376,11 @@ function Update(self)
 					self.currentAttackSequence = 0
 					self.attackAnimationIsPlaying = false
 					if self.Throwing == true then
-						local throwChargeFactor = self.wasCharged and 30 or 0
+						local throwChargeFactor = self.wasCharged and 25 or 0
 						self.Throwing = false;
 						self.wasThrown = true;
 						self:GetParent():RemoveAttachable(self, true, false);
-						self.Vel = self.parent.Vel + Vector((throwChargeFactor + 45)*self.FlipFactor, 0):RadRotate(self.RotAngle);
+						self.Vel = self.parent.Vel + Vector((throwChargeFactor + 25)*self.FlipFactor, 0):RadRotate(self.RotAngle);
 						self.throwSoundPlayed = false;
 						
 					end
@@ -2366,12 +2436,12 @@ function Update(self)
 					
 					stanceTarget = Vector(4, -10);
 					
-					self.originalBaseRotation = -60;
-					self.baseRotation = -60;
+					self.originalBaseRotation = -160;
+					self.baseRotation = -145;
 				
 				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
 				
-					self.originalBaseRotation = -60;
+					self.originalBaseRotation = -160;
 				
 					stanceTarget = Vector(4, -10);
 				
@@ -2404,8 +2474,8 @@ function Update(self)
 				
 				stanceTarget = Vector(4, -10);
 				
-				self.originalBaseRotation = -60;
-				self.baseRotation = -60;
+				self.originalBaseRotation = -160;
+				self.baseRotation = -145;
 				
 			end
 				
@@ -2475,6 +2545,7 @@ function Update(self)
 		if canBeBlocked and self.attackAnimationCanHit then -- Detect collision
 			--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + attackOffset,  13);
 			local hit = false
+			local hitTerrain = false;
 			local hitType = 0
 			local team = 0
 			if actor then team = actor.Team end
@@ -2489,140 +2560,156 @@ function Update(self)
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
 				if (IsMOSRotating(MO) and canDamage) and not MO:IsInGroup("Weapons - Mordhau Melee") then
-					hit = true
 					MO = ToMOSRotating(MO)
-					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
-					local crit = RangeRand(0, 1) < damageStun
-					local woundName = MO:GetEntryWoundPresetName()
-					local woundNameExit = MO:GetExitWoundPresetName()
-					local woundOffset = (rayHitPos - MO.Pos):RadRotate(MO.RotAngle * -1.0)
-					
-					local material = MO.Material.PresetName
-					--if crit then
-					--	woundName = woundNameExit
-					--end
-					
-					if string.find(material,"Flesh") or string.find(woundName,"Flesh") or string.find(woundNameExit,"Flesh") or string.find(material,"Bone") or string.find(woundName,"Bone") or string.find(woundNameExit,"Bone") then
-						hitType = 1
-					else
-						hitType = 2
-					end
-					if string.find(material,"Flesh") or string.find(woundName,"Flesh") or string.find(woundNameExit,"Flesh") then
-						if self.attackAnimationsGFX[self.currentAttackAnimation].hitFleshGFX then
-							local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitFleshGFX);
-							if effect then
-								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
-								MovableMan:AddParticle(effect);
-								effect:GibThis();
-							end
-						end
-					elseif string.find(material,"Metal") or string.find(woundName,"Metal") or string.find(woundNameExit,"Metal") or string.find(material,"Stuff") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
-						if self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX then
-							local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX);
-							if effect then
-								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
-								MovableMan:AddParticle(effect);
-								effect:GibThis();
+					local hitAllowed = true;
+					if self.hitMOTable then -- this shouldn't be needed but it is
+						for index, root in pairs(self.hitMOTable) do
+							if root == MO:GetRootParent().UniqueID or index == MO.UniqueID then
+								hitAllowed = false;
 							end
 						end
 					end
-					
-					if MO:IsDevice() and math.random(1,3) >= 2 then
-						if self.attackAnimationsGFX[self.currentAttackAnimation].hitDeflectGFX then
-							local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitDeflectGFX);
-							if effect then
-								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
-								MovableMan:AddParticle(effect);
-								effect:GibThis();
-							end
+					if hitAllowed == true then
+						self.Hits = self.Hits + 1;
+						hit = true
+						self.hitMOTable[MO.UniqueID] = MO:GetRootParent().UniqueID;
+						MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
+						local crit = RangeRand(0, 1) < damageStun
+						local woundName = MO:GetEntryWoundPresetName()
+						local woundNameExit = MO:GetExitWoundPresetName()
+						local woundOffset = (rayHitPos - MO.Pos):RadRotate(MO.RotAngle * -1.0)
+						
+						local material = MO.Material.PresetName
+						--if crit then
+						--	woundName = woundNameExit
+						--end
+						
+						if string.find(material,"Flesh") or string.find(woundName,"Flesh") or string.find(woundNameExit,"Flesh") or string.find(material,"Bone") or string.find(woundName,"Bone") or string.find(woundNameExit,"Bone") then
+							hitType = 1
+						else
+							hitType = 2
 						end
-						
-						crit = true
-					end
-					
-					if MO:IsInGroup("Shields") then
-						self.blockedSound:Play(self.Pos);
-					end					
-					
-					local woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
-					
-					-- Hurt the actor, add extra damage
-					local actorHit = MovableMan:GetMOFromID(MO.RootID)
-					if (actorHit and IsActor(actorHit)) then-- and (MO.RootID == moCheck or (not IsAttachable(MO) or string.find(MO.PresetName,"Arm") or string.find(MO,"Leg") or string.find(MO,"Head"))) then -- Apply addational damage
-					
-						actorHit = ToActor(actorHit)
-						actorHit.Vel = actorHit.Vel + (self.Vel + pushVector) / actorHit.Mass * ((50 + self.Mass) * (actorHit.Mass / 100)) * (damagePush) * 0.8
-						
-						--print(actorHit.Material.StructuralIntegrity)
-						--actor.Health = actor.Health - 8 * damageMulti;
-						
-						local addWounds = true;
-						
-						if (actorHit.Health - (damage * 10)) < 0 then -- bad estimation, but...
-							if math.random(0, 100) < 15 then
-								self.parent:SetNumberValue("Attack Killed", 1); -- celebration!!
+						if string.find(material,"Flesh") or string.find(woundName,"Flesh") or string.find(woundNameExit,"Flesh") then
+							if self.attackAnimationsGFX[self.currentAttackAnimation].hitFleshGFX then
+								local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitFleshGFX);
+								if effect then
+									effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+									MovableMan:AddParticle(effect);
+									effect:GibThis();
+								end
 							end
-						end
-						if IsAHuman(actorHit) and self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" then
-							local actorHuman = ToAHuman(actorHit)
-							if MO.ID == actorHuman.Head.ID or MO.ID == actorHuman.FGArm.ID or MO.ID == actorHuman.BGArm.ID or MO.ID == actorHuman.FGLeg.ID or MO.ID == actorHuman.BGLeg.ID then
-								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
-								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
-									addWounds = false;
-								elseif actorHuman.Health < 20 and crit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
-									addWounds = false;
+						elseif string.find(material,"Metal") or string.find(woundName,"Metal") or string.find(woundNameExit,"Metal") or string.find(material,"Stuff") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
+							if self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX then
+								local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX);
+								if effect then
+									effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+									MovableMan:AddParticle(effect);
+									effect:GibThis();
 								end
 							end
 						end
 						
-						if addWounds == true then
-							MO:SetNumberValue("Mordhau Flinched", 1);
-							local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
-							MO:AddAttachable(flincher)
+						if MO:IsDevice() and math.random(1,3) >= 2 then
+							if self.attackAnimationsGFX[self.currentAttackAnimation].hitDeflectGFX then
+								local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitDeflectGFX);
+								if effect then
+									effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+									MovableMan:AddParticle(effect);
+									effect:GibThis();
+								end
+							end
+							
+							crit = true
+						end
+						
+						if MO:IsInGroup("Shields") then
+							self.blockedSound:Play(self.Pos);
+						end					
+						
+						local woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+						
+						-- Hurt the actor, add extra damage
+						local actorHit = MovableMan:GetMOFromID(MO.RootID)
+						if (actorHit and IsActor(actorHit)) then-- and (MO.RootID == moCheck or (not IsAttachable(MO) or string.find(MO.PresetName,"Arm") or string.find(MO,"Leg") or string.find(MO,"Head"))) then -- Apply addational damage
+						
+							actorHit = ToActor(actorHit)
+							actorHit.Vel = actorHit.Vel + (self.Vel + pushVector) / actorHit.Mass * ((50 + self.Mass) * (actorHit.Mass / 100)) * (damagePush) * 0.8
+							
+							--print(actorHit.Material.StructuralIntegrity)
+							--actor.Health = actor.Health - 8 * damageMulti;
+							
+							local addWounds = true;
+							
+							if (actorHit.Health - (damage * 10)) < 0 then -- bad estimation, but...
+								if math.random(0, 100) < 15 then
+									self.parent:SetNumberValue("Attack Killed", 1); -- celebration!!
+								end
+							end
+							if IsAHuman(actorHit) and self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" then
+								local actorHuman = ToAHuman(actorHit)
+								if (actorHuman.Head and MO.UniqueID == actorHuman.Head.UniqueID)
+								or (actorHuman.FGArm and MO.UniqueID == actorHuman.FGArm.UniqueID)
+								or (actorHuman.BGArm and MO.UniqueID == actorHuman.BGArm.UniqueID)
+								or (actorHuman.FGLeg and MO.UniqueID == actorHuman.FGLeg.UniqueID)
+								or (actorHuman.BGLeg and MO.UniqueID == actorHuman.BGLeg.UniqueID) then
+									-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
+									if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
+										ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
+										addWounds = false;
+									elseif actorHuman.Health < 20 and crit then
+										ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
+										addWounds = false;
+									end
+								end
+							end
+							
+							if addWounds == true then
+								MO:SetNumberValue("Mordhau Flinched", 1);
+								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
+								MO:AddAttachable(flincher)
+								for i = 1, woundsToAdd do
+									MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
+								end
+							end
+							
+							if self.wasCharged then
+								if crit then
+									actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
+									actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
+									actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
+									actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
+									actorHit:GetController():SetState(Controller.AIM_SHARP,false);
+									actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
+									actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
+									actorHit:GetController():SetState(Controller.BODY_JUMP,false);
+									actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
+									actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
+									actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
+									actorHit:FlashWhite(150);
+									if math.random(0, 100) < 30 then
+										self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
+									end
+								end
+							else
+								if crit then
+									actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
+									actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
+									actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
+									actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
+									actorHit:GetController():SetState(Controller.AIM_SHARP,false);
+									actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
+									actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
+									actorHit:GetController():SetState(Controller.BODY_JUMP,false);
+									actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
+									actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
+									actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
+									actorHit:FlashWhite(50);
+								end
+							end
+						else -- generic wound adding for non-actors
 							for i = 1, woundsToAdd do
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
-						end
-						
-						if self.wasCharged then
-							if crit then
-								actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
-								actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
-								actorHit:GetController():SetState(Controller.AIM_SHARP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
-								actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
-								actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
-								actorHit:FlashWhite(150);
-								if math.random(0, 100) < 30 then
-									self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
-								end
-							end
-						else
-							if crit then
-								actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
-								actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
-								actorHit:GetController():SetState(Controller.AIM_SHARP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
-								actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
-								actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
-								actorHit:FlashWhite(50);
-							end
-						end
-					else -- generic wound adding for non-actors
-						for i = 1, woundsToAdd do
-							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end
 					end
 				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
@@ -2632,6 +2719,7 @@ function Update(self)
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
 						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") then
+							self.wasParried = true;
 							self.parriedCooldown = true;
 							self.parriedCooldownTimer:Reset();
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
@@ -2670,6 +2758,7 @@ function Update(self)
 				if terrCheck > 5 then
 					local rayHitPos = SceneMan:GetLastRayHitPos()
 					if not ignoreTerrain then
+						hitTerrain = true
 						hit = true
 						self.attack = false
 						self.charged = false
@@ -2725,7 +2814,9 @@ function Update(self)
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound:Play(self.Pos);
 					end
 				end
-				self.attackAnimationCanHit = false
+				if self.Hits == self.hitMax or hitTerrain then
+					self.attackAnimationCanHit = false
+				end
 			end
 		end
 	end

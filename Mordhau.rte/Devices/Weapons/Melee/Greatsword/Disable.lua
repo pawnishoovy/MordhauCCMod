@@ -2,6 +2,12 @@ function OnDetach(self)
 
 	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Greatsword/Greatsword.lua");
 	
+	self:RemoveStringValue("Parrying Type");
+	self.Parrying = false;
+	
+	self.Blocking = false;
+	self:RemoveNumberValue("Blocking");
+	
 	self.currentAttackAnimation = 0;
 	self.currentAttackSequence = 0;
 	self.currentAttackStart = false
