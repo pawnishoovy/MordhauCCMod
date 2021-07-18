@@ -6,6 +6,7 @@ end
 
 function playAttackAnimation(self, animation)
 	self.attackAnimationIsPlaying = true
+	self.currentAttackStart = false;
 	self.currentAttackSequence = 1
 	self.currentAttackAnimation = animation
 	self.attackAnimationTimer:Reset()
@@ -22,24 +23,73 @@ function playAttackAnimation(self, animation)
 	
 	return
 end
---[[
-function OnAttach(self)
-	self.Frame = 1;
-	self.equipSound:Play(self.Pos);
-	self.equipAnim = true;
-	self.equipAnimationTimer:Reset();
-	self.unequipAnim = false;
-end
+
+-- function OnAttach(self)
+
+	-- self.Frame = 1;
+	-- self.equipSound:Play(self.Pos);
+	-- self.equipAnim = true;
+	-- self.equipAnimationTimer:Reset();
+	-- self.unequipAnim = false;
+	
+-- end
 
 function OnDetach(self)
-	self.Frame = 6;
-	self.unequipSound:Play(self.Pos);
-	self.unequipAnim = true;
-	self.equipAnimationTimer:Reset();
-	self.equipAnim = false;
+
+	if self.wasThrown == true then
+	
+		self.throwWounds = 5;
+		self.throwPitch = 1;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
+		self.thrownTeam = self.Team;
+
+	end
+
+	-- self.Frame = 6;
+	-- self.unequipSound:Play(self.Pos);
+	-- self.unequipAnim = true;
+	-- self.equipAnimationTimer:Reset();
+	-- self.equipAnim = false;
+	
+	
 end
-]]
+
 function Create(self)
+
+	-- throwing stuff
+	
+	self.bounceSound = CreateSoundContainer("Bounce Javelin", "Mordhau.rte");
+
+	self.throwSound = CreateSoundContainer("Throw ThrowingAxe", "Mordhau.rte");
+	self.throwSoundPlayed = false;
+	
+	self.spinSound = CreateSoundContainer("Spin ThrowingAxe", "Mordhau.rte");
+	self.spinTimer = Timer();
+	self.spinDelay = 170;
+	
+	self.terrainSounds = {
+	Impact = {[12] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+			[164] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+			[177] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
+			[9] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+			[10] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+			[11] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+			[128] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
+			[6] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
+			[8] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
+			[178] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+			[179] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+			[180] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+			[181] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
+			[182] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte")}}
+			
+	self.soundHitFlesh = CreateSoundContainer("Slash Flesh Warhammer Mordhau", "Mordhau.rte");
+	self.soundHitMetal = CreateSoundContainer("Slash Metal Warhammer Mordhau", "Mordhau.rte");
+	
+
 	
 	self.equipAnimationTimer = Timer();
 
@@ -779,6 +829,88 @@ function Create(self)
 	self.attackAnimations[4] = flourishPhase
 	self.attackAnimationsTypes[4] = flourishPhase.Type
 	
+	-- Throw
+	throwPhase = {}
+	throwPhase.Type = "Throw";
+	
+	-- Windup
+	i = 1
+	throwPhase[i] = {}
+	throwPhase[i].durationMS = 250
+	
+	throwPhase[i].canBeBlocked = false
+	throwPhase[i].canDamage = false
+	throwPhase[i].attackDamage = 0
+	throwPhase[i].attackStunChance = 0
+	throwPhase[i].attackRange = 0
+	throwPhase[i].attackPush = 0
+	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	throwPhase[i].attackAngle = 90;
+	
+	throwPhase[i].frameStart = 6
+	throwPhase[i].frameEnd = 6
+	throwPhase[i].angleStart = 0
+	throwPhase[i].angleEnd = 120
+	throwPhase[i].offsetStart = Vector(0, 0)
+	throwPhase[i].offsetEnd = Vector(-15, -15)
+
+	
+	-- Pause
+	i = 2
+	throwPhase[i] = {}
+	throwPhase[i].durationMS = 250
+	
+	throwPhase[i].lastPrepare = true
+	throwPhase[i].canBeBlocked = false
+	throwPhase[i].canDamage = false
+	throwPhase[i].attackDamage = 0
+	throwPhase[i].attackStunChance = 0
+	throwPhase[i].attackRange = 0
+	throwPhase[i].attackPush = 0
+	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	throwPhase[i].attackAngle = 90;
+	
+	throwPhase[i].frameStart = 6
+	throwPhase[i].frameEnd = 6
+	throwPhase[i].angleStart = 120
+	throwPhase[i].angleEnd = 120
+	throwPhase[i].offsetStart = Vector(-15, -15)
+	throwPhase[i].offsetEnd = Vector(-15, -15)
+	
+	
+	-- Throw
+	i = 3
+	throwPhase[i] = {}
+	throwPhase[i].durationMS = 100
+	
+	throwPhase[i].canBeBlocked = true
+	throwPhase[i].canDamage = true
+	throwPhase[i].attackDamage = 2
+	throwPhase[i].attackStunChance = 0
+	throwPhase[i].attackRange = 15
+	throwPhase[i].attackPush = 0.8
+	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	throwPhase[i].attackAngle = 90;
+	
+	throwPhase[i].frameStart = 6
+	throwPhase[i].frameEnd = 6
+	throwPhase[i].angleStart = 120
+	throwPhase[i].angleEnd = -90
+	throwPhase[i].offsetStart = Vector(-15, -15)
+	throwPhase[i].offsetEnd = Vector(6, -15)
+	
+	throwPhase[i].soundStart = nil
+	throwPhase[i].soundStartVariations = 0
+	
+	throwPhase[i].soundEnd = nil
+	throwPhase[i].soundEndVariations = 0
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[5] = regularAttackSounds
+	self.attackAnimationsGFX[5] = regularAttackGFX
+	self.attackAnimations[5] = throwPhase
+	self.attackAnimationsTypes[5] = throwPhase.Type
+	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
 	self.rotationInterpolationSpeed = 25
@@ -833,6 +965,7 @@ function Update(self)
 	if controller then --          :-)
 	
 		-- INPUT
+		local throw
 		local flourish
 		local stab
 		local overhead
@@ -840,10 +973,11 @@ function Update(self)
 		local activated
 		if self.parriedCooldown == false then
 			if player then
+				throw = (player and UInputMan:KeyPressed(10));
 				flourish = (player and UInputMan:KeyPressed(8));
 				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
 				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
-				if stab or overhead or flourish or self.attackBuffered == true then
+				if stab or overhead or flourish or throw or self.attackBuffered == true then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
@@ -940,7 +1074,7 @@ function Update(self)
 				
 			end
 			
-			if not stab and not overhead and not flourish then
+			if not stab and not overhead and not flourish and not throw then
 				playAttackAnimation(self, 1) -- regular attack
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
@@ -949,6 +1083,10 @@ function Update(self)
 			elseif flourish then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 4) -- fancypants shit
+			elseif throw then
+				self.parent:SetNumberValue("Block Foley", 1);
+				self.Throwing = true;
+				playAttackAnimation(self, 5) -- throw
 			end
 			
 			-- if self.isCharged then
@@ -1018,6 +1156,7 @@ function Update(self)
 				if player then
 					local keyPress = UInputMan:KeyPressed(18);
 					if keyPress then
+						self.Throwing = false;
 						self.wasCharged = false;
 						self.currentAttackAnimation = 0
 						self.currentAttackSequence = 0
@@ -1100,6 +1239,15 @@ function Update(self)
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
 					self.attackAnimationIsPlaying = false
+					if self.Throwing == true then
+						local throwChargeFactor = self.wasCharged and 15 or 0
+						self.Throwing = false;
+						self.wasThrown = true;
+						self:GetParent():RemoveAttachable(self, true, false);
+						self.Vel = self.parent.Vel + Vector((throwChargeFactor + 35)*self.FlipFactor, 0):RadRotate(self.RotAngle);
+						self.throwSoundPlayed = false;
+						
+					end
 				end
 				
 				if currentPhase.soundEnd then

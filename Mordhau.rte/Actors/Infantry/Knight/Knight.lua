@@ -25,6 +25,7 @@ function Create(self)
 	self.voiceSounds = {
 	Happy = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Happy", "Mordhau.rte"),
 	killingEnemy = CreateSoundContainer("VO " .. self.IdentityPrimary .. " KillingEnemy", "Mordhau.rte"),
+	Archers = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Archers", "Mordhau.rte"),
 	attackLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " AttackLight", "Mordhau.rte"),
 	attackMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " AttackMedium", "Mordhau.rte"),
 	attackLarge = CreateSoundContainer("VO " .. self.IdentityPrimary .. " AttackLarge", "Mordhau.rte"),

@@ -22,6 +22,9 @@ function Update(self)
 		self.Parrying = true;
 		self.parryTimer:Reset();
 		
+		self.StanceOffset = Vector(10, -2);
+		self.SharpStanceOffset = Vector(10, -2);
+		
 	elseif self.Parrying == true then
 	
 		if self:StringValueExists("Blocked Type") then
@@ -32,6 +35,10 @@ function Update(self)
 		if self.parryTimer:IsPastSimMS(self.parryWindow) then
 			self.Parrying = false;
 			self:RemoveStringValue("Parrying Type");
+			
+			self.StanceOffset = Vector(8, 2);
+			self.SharpStanceOffset = Vector(8, 2);
+			
 		end
 	end
 end

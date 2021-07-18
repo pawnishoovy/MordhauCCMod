@@ -616,6 +616,12 @@ function KnightAIBehaviours.handleVoicelines(self)
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
 	
+	if self:NumberValueExists("Mordhau Arrow Suppression") then
+		self:RemoveNumberValue("Mordhau Arrow Suppression");
+		self.Suppression = self.Suppression + 3;
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Archers, 3, 0);
+	end
+	
 	if self:NumberValueExists("Blocked Mordhau") then
 		self:RemoveNumberValue("Blocked Mordhau");
 		self.Suppression = self.Suppression + 3;

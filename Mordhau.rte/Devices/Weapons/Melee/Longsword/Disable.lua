@@ -15,6 +15,11 @@ end
 
 function OnAttach(self)
 
+	self.HUDVisible = true;
+
+	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/StraightPierceThrow.lua");
+	self.PinStrength = 0;
+
 	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Longsword/Longsword.lua");
 	
 	self.canBlock = true;
