@@ -585,6 +585,18 @@ function CommanderAIBehaviours.handleVoicelines(self)
 		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.burnScream, 16, 5);
 	end
 	
+	if self:NumberValueExists("Shieldbash Warcry") then
+		self:RemoveNumberValue("Shieldbash Warcry");
+		local randomChance = math.random(0, 100);
+		if randomChance > 66 then
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.battleScream, 5, 4);
+		elseif randomChance > 33 then
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
+		else
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Hold, 5, 4);
+		end
+	end
+	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then
 		self:RemoveNumberValue("Mordhau Arrow Suppression");
 		self.Suppression = self.Suppression + 3;
@@ -667,6 +679,15 @@ function CommanderAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
+					
+				elseif self:NumberValueExists("Shieldbash Together") then
+					self:RemoveNumberValue("Shieldbash Together");
+					if not self.inCombat then
+						local BGItem = self.EquippedBGItem;				
+						if BGItem and BGItem:IsInGroup("Shields") then
+							gun:SetNumberValue("Auto Shieldbash", 1);
+						end
+					end			
 					
 				end
 				

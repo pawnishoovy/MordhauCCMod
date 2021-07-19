@@ -1,5 +1,8 @@
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("Generic Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 1.0;
+
 	self.fuseLightSound = CreateSoundContainer("FuseLight Blackpowder", "Mordhau.rte");
 	self.fuseSound = CreateSoundContainer("Fuse Blackpowder", "Mordhau.rte");
 	

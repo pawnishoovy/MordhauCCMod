@@ -28,6 +28,23 @@ function OnAttach(self)
 
 	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Longsword/Longsword.lua");
 	
+	if self.RootID == 255 then --equipped from inv
+	
+		self.equipAnim = true;
+		
+		local rotationTarget = rotationTarget + 170 / 180 * math.pi
+		local stanceTarget = stanceTarget + Vector(-4, -0);
+	
+		self.stance = self.stance + stanceTarget
+		
+		rotationTarget = rotationTarget * self.FlipFactor
+		self.rotation = self.rotation + rotationTarget
+		
+		self.StanceOffset = self.originalStanceOffset + self.stance
+		self.RotAngle = self.RotAngle + self.rotation
+		
+	end
+	
 	self.canBlock = true;
 	
 end

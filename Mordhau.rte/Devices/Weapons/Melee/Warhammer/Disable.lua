@@ -1,6 +1,6 @@
 function OnDetach(self)
 
-	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Longsword/Longsword.lua");
+	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Warhammer/Warhammer.lua");
 	
 	self:RemoveStringValue("Parrying Type");
 	self.Parrying = false;
@@ -21,7 +21,29 @@ end
 
 function OnAttach(self)
 
-	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Longsword/Longsword.lua");
+	self.HUDVisible = true;
+
+	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
+	self.PinStrength = 0;
+
+	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Warhammer/Warhammer.lua");
+	
+	if self.RootID == 255 then --equipped from inv
+	
+		self.equipAnim = true;
+		
+		local rotationTarget = rotationTarget + -45 / 180 * math.pi
+		local stanceTarget = stanceTarget + Vector(-4, 0);
+	
+		self.stance = self.stance + stanceTarget
+		
+		rotationTarget = rotationTarget * self.FlipFactor
+		self.rotation = self.rotation + rotationTarget
+		
+		self.StanceOffset = self.originalStanceOffset + self.stance
+		self.RotAngle = self.RotAngle + self.rotation
+		
+	end
 	
 	self.canBlock = true;
 	

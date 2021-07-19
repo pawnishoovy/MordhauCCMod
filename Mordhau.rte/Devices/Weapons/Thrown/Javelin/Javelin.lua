@@ -1,5 +1,11 @@
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("Equip Javelin", "Mordhau.rte");
+	self.equipSound.Pitch = 1.0;
+	
+	self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 1.0;
+
 	self.origMass = self.Mass;
 	self.thrownMassMultiplier = self:NumberValueExists("ThrownMassMultiplier") and self:GetNumberValue("ThrownMassMultiplier") or 5;
 	

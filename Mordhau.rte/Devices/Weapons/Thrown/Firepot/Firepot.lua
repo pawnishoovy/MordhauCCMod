@@ -1,6 +1,9 @@
 
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("Generic Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 1.3;
+
 	self.idleBurnSound = CreateSoundContainer("Firepot IdleBurn", "Mordhau.rte");
 	self.throwSound = CreateSoundContainer("Firepot Throw", "Mordhau.rte");
 	self.litFlyLoopSound = CreateSoundContainer("Firepot LitFlyLoop", "Mordhau.rte");

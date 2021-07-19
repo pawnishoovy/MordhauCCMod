@@ -59,6 +59,12 @@ end
 
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("HaftedSmall Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 1.0;
+	
+	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 1.0;
+
 	-- throwing stuff
 	
 	self.bounceSound = CreateSoundContainer("Bounce Javelin", "Mordhau.rte");
@@ -829,6 +835,140 @@ function Create(self)
 	self.attackAnimations[4] = flourishPhase
 	self.attackAnimationsTypes[4] = flourishPhase.Type
 	
+	-- shield flourish (shield bash)
+	shieldFlourishPhase = {}
+	shieldFlourishPhase.Type = "ShieldFlourish";
+	
+	-- Prepare
+	i = 1
+	shieldFlourishPhase[i] = {}
+	shieldFlourishPhase[i].durationMS = 250
+	
+	shieldFlourishPhase[i].lastPrepare = true
+	shieldFlourishPhase[i].canBeBlocked = false
+	shieldFlourishPhase[i].canDamage = false
+	shieldFlourishPhase[i].attackDamage = 0
+	shieldFlourishPhase[i].attackStunChance = 0
+	shieldFlourishPhase[i].attackRange = 0
+	shieldFlourishPhase[i].attackPush = 0
+	shieldFlourishPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	shieldFlourishPhase[i].attackAngle = 90;
+	
+	shieldFlourishPhase[i].frameStart = 6
+	shieldFlourishPhase[i].frameEnd = 11
+	shieldFlourishPhase[i].angleStart = 0
+	shieldFlourishPhase[i].angleEnd = -90
+	shieldFlourishPhase[i].offsetStart = Vector(0, 0)
+	shieldFlourishPhase[i].offsetEnd = Vector(-6, -5)
+	
+	shieldFlourishPhase[i].soundStart = nil
+	
+	-- Bash
+	i = 2
+	shieldFlourishPhase[i] = {}
+	shieldFlourishPhase[i].durationMS = 150
+	
+	shieldFlourishPhase[i].canBeBlocked = false
+	shieldFlourishPhase[i].canDamage = false
+	shieldFlourishPhase[i].attackDamage = 0
+	shieldFlourishPhase[i].attackStunChance = 0
+	shieldFlourishPhase[i].attackRange = 0
+	shieldFlourishPhase[i].attackPush = 0
+	shieldFlourishPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	shieldFlourishPhase[i].attackAngle = 0;
+	
+	shieldFlourishPhase[i].frameStart = 11
+	shieldFlourishPhase[i].frameEnd = 6
+	shieldFlourishPhase[i].angleStart = -90
+	shieldFlourishPhase[i].angleEnd = -70
+	shieldFlourishPhase[i].offsetStart = Vector(-6, -5)
+	shieldFlourishPhase[i].offsetEnd = Vector(0, 0)
+	
+	shieldFlourishPhase[i].soundStart = CreateSoundContainer("Slash Warhammer Mordhau", "Mordhau.rte");
+	shieldFlourishPhase[i].soundStartVariations = 0
+	
+	shieldFlourishPhase[i].soundEnd = CreateSoundContainer("Blocked Warhammer Mordhau", "Mordhau.rte");
+	shieldFlourishPhase[i].soundEndVariations = 0
+	
+	-- Recoil
+	i = 3
+	shieldFlourishPhase[i] = {}
+	shieldFlourishPhase[i].durationMS = 250
+	
+	shieldFlourishPhase[i].canBeBlocked = false
+	shieldFlourishPhase[i].canDamage = false
+	shieldFlourishPhase[i].attackDamage = 3.4
+	shieldFlourishPhase[i].attackStunChance = 0.15
+	shieldFlourishPhase[i].attackRange = 20
+	shieldFlourishPhase[i].attackPush = 0.8
+	shieldFlourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	shieldFlourishPhase[i].attackAngle = 0;
+	
+	shieldFlourishPhase[i].frameStart = 6
+	shieldFlourishPhase[i].frameEnd = 11
+	shieldFlourishPhase[i].angleStart = -70
+	shieldFlourishPhase[i].angleEnd = -90
+	shieldFlourishPhase[i].offsetStart = Vector(0, 0)
+	shieldFlourishPhase[i].offsetEnd = Vector(-6, -5)
+	
+	shieldFlourishPhase[i].soundEnd = nil
+	
+	-- Bash
+	i = 4
+	shieldFlourishPhase[i] = {}
+	shieldFlourishPhase[i].durationMS = 100
+	
+	shieldFlourishPhase[i].canBeBlocked = false
+	shieldFlourishPhase[i].canDamage = false
+	shieldFlourishPhase[i].attackDamage = 3.4
+	shieldFlourishPhase[i].attackStunChance = 0.15
+	shieldFlourishPhase[i].attackRange = 20
+	shieldFlourishPhase[i].attackPush = 0.8
+	shieldFlourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	shieldFlourishPhase[i].attackAngle = 0;
+	
+	shieldFlourishPhase[i].frameStart = 11
+	shieldFlourishPhase[i].frameEnd = 9
+	shieldFlourishPhase[i].angleStart = -90
+	shieldFlourishPhase[i].angleEnd = -70
+	shieldFlourishPhase[i].offsetStart = Vector(-6, -5)
+	shieldFlourishPhase[i].offsetEnd = Vector(-2, -2)
+	
+	shieldFlourishPhase[i].soundStart = CreateSoundContainer("Slash Warhammer Mordhau", "Mordhau.rte");
+	
+	shieldFlourishPhase[i].soundEnd = CreateSoundContainer("Blocked Warhammer Mordhau", "Mordhau.rte");
+	
+	-- Return
+	i = 5
+	shieldFlourishPhase[i] = {}
+	shieldFlourishPhase[i].durationMS = 300
+	
+	shieldFlourishPhase[i].canBeBlocked = false
+	shieldFlourishPhase[i].canDamage = false
+	shieldFlourishPhase[i].attackDamage = 3.4
+	shieldFlourishPhase[i].attackStunChance = 0.15
+	shieldFlourishPhase[i].attackRange = 20
+	shieldFlourishPhase[i].attackPush = 0.8
+	shieldFlourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	shieldFlourishPhase[i].attackAngle = 0;
+	
+	shieldFlourishPhase[i].frameStart = 9
+	shieldFlourishPhase[i].frameEnd = 6
+	shieldFlourishPhase[i].angleStart = -70
+	shieldFlourishPhase[i].angleEnd = -15
+	shieldFlourishPhase[i].offsetStart = Vector(-2, -2)
+	shieldFlourishPhase[i].offsetEnd = Vector(0, 0)
+	
+	shieldFlourishPhase[i].soundStart = nil
+	
+	shieldFlourishPhase[i].soundEnd = nil
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[5] = regularAttackSounds
+	self.attackAnimationsGFX[5] = regularAttackGFX
+	self.attackAnimations[5] = shieldFlourishPhase
+	self.attackAnimationsTypes[5] = shieldFlourishPhase.Type
+	
 	-- Throw
 	throwPhase = {}
 	throwPhase.Type = "Throw";
@@ -906,10 +1046,91 @@ function Create(self)
 	throwPhase[i].soundEndVariations = 0
 	
 	-- Add the animation to the animation table
-	self.attackAnimationsSounds[5] = regularAttackSounds
-	self.attackAnimationsGFX[5] = regularAttackGFX
-	self.attackAnimations[5] = throwPhase
-	self.attackAnimationsTypes[5] = throwPhase.Type
+	self.attackAnimationsSounds[6] = regularAttackSounds
+	self.attackAnimationsGFX[6] = regularAttackGFX
+	self.attackAnimations[6] = throwPhase
+	self.attackAnimationsTypes[6] = throwPhase.Type
+	
+	-- Equip anim
+	equipPhase = {}
+	equipPhase.Type = "Equip";
+	
+	-- Out
+	i = 1
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 200
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 0
+	equipPhase[i].attackStunChance = 0
+	equipPhase[i].attackRange = 0
+	equipPhase[i].attackPush = 0
+	equipPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 90;
+	
+	equipPhase[i].frameStart = 8
+	equipPhase[i].frameEnd = 8
+	equipPhase[i].angleStart = -45
+	equipPhase[i].angleEnd = -35
+	equipPhase[i].offsetStart = Vector(-4, 15)
+	equipPhase[i].offsetEnd = Vector(4, -15)
+	
+	-- Upright
+	i = 2
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 160
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 0
+	equipPhase[i].attackStunChance = 0
+	equipPhase[i].attackRange = 0
+	equipPhase[i].attackPush = 0
+	equipPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 0;
+	
+	equipPhase[i].frameStart = 8
+	equipPhase[i].frameEnd = 9
+	equipPhase[i].angleStart = -35
+	equipPhase[i].angleEnd = -15
+	equipPhase[i].offsetStart = Vector(4, 0)
+	equipPhase[i].offsetEnd = Vector(-5, -10)
+	
+	equipPhase[i].soundStart = nil
+	equipPhase[i].soundStartVariations = 0
+	
+	equipPhase[i].soundEnd = nil
+	equipPhase[i].soundEndVariations = 0
+	
+	-- Stance
+	i = 3
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 160
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 3.4
+	equipPhase[i].attackStunChance = 0.15
+	equipPhase[i].attackRange = 20
+	equipPhase[i].attackPush = 0.8
+	equipPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 0;
+	
+	equipPhase[i].frameStart = 9
+	equipPhase[i].frameEnd = 6
+	equipPhase[i].angleStart = 0
+	equipPhase[i].angleEnd = -35
+	equipPhase[i].offsetStart = Vector(-5, -5)
+	equipPhase[i].offsetEnd = Vector(0, 0)
+	
+	equipPhase[i].soundEnd = nil
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[10] = regularAttackSounds
+	self.attackAnimationsGFX[10] = regularAttackGFX
+	self.attackAnimations[10] = equipPhase
+	self.attackAnimationsTypes[10] = equipPhase.Type		
 	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
@@ -940,29 +1161,23 @@ function Update(self)
 		end
 	end
 	
-	--if self.equipAnim or self.unequipAnim then
-		--[[
-		if self.equipAnim == true then
-			if self.equipAnimationTimer:IsPastSimMS(30) then
-				self.Frame = self.Frame + 1;
-				if self.Frame == 6 then
-					self.equipAnim = false;
-				end
-				self.equipAnimationTimer:Reset();
-			end
-		elseif self.unequipAnim == true then
-			if self.equipAnimationTimer:IsPastSimMS(30) then
-				self.Frame = self.Frame - 1;
-				if self.Frame == 1 then
-					self.unequipAnim = false;
-				end
-				self.equipAnimationTimer:Reset();
-			end
-		end
-		]]
-	--else
+	if self.equipAnim == true then
+	
+		playAttackAnimation(self, 10)
+		self.equipAnim = false;
 
-	if controller then --          :-)
+		local rotationTarget = rotationTarget + -45 / 180 * math.pi
+		local stanceTarget = stanceTarget + Vector(-4, 0);
+	
+		self.stance = self.stance + stanceTarget
+		
+		rotationTarget = rotationTarget * self.FlipFactor
+		self.rotation = self.rotation + rotationTarget
+		
+		self.StanceOffset = self.originalStanceOffset + self.stance
+		self.RotAngle = self.RotAngle + self.rotation
+	
+	elseif controller then --          :-)
 	
 		-- INPUT
 		local throw
@@ -971,6 +1186,7 @@ function Update(self)
 		local overhead
 		local attack
 		local activated
+		flourish = UInputMan:KeyPressed(8);
 		if self.parriedCooldown == false then
 			if player then
 				throw = (player and UInputMan:KeyPressed(10));
@@ -991,12 +1207,20 @@ function Update(self)
 					self.attackCooldown = false;
 				end
 			else
-				stab = (math.random(0, 100) < 50) and true;
-				overhead = true;
-				if stab or overhead or self.attackBuffered == true then
-					controller:SetState(Controller.PRESS_PRIMARY, true)
-					self:Activate();
+				if self:NumberValueExists("Auto Shieldbash") then
+					self:RemoveNumberValue("Auto Shieldbash");
+					flourish = true
 				end
+				-- stab = (math.random(0, 100) < 50) and true;
+				-- overhead = true;
+				-- if stab or overhead or self.attackBuffered == true then
+					-- controller:SetState(Controller.PRESS_PRIMARY, true)
+					-- self:Activate();
+				-- end
+			end
+			if stab or overhead or flourish or throw or self.attackBuffered == true then
+				controller:SetState(Controller.PRESS_PRIMARY, true)
+				self:Activate();
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
@@ -1062,7 +1286,7 @@ function Update(self)
 				local BGItem = self.parent.EquippedBGItem;				
 				if BGItem and BGItem:IsInGroup("Weapons - Mordhau Melee") then
 					ToHeldDevice(BGItem):SetStringValue("Parrying Type", "Flourish");
-				end	
+				end
 			
 				self.Blocking = false;
 				self:RemoveNumberValue("Blocking");
@@ -1082,11 +1306,35 @@ function Update(self)
 				playAttackAnimation(self, 3) -- overhead
 			elseif flourish then
 				self.parent:SetNumberValue("Block Foley", 1);
-				playAttackAnimation(self, 4) -- fancypants shit
+				local BGItem = self.parent.EquippedBGItem;				
+				if BGItem and BGItem:IsInGroup("Shields") then
+					playAttackAnimation(self, 5)
+					self.parent:SetNumberValue("Shieldbash Warcry", 1);
+					for actor in MovableMan.Actors do
+						if actor.Team == self.Team then
+							local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
+							if d < 300 then
+								local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);
+								if strength < 500 then
+									actor:SetNumberValue("Shieldbash Together", 1);
+								else
+									if IsAHuman(actor) and actor.Head then -- if it is a human check for head
+										local strength = SceneMan:CastStrengthSumRay(self.Pos, ToAHuman(actor).Head.Pos, 0, 128);	
+										if strength < 500 then		
+											actor:SetNumberValue("Shieldbash Together", 1);
+										end
+									end
+								end
+							end
+						end
+					end
+				else
+					playAttackAnimation(self, 4) -- fancypants shit
+				end
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
-				playAttackAnimation(self, 5) -- throw
+				playAttackAnimation(self, 6) -- throw
 			end
 			
 			-- if self.isCharged then
@@ -1198,6 +1446,9 @@ function Update(self)
 			
 			local heavyAttackFactor = (self.wasCharged and currentPhase.lastPrepare == true) and (currentPhase.durationMS * 2) or 0;
 			local workingDuration = currentPhase.durationMS + heavyAttackFactor;
+			if self.attackAnimationsTypes[self.currentAttackAnimation] == "ShieldFlourish" then
+				workingDuration = workingDuration * (math.random(8, 17) / 10);
+			end
 			
 			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
@@ -1252,6 +1503,15 @@ function Update(self)
 				
 				if currentPhase.soundEnd then
 					currentPhase.soundEnd:Play(self.Pos);
+					if self.attackAnimationsTypes[self.currentAttackAnimation] == "ShieldFlourish" then
+						local BGItem = self.parent.EquippedBGItem;				
+						if BGItem and BGItem:IsInGroup("Shields") then
+							local woundName = ToMOSRotating(BGItem):GetEntryWoundPresetName();
+							local wound = CreateAEmitter(woundName);
+							local sound = wound.BurstSound;
+							sound:Play(self.Pos);
+						end	
+					end
 				end
 				
 				self:RemoveStringValue("Parrying Type");

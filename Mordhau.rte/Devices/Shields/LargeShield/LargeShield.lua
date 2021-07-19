@@ -1,5 +1,14 @@
 function Create(self)
+
+	self.equipSound = CreateSoundContainer("Shield Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 0.9;
+	
+	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 1.0;
+
 	if math.random(0, 100) < 50 then
+		self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
+		self.pickUpSound.Pitch = 0.9;
 		self.Frame = 1;
 		self.GibSound = CreateSoundContainer("Mordhau LargeShield Wood Gib", "Mordhau.rte");
 		self:SetEntryWound("Mordhau LargeShield Wood Wound", "Mordhau.rte");

@@ -72,6 +72,12 @@ end
 
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("HaftedLarge Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 0.7;
+	
+	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 0.7;
+
 	-- throwing stuff
 	
 	self.bounceSound = CreateSoundContainer("Hafted Thrown Bounce Mordhau", "Mordhau.rte");
@@ -2028,6 +2034,87 @@ function Create(self)
 	self.attackAnimations[8] = throwPhase
 	self.attackAnimationsTypes[8] = throwPhase.Type
 	
+	-- Equip anim
+	equipPhase = {}
+	equipPhase.Type = "Equip";
+	
+	-- Out
+	i = 1
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 450
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 0
+	equipPhase[i].attackStunChance = 0
+	equipPhase[i].attackRange = 0
+	equipPhase[i].attackPush = 0
+	equipPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 90;
+	
+	equipPhase[i].frameStart = 6
+	equipPhase[i].frameEnd = 6
+	equipPhase[i].angleStart = 170
+	equipPhase[i].angleEnd = 150
+	equipPhase[i].offsetStart = Vector(-15, -25)
+	equipPhase[i].offsetEnd = Vector(-12, -15)
+	
+	-- Upright
+	i = 2
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 450
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 0
+	equipPhase[i].attackStunChance = 0
+	equipPhase[i].attackRange = 0
+	equipPhase[i].attackPush = 0
+	equipPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 0;
+	
+	equipPhase[i].frameStart = 6
+	equipPhase[i].frameEnd = 8
+	equipPhase[i].angleStart = 150
+	equipPhase[i].angleEnd = 15
+	equipPhase[i].offsetStart = Vector(-12, -15)
+	equipPhase[i].offsetEnd = Vector(-5, -10)
+	
+	equipPhase[i].soundStart = nil
+	equipPhase[i].soundStartVariations = 0
+	
+	equipPhase[i].soundEnd = nil
+	equipPhase[i].soundEndVariations = 0
+	
+	-- Stance
+	i = 3
+	equipPhase[i] = {}
+	equipPhase[i].durationMS = 200
+	
+	equipPhase[i].canBeBlocked = false
+	equipPhase[i].canDamage = false
+	equipPhase[i].attackDamage = 3.4
+	equipPhase[i].attackStunChance = 0.15
+	equipPhase[i].attackRange = 20
+	equipPhase[i].attackPush = 0.8
+	equipPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	equipPhase[i].attackAngle = 0;
+	
+	equipPhase[i].frameStart = 8
+	equipPhase[i].frameEnd = 6
+	equipPhase[i].angleStart = 15
+	equipPhase[i].angleEnd = 15
+	equipPhase[i].offsetStart = Vector(-5, -5)
+	equipPhase[i].offsetEnd = Vector(0, 0)
+	
+	equipPhase[i].soundEnd = nil
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[10] = regularAttackSounds
+	self.attackAnimationsGFX[10] = regularAttackGFX
+	self.attackAnimations[10] = equipPhase
+	self.attackAnimationsTypes[10] = equipPhase.Type
+	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
 	self.rotationInterpolationSpeed = 25
@@ -2057,29 +2144,23 @@ function Update(self)
 		end
 	end
 	
-	--if self.equipAnim or self.unequipAnim then
-		--[[
-		if self.equipAnim == true then
-			if self.equipAnimationTimer:IsPastSimMS(30) then
-				self.Frame = self.Frame + 1;
-				if self.Frame == 6 then
-					self.equipAnim = false;
-				end
-				self.equipAnimationTimer:Reset();
-			end
-		elseif self.unequipAnim == true then
-			if self.equipAnimationTimer:IsPastSimMS(30) then
-				self.Frame = self.Frame - 1;
-				if self.Frame == 1 then
-					self.unequipAnim = false;
-				end
-				self.equipAnimationTimer:Reset();
-			end
-		end
-		]]
-	--else
+	if self.equipAnim == true then
+	
+		playAttackAnimation(self, 10)
+		self.equipAnim = false;
 
-	if controller then --          :-)
+		local rotationTarget = rotationTarget + 170 / 180 * math.pi
+		local stanceTarget = stanceTarget + Vector(-10, -10);
+	
+		self.stance = self.stance + stanceTarget
+		
+		rotationTarget = rotationTarget * self.FlipFactor
+		self.rotation = self.rotation + rotationTarget
+		
+		self.StanceOffset = self.originalStanceOffset + self.stance
+		self.RotAngle = self.RotAngle + self.rotation
+		
+	elseif controller then --          :-)
 	
 		-- INPUT
 		local throw

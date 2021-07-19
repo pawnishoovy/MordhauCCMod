@@ -1,5 +1,11 @@
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("Shield Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 1.4;
+	
+	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 1.1;
+
 	self.parrySound = CreateSoundContainer("Mordhau ParryingShield Metal Impact", "Mordhau.rte");
 
 	self.Parrying = false;
@@ -8,6 +14,8 @@ function Create(self)
 	self.parryWindow = 500;
 
 	if math.random(0, 100) < 50 then
+		self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
+		self.pickUpSound.Pitch = 1.1;
 		self.Frame = 1;
 		self.parrySound = CreateSoundContainer("Mordhau ParryingShield Wood Impact", "Mordhau.rte");
 		self.GibSound = CreateSoundContainer("Mordhau ParryingShield Wood Gib", "Mordhau.rte");

@@ -10,7 +10,7 @@ function Create(self)
 	
 	self.phase = 0;
 	
-	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlPierceThrow.lua");
+self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlPierceThrow.lua");
 	
 end
 function Update(self)

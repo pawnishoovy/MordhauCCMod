@@ -616,6 +616,11 @@ function KnightAIBehaviours.handleVoicelines(self)
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
 	
+	if self:NumberValueExists("Shieldbash Warcry") then
+		self:RemoveNumberValue("Shieldbash Warcry");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.shieldbashWarcry, 5, 5);
+	end
+	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then
 		self:RemoveNumberValue("Mordhau Arrow Suppression");
 		self.Suppression = self.Suppression + 3;
@@ -696,6 +701,15 @@ function KnightAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
+					
+				elseif self:NumberValueExists("Shieldbash Together") then
+					self:RemoveNumberValue("Shieldbash Together");
+					if not self.inCombat then
+						local BGItem = self.EquippedBGItem;				
+						if BGItem and BGItem:IsInGroup("Shields") then
+							gun:SetNumberValue("Auto Shieldbash", 1);
+						end
+					end			
 					
 				end
 				

@@ -1,6 +1,11 @@
-
-
 function Create(self)
+
+	self.equipSound = CreateSoundContainer("Bow Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 0.9;
+	
+	self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 0.9;
+
 	self.parentSet = false;
 	
 	self.soundFire = CreateSoundContainer("Longbow Fire", "Mordhau.rte");

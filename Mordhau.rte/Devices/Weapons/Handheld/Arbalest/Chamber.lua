@@ -1,5 +1,11 @@
 function Create(self)
 
+	self.equipSound = CreateSoundContainer("Generic Equip Mordhau", "Mordhau.rte");
+	self.equipSound.Pitch = 1.0;
+	
+	self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
+	self.pickUpSound.Pitch = 0.9;
+
 	self.parentSet = false;
 	
 	-- Sounds --
