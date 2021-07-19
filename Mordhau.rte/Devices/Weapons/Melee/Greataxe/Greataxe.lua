@@ -23,6 +23,12 @@ function playAttackAnimation(self, animation)
 	
 	if self.Parrying == true then
 		self:SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+		-- make our parrying shield counter alongside us
+		-- and here i sit and wonder... parrying daggers?
+		local BGItem = self.parent.EquippedBGItem;				
+		if BGItem and BGItem:IsInGroup("Mordhau Counter Shields") then
+			ToHeldDevice(BGItem):SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+		end
 	end
 	
 	return
@@ -301,7 +307,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackRange = 20
 	doubleSlashAttackPhase[i].attackPush = 0.8
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	doubleSlashAttackPhase[i].attackAngle = 0;
+	doubleSlashAttackPhase[i].attackAngle = 70;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
 	doubleSlashAttackPhase[i].frameEnd = 11
@@ -323,9 +329,9 @@ function Create(self)
 	doubleSlashAttackPhase[i].canDamage = true
 	doubleSlashAttackPhase[i].attackDamage = 10
 	doubleSlashAttackPhase[i].attackStunChance = 0.15
-	doubleSlashAttackPhase[i].attackRange = 15
+	doubleSlashAttackPhase[i].attackRange = 20
 	doubleSlashAttackPhase[i].attackPush = 0.85
-	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	doubleSlashAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
@@ -487,7 +493,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackRange = 20
 	doubleSlashAttackPhase[i].attackPush = 0.8
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	doubleSlashAttackPhase[i].attackAngle = 0;
+	doubleSlashAttackPhase[i].attackAngle = 70;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
 	doubleSlashAttackPhase[i].frameEnd = 11
@@ -509,9 +515,9 @@ function Create(self)
 	doubleSlashAttackPhase[i].canDamage = true
 	doubleSlashAttackPhase[i].attackDamage = 9
 	doubleSlashAttackPhase[i].attackStunChance = 0.15
-	doubleSlashAttackPhase[i].attackRange = 15
+	doubleSlashAttackPhase[i].attackRange = 20
 	doubleSlashAttackPhase[i].attackPush = 0.85
-	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	doubleSlashAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
@@ -704,9 +710,9 @@ function Create(self)
 	slashOverheadAttackPhase[i].canDamage = true
 	slashOverheadAttackPhase[i].attackDamage = 10
 	slashOverheadAttackPhase[i].attackStunChance = 0.15
-	slashOverheadAttackPhase[i].attackRange = 15
+	slashOverheadAttackPhase[i].attackRange = 20
 	slashOverheadAttackPhase[i].attackPush = 0.85
-	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
 	slashOverheadAttackPhase[i].frameStart = 11
@@ -832,9 +838,9 @@ function Create(self)
 	slashOverheadAttackPhase[i].canDamage = false
 	slashOverheadAttackPhase[i].attackDamage = 5
 	slashOverheadAttackPhase[i].attackStunChance = 0.3
-	slashOverheadAttackPhase[i].attackRange = 14
+	slashOverheadAttackPhase[i].attackRange = 20
 	slashOverheadAttackPhase[i].attackPush = 0.8
-	slashOverheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 55;
 	
 	slashOverheadAttackPhase[i].frameStart = 6
@@ -857,9 +863,9 @@ function Create(self)
 	slashOverheadAttackPhase[i].canDamage = true
 	slashOverheadAttackPhase[i].attackDamage = 12
 	slashOverheadAttackPhase[i].attackStunChance = 0.4
-	slashOverheadAttackPhase[i].attackRange = 14
+	slashOverheadAttackPhase[i].attackRange = 20
 	slashOverheadAttackPhase[i].attackPush = 1.05
-	slashOverheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 55;
 	
 	slashOverheadAttackPhase[i].frameStart = 6
@@ -1386,9 +1392,9 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 1.0
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 20
 	underhandComboAttackPhase[i].attackPush = 0.6
-	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
 	underhandComboAttackPhase[i].frameStart = 7
@@ -1437,10 +1443,10 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 5
 	underhandComboAttackPhase[i].attackStunChance = 0.3
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 20
 	underhandComboAttackPhase[i].attackPush = 0.8
-	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
-	underhandComboAttackPhase[i].attackAngle = 55;
+	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 125;
 	
 	underhandComboAttackPhase[i].frameStart = 6
 	underhandComboAttackPhase[i].frameEnd = 6
@@ -1464,10 +1470,10 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 0.8
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 20
 	underhandComboAttackPhase[i].attackPush = 1.2
-	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
-	underhandComboAttackPhase[i].attackAngle = 55;
+	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackAngle = 125;
 	
 	underhandComboAttackPhase[i].frameStart = 6
 	underhandComboAttackPhase[i].frameEnd = 6
@@ -1574,9 +1580,9 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 5
 	underhandComboAttackPhase[i].attackStunChance = 0.3
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 20
 	underhandComboAttackPhase[i].attackPush = 0.8
-	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
 	underhandComboAttackPhase[i].frameStart = 6
@@ -1599,9 +1605,9 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 16
 	underhandComboAttackPhase[i].attackStunChance = 0.5
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 20
 	underhandComboAttackPhase[i].attackPush = 1.1
-	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
 	underhandComboAttackPhase[i].frameStart = 6
@@ -1739,9 +1745,9 @@ function Create(self)
 	overheadAttackPhase[i].canDamage = false
 	overheadAttackPhase[i].attackDamage = 5
 	overheadAttackPhase[i].attackStunChance = 0.3
-	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackRange = 20
 	overheadAttackPhase[i].attackPush = 0.8
-	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
 	overheadAttackPhase[i].frameStart = 6
@@ -1764,9 +1770,9 @@ function Create(self)
 	overheadAttackPhase[i].canDamage = true
 	overheadAttackPhase[i].attackDamage = 20
 	overheadAttackPhase[i].attackStunChance = 1.0
-	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackRange = 19
 	overheadAttackPhase[i].attackPush = 1.05
-	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
 	overheadAttackPhase[i].frameStart = 6
@@ -2149,16 +2155,16 @@ function Update(self)
 		playAttackAnimation(self, 10)
 		self.equipAnim = false;
 
-		local rotationTarget = rotationTarget + 170 / 180 * math.pi
-		local stanceTarget = stanceTarget + Vector(-10, -10);
+		-- local rotationTarget = 170 / 180 * math.pi
+		-- local stanceTarget = Vector(-15, -25);
 	
-		self.stance = self.stance + stanceTarget
+		-- self.stance = self.stance + stanceTarget
 		
-		rotationTarget = rotationTarget * self.FlipFactor
-		self.rotation = self.rotation + rotationTarget
+		-- rotationTarget = rotationTarget * self.FlipFactor
+		-- self.rotation = self.rotation + rotationTarget
 		
-		self.StanceOffset = self.originalStanceOffset + self.stance
-		self.RotAngle = self.RotAngle + self.rotation
+		-- self.StanceOffset = self.originalStanceOffset + self.stance
+		-- self.RotAngle = self.RotAngle + self.rotation
 		
 	elseif controller then --          :-)
 	
@@ -2254,13 +2260,6 @@ function Update(self)
 			if self.Blocking == true then
 				
 				self.Parrying = true;
-				
-				-- make our parrying shield counter alongside us
-				-- and here i sit and wonder... parrying daggers?
-				local BGItem = self.parent.EquippedBGItem;				
-				if BGItem and BGItem:IsInGroup("Weapons - Mordhau Melee") then
-					ToHeldDevice(BGItem):SetStringValue("Parrying Type", "Flourish");
-				end	
 			
 				self.Blocking = false;
 				self:RemoveNumberValue("Blocking");
@@ -2633,14 +2632,16 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
-				if (IsMOSRotating(MO) and canDamage) and not MO:IsInGroup("Weapons - Mordhau Melee") then
+				if (IsMOSRotating(MO) and canDamage) and not (MO:IsInGroup("Weapons - Mordhau Melee")
+				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
+				and ToMOSRotating(MO):GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]))) then
 					MO = ToMOSRotating(MO)
 					local hitAllowed = true;
 					if self.hitMOTable then -- this shouldn't be needed but it is
@@ -2793,7 +2794,7 @@ function Update(self)
 							end
 						end
 					end
-				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
+				elseif MO:IsInGroup("Weapons - Mordhau Melee") or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")

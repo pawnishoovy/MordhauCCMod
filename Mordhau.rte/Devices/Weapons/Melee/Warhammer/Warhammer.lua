@@ -19,6 +19,12 @@ function playAttackAnimation(self, animation)
 	
 	if self.Parrying == true then
 		self:SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+		-- make our parrying shield counter alongside us
+		-- and here i sit and wonder... parrying daggers?
+		local BGItem = self.parent.EquippedBGItem;				
+		if BGItem and BGItem:IsInGroup("Mordhau Counter Shields") then
+			ToHeldDevice(BGItem):SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
+		end
 	end
 	
 	return
@@ -286,7 +292,7 @@ function Create(self)
 	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	attackPhase[i].attackAngle = 0;
+	attackPhase[i].attackAngle = 70;
 	
 	attackPhase[i].frameStart = 11
 	attackPhase[i].frameEnd = 11
@@ -308,9 +314,9 @@ function Create(self)
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.05
-	attackPhase[i].attackRange = 15
+	attackPhase[i].attackRange = 20
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(0, 5) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 11
@@ -453,9 +459,9 @@ function Create(self)
 	stabAttackPhase[i].canDamage = false
 	stabAttackPhase[i].attackDamage = 4
 	stabAttackPhase[i].attackStunChance = 0.15
-	stabAttackPhase[i].attackRange = 20
+	stabAttackPhase[i].attackRange = 22
 	stabAttackPhase[i].attackPush = 0.8
-	stabAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabAttackPhase[i].attackAngle = 90;
 	
 	stabAttackPhase[i].frameStart = 6
@@ -478,9 +484,9 @@ function Create(self)
 	stabAttackPhase[i].canDamage = false
 	stabAttackPhase[i].attackDamage = 4
 	stabAttackPhase[i].attackStunChance = 0.15
-	stabAttackPhase[i].attackRange = 20
+	stabAttackPhase[i].attackRange = 22
 	stabAttackPhase[i].attackPush = 0.8
-	stabAttackPhase[i].attackVector = Vector(-4, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabAttackPhase[i].attackAngle = 90;
 	
 	stabAttackPhase[i].frameStart = 6
@@ -503,9 +509,9 @@ function Create(self)
 	stabAttackPhase[i].canDamage = true
 	stabAttackPhase[i].attackDamage = 4.5
 	stabAttackPhase[i].attackStunChance = 0.05
-	stabAttackPhase[i].attackRange = 15
+	stabAttackPhase[i].attackRange = 20
 	stabAttackPhase[i].attackPush = 0.8
-	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabAttackPhase[i].attackAngle = 90;
 	
 	stabAttackPhase[i].frameStart = 6
@@ -641,9 +647,9 @@ function Create(self)
 	overheadAttackPhase[i].canDamage = false
 	overheadAttackPhase[i].attackDamage = 5
 	overheadAttackPhase[i].attackStunChance = 0.3
-	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackRange = 20
 	overheadAttackPhase[i].attackPush = 0.8
-	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
 	overheadAttackPhase[i].frameStart = 6
@@ -666,9 +672,9 @@ function Create(self)
 	overheadAttackPhase[i].canDamage = true
 	overheadAttackPhase[i].attackDamage = 4
 	overheadAttackPhase[i].attackStunChance = 0.3
-	overheadAttackPhase[i].attackRange = 14
+	overheadAttackPhase[i].attackRange = 19
 	overheadAttackPhase[i].attackPush = 1.0
-	overheadAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
 	overheadAttackPhase[i].frameStart = 6
@@ -1166,8 +1172,8 @@ function Update(self)
 		playAttackAnimation(self, 10)
 		self.equipAnim = false;
 
-		local rotationTarget = rotationTarget + -45 / 180 * math.pi
-		local stanceTarget = stanceTarget + Vector(-4, 0);
+		local rotationTarget = -45 / 180 * math.pi
+		local stanceTarget = Vector(-4, 0);
 	
 		self.stance = self.stance + stanceTarget
 		
@@ -1211,12 +1217,12 @@ function Update(self)
 					self:RemoveNumberValue("Auto Shieldbash");
 					flourish = true
 				end
-				-- stab = (math.random(0, 100) < 50) and true;
-				-- overhead = true;
-				-- if stab or overhead or self.attackBuffered == true then
-					-- controller:SetState(Controller.PRESS_PRIMARY, true)
-					-- self:Activate();
-				-- end
+				stab = (math.random(0, 100) < 50) and true;
+				overhead = true;
+				if stab or overhead or self.attackBuffered == true then
+					controller:SetState(Controller.PRESS_PRIMARY, true)
+					self:Activate();
+				end
 			end
 			if stab or overhead or flourish or throw or self.attackBuffered == true then
 				controller:SetState(Controller.PRESS_PRIMARY, true)
@@ -1280,13 +1286,6 @@ function Update(self)
 			if self.Blocking == true then
 				
 				self.Parrying = true;
-				
-				-- make our parrying shield counter alongside us
-				-- and here i sit and wonder... parrying daggers?
-				local BGItem = self.parent.EquippedBGItem;				
-				if BGItem and BGItem:IsInGroup("Weapons - Mordhau Melee") then
-					ToHeldDevice(BGItem):SetStringValue("Parrying Type", "Flourish");
-				end
 			
 				self.Blocking = false;
 				self:RemoveNumberValue("Blocking");
@@ -1675,14 +1674,16 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, -3, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
-				if (IsMOSRotating(MO) and canDamage) and not MO:IsInGroup("Weapons - Mordhau Melee") then
+				if (IsMOSRotating(MO) and canDamage) and not (MO:IsInGroup("Weapons - Mordhau Melee")
+				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
+				and ToMOSRotating(MO):GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]))) then
 					hit = true
 					MO = ToMOSRotating(MO)
 					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
@@ -1806,7 +1807,7 @@ function Update(self)
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end
 					end
-				elseif MO:IsInGroup("Weapons - Mordhau Melee") then
+				elseif MO:IsInGroup("Weapons - Mordhau Melee") or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")

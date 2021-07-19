@@ -207,34 +207,21 @@ function Update(self)
 				end
 				
 				
-				self.PinStrength = 1000;
-				self.Vel = Vector()
-				self.AngularVel = 0;
-				--[[
-				if self.trailID then
-					local MO = MovableMan:FindObjectByUniqueID(self.trailID)
-					if MO then
-						MO.ToDelete = true
-						self.trailID = nil
-					end
-				end]]
-				
-				--[[
-				--(rayHitPos - self.stickMO.Pos)
-				local impulseMO = self.stickMO
-				if impulseMO.RootID ~= rte.NoMOID then
-					local root = ToMOSRotating(MovableMan:GetMOFromID(impulseMO.RootID))
-					if not IsAttachable(root) then
-						impulseMO = root
+				if not MO:IsInGroup("Weapons - Mordhau Melee") then -- deflect coolly off of weapons! 
+					self.PinStrength = 1000;
+					self.Vel = Vector()
+					self.AngularVel = 0;
+					
+					self.stuck = true
+					self.phase = 1
+				else
+					self.phase = 3
+					self.AngularVel = math.random(-15, 15);
+					self.Vel = Vector(self.Vel.X, self.Vel.Y - 6):SetMagnitude(self.Vel.Magnitude * 0.5);
+					if math.random(0, 100) < 30 and IsAHuman(MO:GetRootParent()) then
+						ToAHuman(MO:GetRootParent()):SetNumberValue("Mordhau Arrow Suppression", 1);
 					end
 				end
-				self.stickMO:AddImpulseForce(Vector(self.Vel.X, self.Vel.Y):SetMagnitude(100 / self.stickMO.Mass * 2), Vector())
-				]]
-				
-				self.HitsMOs = false;
-				
-				self.stuck = true
-				self.phase = 1
 			end
 			
 			self.decayTimer = Timer();
@@ -309,6 +296,33 @@ function Update(self)
 		end
 		
 	elseif self.phase == 2 then -- Stuck into terrain
+	
+		if self.arrowSuppression ~= false then
+			self.arrowSuppression = false;
+			if math.random(0, 100) < 5 then
+				for actor in MovableMan.Actors do
+					if actor.Team ~= self.Team then
+						local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
+						if d < 120 then
+							local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);
+							if strength < 300 then
+								actor:SetNumberValue("Mordhau Arrow Suppression", 1);
+								break;
+							else
+								if IsAHuman(actor) and actor.Head then -- if it is a human check for head
+									local strength = SceneMan:CastStrengthSumRay(self.Pos, ToAHuman(actor).Head.Pos, 0, 128);	
+									if strength < 300 then		
+										actor:SetNumberValue("Mordhau Arrow Suppression", 1);
+										break;
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end	
+	
 		self.PinStrength = 1000;
 		self.AngularVel = 0;
 		

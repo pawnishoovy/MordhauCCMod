@@ -1,12 +1,12 @@
 function Create(self)
 
 	self.equipSound = CreateSoundContainer("Shield Equip Mordhau", "Mordhau.rte");
-	self.equipSound.Pitch = 1.4;
+	self.equipSound.Pitch = 1.0;
 	
 	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
-	self.pickUpSound.Pitch = 1.1;
-
-	self.parrySound = CreateSoundContainer("Mordhau ParryingShield Metal Impact", "Mordhau.rte");
+	self.pickUpSound.Pitch = 1.0;
+	
+	self.parrySound = CreateSoundContainer("Mordhau MediumShield Metal Impact", "Mordhau.rte");
 
 	self.Parrying = false;
 
@@ -15,19 +15,24 @@ function Create(self)
 
 	if math.random(0, 100) < 50 then
 		self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
-		self.pickUpSound.Pitch = 1.1;
-		self.Frame = 1;
-		self.parrySound = CreateSoundContainer("Mordhau ParryingShield Wood Impact", "Mordhau.rte");
-		self.GibSound = CreateSoundContainer("Mordhau ParryingShield Wood Gib", "Mordhau.rte");
-		self:SetEntryWound("Mordhau ParryingShield Wood Wound", "Mordhau.rte");
-		self:SetExitWound("Mordhau ParryingShield Wood Wound", "Mordhau.rte");		
+		self.pickUpSound.Pitch = 1.0;
+		self.Frame = 2;
+		self.parrySound = CreateSoundContainer("Mordhau MediumShield Wood Impact", "Mordhau.rte");
+		self.GibSound = CreateSoundContainer("Mordhau MediumShield Wood Gib", "Mordhau.rte");
+		self:SetEntryWound("Mordhau MediumShield Wood Wound", "Mordhau.rte");
+		self:SetExitWound("Mordhau MediumShield Wood Wound", "Mordhau.rte");		
+		for attachable in self.Attachables do
+			attachable.Frame = 1;
+			attachable.GibSound = CreateSoundContainer("Mordhau MediumShield Wood PartGib", "Mordhau.rte");
+			attachable:SetEntryWound("Mordhau MediumShield Wood Wound", "Mordhau.rte");
+			attachable:SetExitWound("Mordhau MediumShield Wood Wound", "Mordhau.rte");
+		end
 	end
 end
 
 function Update(self)
 
 	if self:StringValueExists("Parrying Type") and self.Parrying == false then
-		self:SetStringValue("Parrying Type", "Flourish");
 		self.Parrying = true;
 		self.parryTimer:Reset();
 		
@@ -53,7 +58,7 @@ function Update(self)
 end
 
 function Destroy(self)
-	if self.Frame == 1 then
+	if self.Frame == 2 then
 		-- wood gib
 	else
 		-- metal gib

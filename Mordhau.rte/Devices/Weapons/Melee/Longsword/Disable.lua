@@ -32,16 +32,16 @@ function OnAttach(self)
 	
 		self.equipAnim = true;
 		
-		local rotationTarget = rotationTarget + 170 / 180 * math.pi
-		local stanceTarget = stanceTarget + Vector(-4, -0);
+		-- local rotationTarget = -225 / 180 * math.pi
+		-- local stanceTarget = Vector(-4, 0);
 	
-		self.stance = self.stance + stanceTarget
+		-- self.stance = self.stance + stanceTarget
 		
-		rotationTarget = rotationTarget * self.FlipFactor
-		self.rotation = self.rotation + rotationTarget
+		-- rotationTarget = rotationTarget * self.FlipFactor
+		-- self.rotation = self.rotation + rotationTarget
 		
-		self.StanceOffset = self.originalStanceOffset + self.stance
-		self.RotAngle = self.RotAngle + self.rotation
+		-- self.StanceOffset = self.originalStanceOffset + self.stance
+		-- self.RotAngle = self.RotAngle + self.rotation
 		
 	end
 	

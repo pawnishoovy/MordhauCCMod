@@ -9,7 +9,7 @@ function Create(self)
 	if math.random(0, 100) < 50 then
 		self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
 		self.pickUpSound.Pitch = 0.9;
-		self.Frame = 1;
+		self.Frame = 2;
 		self.GibSound = CreateSoundContainer("Mordhau LargeShield Wood Gib", "Mordhau.rte");
 		self:SetEntryWound("Mordhau LargeShield Wood Wound", "Mordhau.rte");
 		self:SetExitWound("Mordhau LargeShield Wood Wound", "Mordhau.rte");		
@@ -23,7 +23,7 @@ function Create(self)
 end
 
 function Destroy(self)
-	if self.Frame == 1 then
+	if self.Frame == 2 then
 		-- wood gib
 	else
 		-- metal gib
