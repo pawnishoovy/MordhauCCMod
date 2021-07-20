@@ -177,7 +177,11 @@ function Update(self)
 			
 					if IsAHuman(actorHit) then
 						local actorHuman = ToAHuman(actorHit)
-						if actorHuman.Head and self.stickMO.ID == actorHuman.Head.ID or actorHuman.FGArm and self.stickMO.ID == actorHuman.FGArm.ID or actorHuman.BGArm and self.stickMO.ID == actorHuman.BGArm.ID or actorHuman.FGLeg and self.stickMO.ID == actorHuman.FGLeg.ID or actorHuman.BGLeg and self.stickMO.ID == actorHuman.BGLeg.ID then
+												if (actorHuman.Head and self.stickMO.UniqueID == actorHuman.Head.UniqueID)
+						or (actorHuman.FGArm and self.stickMO.UniqueID == actorHuman.FGArm.UniqueID)
+						or (actorHuman.BGArm and self.stickMO.UniqueID == actorHuman.BGArm.UniqueID)
+						or (actorHuman.FGLeg and self.stickMO.UniqueID == actorHuman.FGLeg.UniqueID)
+						or (actorHuman.BGLeg and self.stickMO.UniqueID == actorHuman.BGLeg.UniqueID) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
 							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
 							if self.stickMO.WoundCount + 8 > self.stickMO.GibWoundLimit then

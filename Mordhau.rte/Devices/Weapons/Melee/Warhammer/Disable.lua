@@ -15,6 +15,8 @@ function OnDetach(self)
 	
 	self.rotationInterpolationSpeed = 25;
 	
+	self.Frame = 5;
+	
 	self.canBlock = false;
 	
 end

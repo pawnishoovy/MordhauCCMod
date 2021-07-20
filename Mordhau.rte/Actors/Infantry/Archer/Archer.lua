@@ -23,7 +23,7 @@ function Create(self)
 	self:SetStringValue("IdentityPrimary", self.IdentityPrimary);
 	
 	self.voiceSounds = {
-	shieldbashWarcry = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Shieldbash Warcry", "Mordhau.rte"),
+	Warcry = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Warcry", "Mordhau.rte"),
 	Happy = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Happy", "Mordhau.rte"),
 	killingEnemy = CreateSoundContainer("VO " .. self.IdentityPrimary .. " KillingEnemy", "Mordhau.rte"),
 	Archers = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Archers", "Mordhau.rte"),

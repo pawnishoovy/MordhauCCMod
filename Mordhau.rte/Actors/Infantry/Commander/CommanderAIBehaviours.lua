@@ -584,17 +584,48 @@ function CommanderAIBehaviours.handleVoicelines(self)
 		self:RemoveNumberValue("Death By Fire");
 		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.burnScream, 16, 5);
 	end
-	
-	if self:NumberValueExists("Shieldbash Warcry") then
-		self:RemoveNumberValue("Shieldbash Warcry");
+		
+	if (self:IsPlayerControlled() and UInputMan:KeyPressed(24)) then
 		local randomChance = math.random(0, 100);
 		if randomChance > 66 then
-			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.battleScream, 5, 4);
-		elseif randomChance > 33 then
-			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
-		else
 			CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Hold, 5, 4);
+		else
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
 		end
+		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+		end
+		for actor in MovableMan.Actors do
+			if actor.Team == self.Team then
+				local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
+				if d < 200 then
+					local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);
+					if strength < 400 and math.random(1, 100) < 85 then
+						actor:SetNumberValue("Warcry Together", 1)
+					else
+						if IsAHuman(actor) and actor.Head then -- if it is a human check for head
+							local strength = SceneMan:CastStrengthSumRay(self.Pos, ToAHuman(actor).Head.Pos, 0, 128);	
+							if strength < 400 and math.random(1, 100) < 85 then		
+								actor:SetNumberValue("Warcry Together", 1)
+							end
+						end
+					end
+				end
+			end
+		end
+	elseif self:NumberValueExists("Warcry Together") then
+		if not self.inCombat then
+			local randomChance = math.random(0, 100);
+			if randomChance > 66 then
+				CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Hold, 5, 4);
+			else
+				CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
+			end
+			if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+				ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+			end
+		end
+		self:RemoveNumberValue("Warcry Together");
 	end
 	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then
@@ -679,15 +710,6 @@ function CommanderAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
-					
-				elseif self:NumberValueExists("Shieldbash Together") then
-					self:RemoveNumberValue("Shieldbash Together");
-					if not self.inCombat then
-						local BGItem = self.EquippedBGItem;				
-						if BGItem and BGItem:IsInGroup("Shields") then
-							gun:SetNumberValue("Auto Shieldbash", 1);
-						end
-					end			
 					
 				end
 				

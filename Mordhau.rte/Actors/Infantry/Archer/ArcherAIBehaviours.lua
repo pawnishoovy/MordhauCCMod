@@ -613,9 +613,37 @@ function ArcherAIBehaviours.handleVoicelines(self)
 		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
 	
-	if self:NumberValueExists("Shieldbash Warcry") then
-		self:RemoveNumberValue("Shieldbash Warcry");
-		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.shieldbashWarcry, 5, 5);
+	if (self:IsPlayerControlled() and UInputMan:KeyPressed(24)) then
+		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
+		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+		end
+		for actor in MovableMan.Actors do
+			if actor.Team == self.Team then
+				local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
+				if d < 200 then
+					local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);
+					if strength < 400 and math.random(1, 100) < 85 then
+						actor:SetNumberValue("Warcry Together", 1)
+					else
+						if IsAHuman(actor) and actor.Head then -- if it is a human check for head
+							local strength = SceneMan:CastStrengthSumRay(self.Pos, ToAHuman(actor).Head.Pos, 0, 128);	
+							if strength < 400 and math.random(1, 100) < 85 then		
+								actor:SetNumberValue("Warcry Together", 1)
+							end
+						end
+					end
+				end
+			end
+		end
+	elseif self:NumberValueExists("Warcry Together") then
+		if not self.inCombat then
+			ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
+			if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+				ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+			end
+		end
+		self:RemoveNumberValue("Warcry Together");
 	end
 	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then
@@ -698,16 +726,7 @@ function ArcherAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
-					
-				elseif self:NumberValueExists("Shieldbash Together") then
-					self:RemoveNumberValue("Shieldbash Together");
-					if not self.inCombat then
-						local BGItem = self.EquippedBGItem;				
-						if BGItem and BGItem:IsInGroup("Shields") then
-							gun:SetNumberValue("Auto Shieldbash", 1);
-						end
-					end
-					
+
 				end
 				
 			end

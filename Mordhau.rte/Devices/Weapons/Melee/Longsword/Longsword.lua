@@ -844,6 +844,221 @@ function Create(self)
 	self.attackAnimations[4] = flourishPhase
 	self.attackAnimationsTypes[4] = flourishPhase.Type
 	
+	-- warcry
+	warcryPhase = {}
+	warcryPhase.Type = "Warcry";
+	
+	-- Pump
+	i = 1
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 250
+	
+	warcryPhase[i].lastPrepare = true
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 0
+	warcryPhase[i].attackStunChance = 0
+	warcryPhase[i].attackRange = 0
+	warcryPhase[i].attackPush = 0
+	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 90;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = -25
+	warcryPhase[i].angleEnd = -45
+	warcryPhase[i].offsetStart = Vector(0, 0)
+	warcryPhase[i].offsetEnd = Vector(6, -15)
+	
+	warcryPhase[i].soundStart = nil
+	
+	-- Pause
+	i = 2
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 500
+	
+	warcryPhase[i].lastPrepare = true
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 0
+	warcryPhase[i].attackStunChance = 0
+	warcryPhase[i].attackRange = 0
+	warcryPhase[i].attackPush = 0
+	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 90;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = -45
+	warcryPhase[i].angleEnd = -45
+	warcryPhase[i].offsetStart = Vector(6, -15)
+	warcryPhase[i].offsetEnd = Vector(6, -15)
+	
+	warcryPhase[i].soundStart = nil
+	
+	-- Lower
+	i = 3
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 200
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 0
+	warcryPhase[i].attackStunChance = 0
+	warcryPhase[i].attackRange = 0
+	warcryPhase[i].attackPush = 0
+	warcryPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = -45
+	warcryPhase[i].angleEnd = 15
+	warcryPhase[i].offsetStart = Vector(6, -15)
+	warcryPhase[i].offsetEnd = Vector(0, -5)
+	
+	-- Pump
+	i = 4
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 150
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 3.4
+	warcryPhase[i].attackStunChance = 0.15
+	warcryPhase[i].attackRange = 20
+	warcryPhase[i].attackPush = 0.8
+	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 15
+	warcryPhase[i].angleEnd = 45
+	warcryPhase[i].offsetStart = Vector(0, -5)
+	warcryPhase[i].offsetEnd = Vector(0, -15)
+	
+	warcryPhase[i].soundEnd = nil
+	
+	-- Pause
+	i = 5
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 150
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 3.4
+	warcryPhase[i].attackStunChance = 0.15
+	warcryPhase[i].attackRange = 20
+	warcryPhase[i].attackPush = 0.8
+	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 45
+	warcryPhase[i].angleEnd = 45
+	warcryPhase[i].offsetStart = Vector(0, -15)
+	warcryPhase[i].offsetEnd = Vector(0, -15)
+	
+	-- Lower
+	i = 6
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 75
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 0
+	warcryPhase[i].attackStunChance = 0
+	warcryPhase[i].attackRange = 0
+	warcryPhase[i].attackPush = 0
+	warcryPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 45
+	warcryPhase[i].angleEnd = 45
+	warcryPhase[i].offsetStart = Vector(0, -15)
+	warcryPhase[i].offsetEnd = Vector(0, -5)
+	
+	-- Pump
+	i = 7
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 150
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 3.4
+	warcryPhase[i].attackStunChance = 0.15
+	warcryPhase[i].attackRange = 20
+	warcryPhase[i].attackPush = 0.8
+	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 45
+	warcryPhase[i].angleEnd = 45
+	warcryPhase[i].offsetStart = Vector(0, -5)
+	warcryPhase[i].offsetEnd = Vector(0, -15)
+	
+	warcryPhase[i].soundEnd = nil
+	
+	-- Pause
+	i = 8
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 400
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 3.4
+	warcryPhase[i].attackStunChance = 0.15
+	warcryPhase[i].attackRange = 20
+	warcryPhase[i].attackPush = 0.8
+	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 45
+	warcryPhase[i].angleEnd = 45
+	warcryPhase[i].offsetStart = Vector(0, -15)
+	warcryPhase[i].offsetEnd = Vector(0, -15)
+	
+	warcryPhase[i].soundEnd = nil
+	
+	-- Return
+	i = 9
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 300
+	
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 3.4
+	warcryPhase[i].attackStunChance = 0.15
+	warcryPhase[i].attackRange = 20
+	warcryPhase[i].attackPush = 0.8
+	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 0;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 45
+	warcryPhase[i].angleEnd = -35
+	warcryPhase[i].offsetStart = Vector(0, -15)
+	warcryPhase[i].offsetEnd = Vector(0, 0)
+	
+	warcryPhase[i].soundStart = nil
+	
+	warcryPhase[i].soundEnd = nil
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[5] = regularAttackSounds
+	self.attackAnimationsGFX[5] = regularAttackGFX
+	self.attackAnimations[5] = warcryPhase
+	self.attackAnimationsTypes[5] = warcryPhase.Type	
+	
 	-- Throw
 	throwPhase = {}
 	throwPhase.Type = "Throw";
@@ -921,10 +1136,10 @@ function Create(self)
 	throwPhase[i].soundEndVariations = 0
 	
 	-- Add the animation to the animation table
-	self.attackAnimationsSounds[5] = regularAttackSounds
-	self.attackAnimationsGFX[5] = regularAttackGFX
-	self.attackAnimations[5] = throwPhase
-	self.attackAnimationsTypes[5] = throwPhase.Type
+	self.attackAnimationsSounds[6] = regularAttackSounds
+	self.attackAnimationsGFX[6] = regularAttackGFX
+	self.attackAnimations[6] = throwPhase
+	self.attackAnimationsTypes[6] = throwPhase.Type
 	
 	-- Equip anim
 	equipPhase = {}
@@ -1057,6 +1272,7 @@ function Update(self)
 		-- INPUT
 		local throw
 		local flourish
+		local warcry = self:NumberValueExists("Warcried");
 		local stab
 		local overhead
 		local attack
@@ -1067,7 +1283,7 @@ function Update(self)
 				flourish = (player and UInputMan:KeyPressed(8));
 				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
 				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
-				if stab or overhead or flourish or throw or self.attackBuffered == true then
+				if stab or overhead or flourish or throw or warcry or self.attackBuffered == true then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
@@ -1083,7 +1299,7 @@ function Update(self)
 			else
 				stab = (math.random(0, 100) < 50) and true;
 				overhead = true;
-				if stab or overhead or self.attackBuffered == true then
+				if stab or overhead or flourish or throw or warcry or self.attackBuffered == true then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
@@ -1158,19 +1374,22 @@ function Update(self)
 				
 			end
 			
-			if not stab and not overhead and not flourish and not throw then
+			if not stab and not overhead and not flourish and not throw and not warcry then
 				playAttackAnimation(self, 1) -- regular attack
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
 			elseif overhead then
 				playAttackAnimation(self, 3) -- overhead
+			elseif warcry then
+				self.parent:SetNumberValue("Block Foley", 1);
+				playAttackAnimation(self, 5)
 			elseif flourish then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 4) -- fancypants shit
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
-				playAttackAnimation(self, 5) -- throw
+				playAttackAnimation(self, 6) -- throw
 			end
 			
 			-- if self.isCharged then
@@ -1182,6 +1401,8 @@ function Update(self)
 				--playAttackAnimation(self, 1) -- regular attack
 			-- end
 		end
+		
+		self:RemoveNumberValue("Warcried");
 		
 		-- ANIMATION PLAYER
 		local stanceTarget = Vector(0, 0)

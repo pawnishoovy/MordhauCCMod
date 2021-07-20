@@ -121,10 +121,10 @@ function Update(self)
 		end
 	end]]
 	
-	if self.phase == 0 and self.Vel.Magnitude > 13 then -- Raycast, stick to things
+	if self.phase == 0 and self.Vel.Magnitude > 25 then -- Raycast, stick to things
 		local rayOrigin = self.Pos
 		local rayVec = Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.Vel.Magnitude * rte.PxTravelledPerFrame + self.IndividualRadius);
-		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, 2, 0, false, 2); -- Raycast
+		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
 		if moCheck ~= rte.NoMOID then
 			local rayHitPos = SceneMan:GetLastRayHitPos()
 			local MO = MovableMan:GetMOFromID(moCheck)
@@ -145,8 +145,6 @@ function Update(self)
 				-- self.stickVecY = stickVec.Y;
 				-- self.stickRot = self.RotAngle - self.stickMO.RotAngle;
 				-- self.stickWiggle = 2;
-			
-				self.soundFlyLoop:Stop(-1)
 				
 				local addWounds = true
 				
@@ -239,6 +237,9 @@ function Update(self)
 							end
 						elseif actorHuman.UniqueID == self.stickMO.UniqueID then -- if we hit torso
 							self.stickMO.Vel = self.stickMO.Vel + torsoLessVel
+						elseif (actorHuman.EquippedItem and self.stickMO.UniqueID == actorHuman.EquippedItem.UniqueID) then -- if we hit device
+							ToMOSRotating(self.stickMO:GetParent()):RemoveAttachable(ToAttachable(self.stickMO), true, true);
+							self.stickMO.Vel = self.stickMO.Vel + torsoLessVel
 						end
 					end
 				end
@@ -248,7 +249,7 @@ function Update(self)
 						local pixel = CreateMOPixel("Ballista Bolt Damage", "Mordhau.rte");
 						pixel.Vel = self.Vel;
 						pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
-						pixel.Team = 2;
+						pixel.Team = self.Team;
 						pixel.IgnoresTeamHits = true;
 						pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 120;--1.53;
 						MovableMan:AddParticle(pixel);
@@ -333,21 +334,21 @@ function Update(self)
 	
 		if self.arrowSuppression ~= false then
 			self.arrowSuppression = false;
-			if math.random(0, 100) < 5 then
+			if math.random(0, 100) < 75 then
 				for actor in MovableMan.Actors do
 					if actor.Team ~= self.Team then
 						local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
 						if d < 120 then
 							local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);
-							if strength < 300 then
-								actor:SetNumberValue("Blocked Heavy", 1);
-								break;
+							if strength < 500 then
+								actor:SetNumberValue("Blocked Mordhau", 1);
+								actor:SetNumberValue("Blocked Heavy Mordhau", 1);
 							else
 								if IsAHuman(actor) and actor.Head then -- if it is a human check for head
 									local strength = SceneMan:CastStrengthSumRay(self.Pos, ToAHuman(actor).Head.Pos, 0, 128);	
-									if strength < 300 then		
-										actor:SetNumberValue("Blocked Heavy", 1);
-										break;
+									if strength < 500 then		
+										actor:SetNumberValue("Blocked Mordhau", 1);
+										actor:SetNumberValue("Blocked Heavy Mordhau", 1);
 									end
 								end
 							end

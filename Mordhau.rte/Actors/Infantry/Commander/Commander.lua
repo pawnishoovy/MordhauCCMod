@@ -23,6 +23,7 @@ function Create(self)
 	self:SetStringValue("IdentityPrimary", self.IdentityPrimary);
 	
 	self.voiceSounds = {
+	Hold = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Hold", "Mordhau.rte"),
 	killingEnemy = CreateSoundContainer("VO " .. self.IdentityPrimary .. " KillingEnemy", "Mordhau.rte"),
 	Archers = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Archers", "Mordhau.rte"),
 	gruntLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " GruntLight", "Mordhau.rte"),
