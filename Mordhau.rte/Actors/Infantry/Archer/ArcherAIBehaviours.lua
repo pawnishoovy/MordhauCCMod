@@ -289,7 +289,7 @@ function ArcherAIBehaviours.handleHealth(self)
 	
 		if self:NumberValueExists("Death By Fire") then
 			self:RemoveNumberValue("Death By Fire");
-			KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+			ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 		end
 	
 		self.oldHealth = self.Health;
@@ -638,12 +638,29 @@ function ArcherAIBehaviours.handleVoicelines(self)
 		end
 	elseif self:NumberValueExists("Warcry Together") then
 		if not self.inCombat then
-			ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
-			if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
-				ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+			-- piggyback off this so we dont have a thousand different value checks all the time...
+			if self:NumberValueExists("Ye Olde Victory") then
+				self.Victory = true;
+				ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.victorySpoken, 6, 4);
+				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+				end
+			end
+			if self.Victory ~= true then
+				ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
+				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+				end
 			end
 		end
 		self:RemoveNumberValue("Warcry Together");
+	end
+	
+	if self.Victory then
+		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Victory, 5, 4);
+		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
+		end
 	end
 	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then

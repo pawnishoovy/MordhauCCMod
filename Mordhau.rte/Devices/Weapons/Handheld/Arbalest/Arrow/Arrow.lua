@@ -9,6 +9,8 @@ function Create(self)
 	
 	self.trailID = trail.UniqueID]]
 	
+	self.hitMOTable = {}
+	
 	self.soundBounce = CreateSoundContainer("Longbow Arrow Bounce", "Mordhau.rte");
 	self.soundBouncePlay = true;
 	
@@ -127,108 +129,124 @@ function Update(self)
 			local rayHitPos = SceneMan:GetLastRayHitPos()
 			local MO = MovableMan:GetMOFromID(moCheck)
 			if IsMOSRotating(MO) then
-				self.stickMO = ToMOSRotating(MO);
-				local stickVec = SceneMan:ShortestDistance(self.stickMO.Pos,rayHitPos,SceneMan.SceneWrapsX):RadRotate(-self.stickMO.RotAngle);
-				self.stickVecX = stickVec.X;
-				self.stickVecY = stickVec.Y;
-				self.stickRot = self.RotAngle - self.stickMO.RotAngle;
-				self.stickWiggle = 2;
-			
-				self.soundFlyLoop:Stop(-1)
-				
-				local addWounds = true
-				
-				-- Get the material and set damage multiplier
-				local material = self.stickMO.Material.PresetName;
-				
-				-- get wounds to check for dent metal
-				local woundName = self.stickMO:GetEntryWoundPresetName()
-				local woundNameExit = self.stickMO:GetExitWoundPresetName()
-				
-				
-				-- Add extra effects based on the material
-				if string.find(material,"Flesh") then
-					local blood = CreateMOSParticle("Blood Spray Particle");
-					blood.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
-					blood.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.1, 0.1)) * RangeRand(0.05, 0.1) * -1.0;
-					MovableMan:AddParticle(blood);
-					self.soundHitFlesh:Play(self.Pos);
-				else
-					for i = 1, 3 do
-						local bloofm = CreateMOSParticle("Tiny Smoke Trail 1");
-						bloofm.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
-						bloofm.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.2, 0.2)) * RangeRand(0.1, 0.4) * -1.0;
-						MovableMan:AddParticle(bloofm);
-					end
-					if string.find(material,"Metal") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
-						self.soundHitMetal:Play(self.Pos);
-					end
-				end
-				
-				local effect = CreateMOSRotating("Longbow Arrow Hit Effect", "Mordhau.rte");
-				if effect then
-					effect.Pos = rayHitPos
-					MovableMan:AddParticle(effect);
-					effect:GibThis();
-				end
-				
-				local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
-				if (actorHit and IsActor(actorHit)) then
-			
-					if IsAHuman(actorHit) then
-						local actorHuman = ToAHuman(actorHit)
-												if (actorHuman.Head and self.stickMO.UniqueID == actorHuman.Head.UniqueID)
-						or (actorHuman.FGArm and self.stickMO.UniqueID == actorHuman.FGArm.UniqueID)
-						or (actorHuman.BGArm and self.stickMO.UniqueID == actorHuman.BGArm.UniqueID)
-						or (actorHuman.FGLeg and self.stickMO.UniqueID == actorHuman.FGLeg.UniqueID)
-						or (actorHuman.BGLeg and self.stickMO.UniqueID == actorHuman.BGLeg.UniqueID) then
-							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
-							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
-							if self.stickMO.WoundCount + 8 > self.stickMO.GibWoundLimit then
-								ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-								addWounds = false;
-								self.stickMO.Vel = self.stickMO.Vel + lessVel
-							elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
-								ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-								addWounds = false;
-								self.stickMO.Vel = self.stickMO.Vel + lessVel
-							end
+				local hitAllowed = true;
+				if self.hitMOTable then -- this shouldn't be needed but it is
+					for index, root in pairs(self.hitMOTable) do
+						if root == MO:GetRootParent().UniqueID or index == MO.UniqueID then
+							hitAllowed = false;
 						end
 					end
 				end
+				if hitAllowed == true then
+					self.stickMO = ToMOSRotating(MO);
+					self.hitMOTable[self.stickMO.UniqueID] = self.stickMO:GetRootParent().UniqueID;
+					local stickVec = SceneMan:ShortestDistance(self.stickMO.Pos,rayHitPos,SceneMan.SceneWrapsX):RadRotate(-self.stickMO.RotAngle);
+					self.stickVecX = stickVec.X;
+					self.stickVecY = stickVec.Y;
+					self.stickRot = self.RotAngle - self.stickMO.RotAngle;
+					self.stickWiggle = 2;
 				
-				if addWounds == true then
-					-- Damage, create a pixel that makes a hole
-					for i = 0, 8 do
-						local pixel = CreateMOPixel("Longbow Arrow Damage", "Mordhau.rte");
-						pixel.Vel = self.Vel;
-						pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
-						pixel.Team = self.Team;
-						pixel.IgnoresTeamHits = true;
-						pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 140;--1.53;
-						MovableMan:AddParticle(pixel);
-					end
-				end
-				
-				
-				if not MO:IsInGroup("Weapons - Mordhau Melee") then -- deflect coolly off of weapons! 
-					self.PinStrength = 1000;
-					self.Vel = Vector()
-					self.AngularVel = 0;
+					self.soundFlyLoop:Stop(-1)
 					
-					self.stuck = true
-					self.phase = 1
-				else
-					self.phase = 3
-					self.AngularVel = math.random(-15, 15);
-					self.Vel = Vector(self.Vel.X, self.Vel.Y - 6):SetMagnitude(self.Vel.Magnitude * 0.5);
-					if math.random(0, 100) < 30 and IsAHuman(MO:GetRootParent()) then
-						ToAHuman(MO:GetRootParent()):SetNumberValue("Mordhau Arrow Suppression", 1);
+					local addWounds = true
+					
+					-- Get the material and set damage multiplier
+					local material = self.stickMO.Material.PresetName;
+					
+					-- get wounds to check for dent metal
+					local woundName = self.stickMO:GetEntryWoundPresetName()
+					local woundNameExit = self.stickMO:GetExitWoundPresetName()
+					
+					
+					-- Add extra effects based on the material
+					if string.find(material,"Flesh") then
+						local blood = CreateMOSParticle("Blood Spray Particle");
+						blood.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
+						blood.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.1, 0.1)) * RangeRand(0.05, 0.1) * -1.0;
+						MovableMan:AddParticle(blood);
+						self.soundHitFlesh:Play(self.Pos);
+					else
+						for i = 1, 3 do
+							local bloofm = CreateMOSParticle("Tiny Smoke Trail 1");
+							bloofm.Pos = rayHitPos - Vector(self.Vel.X,self.Vel.Y) * rte.PxTravelledPerFrame * 0.1;
+							bloofm.Vel = Vector(self.Vel.X,self.Vel.Y):RadRotate(math.pi * RangeRand(-0.2, 0.2)) * RangeRand(0.1, 0.4) * -1.0;
+							MovableMan:AddParticle(bloofm);
+						end
+						if string.find(material,"Metal") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
+							self.soundHitMetal:Play(self.Pos);
+						end
 					end
+					
+					local effect = CreateMOSRotating("Longbow Arrow Hit Effect", "Mordhau.rte");
+					if effect then
+						effect.Pos = rayHitPos
+						MovableMan:AddParticle(effect);
+						effect:GibThis();
+					end
+					
+					local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
+					if (actorHit and IsActor(actorHit)) then
+				
+						if IsAHuman(actorHit) then
+							local actorHuman = ToAHuman(actorHit)
+													if (actorHuman.Head and self.stickMO.UniqueID == actorHuman.Head.UniqueID)
+							or (actorHuman.FGArm and self.stickMO.UniqueID == actorHuman.FGArm.UniqueID)
+							or (actorHuman.BGArm and self.stickMO.UniqueID == actorHuman.BGArm.UniqueID)
+							or (actorHuman.FGLeg and self.stickMO.UniqueID == actorHuman.FGLeg.UniqueID)
+							or (actorHuman.BGLeg and self.stickMO.UniqueID == actorHuman.BGLeg.UniqueID) then
+								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
+								local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
+								if self.stickMO.WoundCount + 8 > self.stickMO.GibWoundLimit then
+									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
+									addWounds = false;
+									self.stickMO.Vel = self.stickMO.Vel + lessVel
+								elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
+									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
+									addWounds = false;
+									self.stickMO.Vel = self.stickMO.Vel + lessVel
+								end
+							end
+						end
+					end
+					
+					if addWounds == true then
+						-- Damage, create a pixel that makes a hole
+						for i = 0, 8 do
+							local pixel = CreateMOPixel("Longbow Arrow Damage", "Mordhau.rte");
+							pixel.Vel = self.Vel;
+							pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
+							pixel.Team = self.Team;
+							pixel.IgnoresTeamHits = true;
+							pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 140;--1.53;
+							MovableMan:AddParticle(pixel);
+						end
+					end
+					
+					
+					if not MO:IsInGroup("Weapons - Mordhau Melee") then -- deflect coolly off of weapons!
+						if self.hitOne == true then
+							self.PinStrength = 1000;
+							self.Vel = Vector()
+							self.AngularVel = 0;
+							
+							self.stuck = true
+							self.phase = 1
+						else
+							self.Vel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude * 0.6); -- continue on, we stick in second MO hit
+						end
+					else
+						self.phase = 3
+						self.AngularVel = math.random(-15, 15);
+						self.Vel = Vector(self.Vel.X, self.Vel.Y - 6):SetMagnitude(self.Vel.Magnitude * 0.5);
+						if math.random(0, 100) < 30 and IsAHuman(MO:GetRootParent()) then
+							ToAHuman(MO:GetRootParent()):SetNumberValue("Mordhau Arrow Suppression", 1);
+						end
+					end
+					self.hitOne = true;
 				end
-			end
 			
-			self.decayTimer = Timer();
+				self.decayTimer = Timer();
+			end
 		else
 			local terrCheck = SceneMan:CastStrengthSumRay(rayOrigin, rayOrigin + rayVec, 2, 0); -- Raycast
 			if terrCheck > 5 then

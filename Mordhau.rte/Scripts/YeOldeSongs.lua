@@ -1630,6 +1630,12 @@ function YeOldeSongsScript:EndScript()
 			--But if humans are left, play happy music!
 			AudioMan:ClearMusicQueue();
 			AudioMan:PlayMusic(self.victoryPath, 0, -1);
+			for actor in MovableMan.Actors do
+				if IsAHuman(actor) then
+					ToAHuman(actor):SetNumberValue("Warcry Together", 1);
+					ToAHuman(actor):SetNumberValue("Ye Olde Victory", 1); -- hmmmmm...
+				end
+			end
 			for i = 1, #self.happyAmbients do
 				AudioMan:QueueSilence(10);
 				local randomizedIndex = math.random(1, #self.happyAmbients);

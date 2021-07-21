@@ -13,9 +13,18 @@ function playAttackAnimation(self, animation)
 	self.attackAnimationCanHit = true
 	self.blockedNullifier = true;
 	self.Recovering = false;
+	self.Recovering = false;
+	self.Attacked = false;
+	if self.pseudoPhase then
+	
+		self.usePseudoPhase = true;
+		
+	end
+	
 	self.attackBuffered = false;
 	self.stabBuffered = false;
 	self.overheadBuffered = false;
+	
 	self.wasParried = false;
 	
 	self.Hits = 0;
@@ -2735,11 +2744,15 @@ function Update(self)
 			local animation = self.currentAttackAnimation
 			local attackPhases = self.attackAnimations[animation]
 			local currentPhase = attackPhases[self.currentAttackSequence]
+			if self.pseudoPhase then
+				currentPhase = self.pseudoPhase;
+			end
 			local nextPhase = attackPhases[self.currentAttackSequence + 1]
 			
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
 				if activated then
+					self.attackCooldown = true;
 					self.wasCharged = true;
 					self.hitMax = 4;
 					self.parent:SetNumberValue("Extreme Attack", 1);
@@ -2781,14 +2794,6 @@ function Update(self)
 					self.attackAnimationIsPlaying = false
 				end
 			end
-			if self.Recovering == true and attack and not self.attackBuffered then
-				self.attackBuffered = true;
-				if stab then
-					self.stabBuffered = true;
-				elseif overhead then
-					self.overheadBuffered = true;
-				end
-			end
 			
 			local factor = self.attackAnimationTimer.ElapsedSimTimeMS / currentPhase.durationMS
 			if factor > 1 then
@@ -2813,6 +2818,9 @@ function Update(self)
 				canDamage = false;
 				canBeBlocked = false;
 			end
+			if canDamage == true then
+				self.Attacked = true;
+			end
 			damage = currentPhase.attackDamage or 0
 			damageVector = currentPhase.attackVector or Vector(0,0)
 			damageAngle = currentPhase.attackAngle or 0
@@ -2830,7 +2838,62 @@ function Update(self)
 			stanceTarget = stanceTarget + (currentPhase.offsetStart * (1 - factor) + currentPhase.offsetEnd * factor) -- interpolate stance offset
 			local frameChange = currentPhase.frameEnd - currentPhase.frameStart
 			self.Frame = math.floor(currentPhase.frameStart + math.floor(frameChange * factor, 0.55))
+		
+			if (self.Attacked == true and attack) and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+				if not stab and not overhead then
+					self.attackBuffered = true;
+					self.attackAnimationBuffered = math.random(1, 2) 
+				elseif stab then
+					self.stabBuffered = true;
+					self.attackAnimationBuffered = math.random(3, 4) 
+				elseif overhead then
+					self.overheadBuffered = true;
+					self.attackAnimationBuffered = math.random(5, 6) 
+				end
+				
+			end
+				
+			if self.Recovering == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 			
+				self.chargeDecided = false;
+				playAttackAnimation(self, self.attackAnimationBuffered)
+				
+				self.attackBuffered = false;
+				self.stabBuffered = false;
+				self.overheadBuffered = false;
+			
+				-- construct pseudo phase to get us from where we are now through the first phase of the buffered attack, if we buffered one
+				-- doesn't THAT sound scientific
+				
+				local attackPhases = self.attackAnimations[self.attackAnimationBuffered]
+				local currentPhase = attackPhases[1]
+				
+				self.pseudoPhase = {}
+				self.pseudoPhase.durationMS = (currentPhase.durationMS * 1.8) or 0
+				
+				self.pseudoPhase.canBeBlocked = currentPhase.canBeBlocked or false
+				self.pseudoPhase.canDamage = currentPhase.canDamage or false
+				self.pseudoPhase.attackDamage = currentPhase.attackDamage or 0
+				self.pseudoPhase.attackStunChance = currentPhase.attackStunChance or 0
+				self.pseudoPhase.attackRange = currentPhase.attackRange or 0
+				self.pseudoPhase.attackPush = currentPhase.attackPush or 0
+				self.pseudoPhase.attackVector = currentPhase.attackVector or Vector(0, 0)
+				self.pseudoPhase.attackAngle = currentPhase.attackAngle or 0
+				
+				self.pseudoPhase.frameStart = self.Frame
+				self.pseudoPhase.frameEnd = currentPhase.frameEnd or 6
+				self.pseudoPhase.angleStart = (self.rotation * self.FlipFactor) * (180/math.pi)
+				self.pseudoPhase.angleEnd = currentPhase.angleEnd or 0
+				self.pseudoPhase.offsetStart = self.originalStanceOffset + self.stance
+				self.pseudoPhase.offsetEnd = currentPhase.offsetEnd or Vector(0, 0)
+				
+				self.pseudoPhase.soundStart = currentPhase.soundStart or nil
+				
+				self.pseudoPhase.soundEnd = currentPhase.soundEnd or nil
+					
+				
+			end
+		
 			-- DEBUG
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 40), "animation = "..animation, true, 0);
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 20), "sequence = "..self.currentAttackSequence, true, 0);
@@ -2871,6 +2934,8 @@ function Update(self)
 				
 				self:RemoveStringValue("Parrying Type");
 				self.Parrying = false;
+				
+				self.pseudoPhase = nil;
 				
 				self.currentAttackStart = false
 				self.attackAnimationTimer:Reset()
@@ -3144,7 +3209,7 @@ function Update(self)
 								end
 							end
 							
-							if addWounds == true then
+							if addWounds == true and woundName then
 								MO:SetNumberValue("Mordhau Flinched", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								MO:AddAttachable(flincher)
@@ -3187,7 +3252,7 @@ function Update(self)
 									actorHit:FlashWhite(50);
 								end
 							end
-						else -- generic wound adding for non-actors
+						elseif woundName then -- generic wound adding for non-actors
 							for i = 1, woundsToAdd do
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
@@ -3200,6 +3265,9 @@ function Update(self)
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
 						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") then
+							self.attackBuffered = false;
+							self.stabBuffered = false;
+							self.overheadBuffered = false;
 							self.wasParried = true;
 							self.parriedCooldown = true;
 							self.parriedCooldownTimer:Reset();

@@ -19,7 +19,7 @@ function Create(self)
 	
 	-- IDENTITY AND VOICE
 	
-	self.IdentityPrimary = "DemiGod";
+	self.IdentityPrimary = (math.random(0, 100) < 50) and "DemiGod" or "Righteous";
 	self:SetStringValue("IdentityPrimary", self.IdentityPrimary);
 	
 	self.voiceSounds = {
@@ -63,6 +63,8 @@ function Create(self)
 	suppressedMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " SuppressedMedium", "Mordhau.rte"),
 	suppressedSerious = CreateSoundContainer("VO " .. self.IdentityPrimary .. " SuppressedSerious", "Mordhau.rte"),
 	Losing = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Losing", "Mordhau.rte"),
+	Victory = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Victory", "Mordhau.rte"),
+	victorySpoken = CreateSoundContainer("VO " .. self.IdentityPrimary .. " VictorySpoken", "Mordhau.rte"),
 	whoaLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaLight", "Mordhau.rte"),
 	whoaMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaMedium", "Mordhau.rte")};
 	
