@@ -63,6 +63,7 @@ function Create(self)
 	suppressedMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " SuppressedMedium", "Mordhau.rte"),
 	suppressedSerious = CreateSoundContainer("VO " .. self.IdentityPrimary .. " SuppressedSerious", "Mordhau.rte"),
 	Losing = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Losing", "Mordhau.rte"),
+	Defeat = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Defeat", "Mordhau.rte"),
 	Victory = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Victory", "Mordhau.rte"),
 	victorySpoken = CreateSoundContainer("VO " .. self.IdentityPrimary .. " VictorySpoken", "Mordhau.rte"),
 	whoaLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaLight", "Mordhau.rte"),

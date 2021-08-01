@@ -650,6 +650,8 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
 					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 				end
+			elseif self:NumberValueExists("Ye Olde Defeat") then
+				CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Defeat, 6, 4);
 			end
 			if self.Victory ~= true then
 				CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);

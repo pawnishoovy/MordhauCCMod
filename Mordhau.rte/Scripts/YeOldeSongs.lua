@@ -1609,6 +1609,9 @@ function YeOldeSongsScript:UpdateScript()
 end
 
 function YeOldeSongsScript:EndScript()
+
+	self.gameActivity = ToGameActivity(ActivityMan:GetActivity())
+
 	AudioMan:StopMusic();
 	AudioMan:ClearMusicQueue();
 	if self.activityOverPlayed ~= true then
@@ -1618,6 +1621,12 @@ function YeOldeSongsScript:EndScript()
 		self.activityOverPlayed = true;
 		if self.activity:HumanBrainCount() == 0 then
 			AudioMan:PlayMusic(self.defeatPath, 0, -1);
+			for actor in MovableMan.Actors do
+				if IsAHuman(actor) and not self.gameActivity.WinnerTeam == actor.Team then
+					ToAHuman(actor):SetNumberValue("Warcry Together", 1);
+					ToAHuman(actor):SetNumberValue("Ye Olde Defeat", 1); -- hmmmmm...
+				end
+			end
 			for i = 1, #self.evilAmbients do
 				AudioMan:QueueSilence(10);
 				local randomizedIndex = math.random(1, #self.evilAmbients);
@@ -1631,7 +1640,7 @@ function YeOldeSongsScript:EndScript()
 			AudioMan:ClearMusicQueue();
 			AudioMan:PlayMusic(self.victoryPath, 0, -1);
 			for actor in MovableMan.Actors do
-				if IsAHuman(actor) then
+				if IsAHuman(actor) and self.gameActivity.WinnerTeam == actor.Team then
 					ToAHuman(actor):SetNumberValue("Warcry Together", 1);
 					ToAHuman(actor):SetNumberValue("Ye Olde Victory", 1); -- hmmmmm...
 				end

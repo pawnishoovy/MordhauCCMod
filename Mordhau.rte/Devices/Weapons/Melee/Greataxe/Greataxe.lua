@@ -13,7 +13,7 @@ function playAttackAnimation(self, animation)
 	self.attackAnimationCanHit = true
 	self.blockedNullifier = true;
 	self.Recovering = false;
-	self.Recovering = false;
+	self.partiallyRecovered = false;
 	self.Attacked = false;
 	if self.pseudoPhase then
 	
@@ -128,6 +128,9 @@ function Create(self)
 	self.equipAnimationTimer = Timer();
 	
 	self.Hits = 0;
+	
+	self.swingRotationFrames = 1; -- this is the amount of frames it takes us to go from sideways to facing forwards again (after a swing)
+								  -- for swords this might just be one, for big axes it could be as high as 4
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
@@ -344,7 +347,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameEnd = 16
 	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -100
 	doubleSlashAttackPhase[i].offsetStart = Vector(7 , -2)
@@ -359,7 +362,7 @@ function Create(self)
 	doubleSlashAttackPhase[i] = {}
 	doubleSlashAttackPhase[i].durationMS = 100
 	
-	doubleSlashAttackPhase[i].firstRecvoery = true
+	doubleSlashAttackPhase[i].firstRecovery = true
 	doubleSlashAttackPhase[i].canBeBlocked = false
 	doubleSlashAttackPhase[i].canDamage = false
 	doubleSlashAttackPhase[i].attackDamage = 0
@@ -369,8 +372,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameStart = 16
+	doubleSlashAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
 	doubleSlashAttackPhase[i].angleStart = -100
 	doubleSlashAttackPhase[i].angleEnd = -40
 	doubleSlashAttackPhase[i].offsetStart = Vector(15, -4)
@@ -396,7 +399,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 7
+	doubleSlashAttackPhase[i].frameStart = 6
 	doubleSlashAttackPhase[i].frameEnd = 10
 	doubleSlashAttackPhase[i].angleStart = -40
 	doubleSlashAttackPhase[i].angleEnd = 0
@@ -530,7 +533,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
 	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameEnd = 16
 	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -100
 	doubleSlashAttackPhase[i].offsetStart = Vector(7 , -2)
@@ -545,7 +548,7 @@ function Create(self)
 	doubleSlashAttackPhase[i] = {}
 	doubleSlashAttackPhase[i].durationMS = 150
 	
-	doubleSlashAttackPhase[i].firstRecvoery = true
+	doubleSlashAttackPhase[i].firstRecovery = true
 	doubleSlashAttackPhase[i].canBeBlocked = false
 	doubleSlashAttackPhase[i].canDamage = false
 	doubleSlashAttackPhase[i].attackDamage = 0
@@ -555,8 +558,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 7
+	doubleSlashAttackPhase[i].frameStart = 16
+	doubleSlashAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
 	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -40
 	doubleSlashAttackPhase[i].offsetStart = Vector(15, -4)
@@ -582,7 +585,7 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 7
+	doubleSlashAttackPhase[i].frameStart = 6
 	doubleSlashAttackPhase[i].frameEnd = 6
 	doubleSlashAttackPhase[i].angleStart = -40
 	doubleSlashAttackPhase[i].angleEnd = 15
@@ -725,7 +728,7 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
 	slashOverheadAttackPhase[i].frameStart = 11
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameEnd = 16
 	slashOverheadAttackPhase[i].angleStart = -90
 	slashOverheadAttackPhase[i].angleEnd = -100
 	slashOverheadAttackPhase[i].offsetStart = Vector(7 , -2)
@@ -740,7 +743,7 @@ function Create(self)
 	slashOverheadAttackPhase[i] = {}
 	slashOverheadAttackPhase[i].durationMS = 150
 	
-	slashOverheadAttackPhase[i].firstRecvoery = true
+	slashOverheadAttackPhase[i].firstRecovery = true
 	slashOverheadAttackPhase[i].canBeBlocked = false
 	slashOverheadAttackPhase[i].canDamage = false
 	slashOverheadAttackPhase[i].attackDamage = 0
@@ -750,8 +753,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 7
+	slashOverheadAttackPhase[i].frameStart = 16
+	slashOverheadAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
 	slashOverheadAttackPhase[i].angleStart = -90
 	slashOverheadAttackPhase[i].angleEnd = -40
 	slashOverheadAttackPhase[i].offsetStart = Vector(15, -4)
@@ -777,7 +780,7 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 7
+	slashOverheadAttackPhase[i].frameStart = 6
 	slashOverheadAttackPhase[i].frameEnd = 6
 	slashOverheadAttackPhase[i].angleStart = -40
 	slashOverheadAttackPhase[i].angleEnd = 45
@@ -889,7 +892,7 @@ function Create(self)
 	slashOverheadAttackPhase[i] = {}
 	slashOverheadAttackPhase[i].durationMS = 100
 	
-	slashOverheadAttackPhase[i].firstRecvoery = true	
+	slashOverheadAttackPhase[i].firstRecovery = true	
 	slashOverheadAttackPhase[i].canBeBlocked = false
 	slashOverheadAttackPhase[i].canDamage = false
 	slashOverheadAttackPhase[i].attackDamage = 0
@@ -1090,7 +1093,7 @@ function Create(self)
 	downwardShoveAttackPhase[i] = {}
 	downwardShoveAttackPhase[i].durationMS = 90
 	
-	downwardShoveAttackPhase[i].firstRecvoery = true
+	downwardShoveAttackPhase[i].firstRecovery = true
 	downwardShoveAttackPhase[i].canBeBlocked = false
 	downwardShoveAttackPhase[i].canDamage = false
 	downwardShoveAttackPhase[i].attackDamage = 1
@@ -1285,7 +1288,7 @@ function Create(self)
 	massiveShoveAttackPhase[i] = {}
 	massiveShoveAttackPhase[i].durationMS = 90
 	
-	massiveShoveAttackPhase[i].firstRecvoery = true
+	massiveShoveAttackPhase[i].firstRecovery = true
 	massiveShoveAttackPhase[i].canBeBlocked = false
 	massiveShoveAttackPhase[i].canDamage = false
 	massiveShoveAttackPhase[i].attackDamage = 0
@@ -1496,7 +1499,7 @@ function Create(self)
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 100
 	
-	underhandComboAttackPhase[i].firstRecvoery = true	
+	underhandComboAttackPhase[i].firstRecovery = true	
 	underhandComboAttackPhase[i].canBeBlocked = false
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 0
@@ -1631,7 +1634,7 @@ function Create(self)
 	underhandComboAttackPhase[i] = {}
 	underhandComboAttackPhase[i].durationMS = 100
 	
-	underhandComboAttackPhase[i].firstRecvoery = true	
+	underhandComboAttackPhase[i].firstRecovery = true	
 	underhandComboAttackPhase[i].canBeBlocked = false
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 0
@@ -1796,7 +1799,7 @@ function Create(self)
 	overheadAttackPhase[i] = {}
 	overheadAttackPhase[i].durationMS = 300
 	
-	overheadAttackPhase[i].firstRecvoery = true	
+	overheadAttackPhase[i].firstRecovery = true	
 	overheadAttackPhase[i].canBeBlocked = false
 	overheadAttackPhase[i].canDamage = false
 	overheadAttackPhase[i].attackDamage = 0
@@ -1940,7 +1943,7 @@ function Create(self)
 	flourishPhase[i] = {}
 	flourishPhase[i].durationMS = 300
 	
-	flourishPhase[i].firstRecvoery = true
+	flourishPhase[i].firstRecovery = true
 	flourishPhase[i].canBeBlocked = false
 	flourishPhase[i].canDamage = false
 	flourishPhase[i].attackDamage = 3.4
@@ -2298,7 +2301,7 @@ function Create(self)
 	warcryPhase[i] = {}
 	warcryPhase[i].durationMS = 300
 	
-	warcryPhase[i].firstRecvoery = true	
+	warcryPhase[i].firstRecovery = true	
 	warcryPhase[i].canBeBlocked = false
 	warcryPhase[i].canDamage = false
 	warcryPhase[i].attackDamage = 0
@@ -2761,7 +2764,7 @@ function Update(self)
 					self.hitMax = 3;
 					self.parent:SetNumberValue("Large Attack", 1);				
 				end
-			elseif currentPhase.firstRecvoery == true then
+			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
 			elseif self.chargeDecided == false then
 				-- block, getting parried cancelling
@@ -2853,7 +2856,7 @@ function Update(self)
 				
 			end
 				
-			if self.Recovering == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+			if self.partiallyRecovered == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 			
 				self.chargeDecided = false;
 				playAttackAnimation(self, self.attackAnimationBuffered)
@@ -2907,6 +2910,7 @@ function Update(self)
 						self.wasCharged = false;
 						self.chargeDecided = false;
 						self.Recovering = false;
+						self.partiallyRecovered = false;
 					end
 					self.currentAttackSequence = self.currentAttackSequence + 1
 				else
@@ -2936,6 +2940,10 @@ function Update(self)
 				self.Parrying = false;
 				
 				self.pseudoPhase = nil;
+				
+				if self.Recovering == true then
+					self.partiallyRecovered = true;
+				end
 				
 				self.currentAttackStart = false
 				self.attackAnimationTimer:Reset()

@@ -13,6 +13,7 @@ function playAttackAnimation(self, animation)
 	self.attackAnimationCanHit = true
 	self.blockedNullifier = true;
 	self.Recovering = false;
+	self.partiallyRecovered = false;
 	self.Attacked = false;
 	if self.pseudoPhase then
 	
@@ -111,6 +112,9 @@ function Create(self)
 
 	
 	self.equipAnimationTimer = Timer();
+	
+	self.swingRotationFrames = 1; -- this is the amount of frames it takes us to go from sideways to facing forwards again (after a swing)
+								  -- for swords this might just be one, for big axes it could be as high as 4
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
@@ -327,7 +331,7 @@ function Create(self)
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 11
-	attackPhase[i].frameEnd = 6
+	attackPhase[i].frameEnd = 16
 	attackPhase[i].angleStart = -90
 	attackPhase[i].angleEnd = -100
 	attackPhase[i].offsetStart = Vector(7 , -2)
@@ -340,9 +344,36 @@ function Create(self)
 	-- Early Recover
 	i = 6
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 100
+	attackPhase[i].durationMS = 50
 	
-	attackPhase[i].firstRecvoery = true
+	attackPhase[i].firstRecovery = true
+	attackPhase[i].canBeBlocked = false
+	attackPhase[i].canDamage = false
+	attackPhase[i].attackDamage = 0
+	attackPhase[i].attackStunChance = 0
+	attackPhase[i].attackRange = 0
+	attackPhase[i].attackPush = 0
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
+	
+	attackPhase[i].frameStart = 16
+	attackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
+	attackPhase[i].angleStart = -90
+	attackPhase[i].angleEnd = -80
+	attackPhase[i].offsetStart = Vector(15, -4)
+	attackPhase[i].offsetEnd = Vector(10, 0)
+	
+	attackPhase[i].soundStart = nil
+	attackPhase[i].soundStartVariations = 0
+	
+	attackPhase[i].soundEnd = nil
+	attackPhase[i].soundEndVariations = 0
+	
+	-- Recover
+	i = 7
+	attackPhase[i] = {}
+	attackPhase[i].durationMS = 150
+	
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
@@ -353,11 +384,11 @@ function Create(self)
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 6
-	attackPhase[i].frameEnd = 7
-	attackPhase[i].angleStart = -90
-	attackPhase[i].angleEnd = -40
-	attackPhase[i].offsetStart = Vector(15, -4)
-	attackPhase[i].offsetEnd = Vector(3, 0)
+	attackPhase[i].frameEnd = 6
+	attackPhase[i].angleStart = -80
+	attackPhase[i].angleEnd = -25
+	attackPhase[i].offsetStart = Vector(10, 0)
+	attackPhase[i].offsetEnd = Vector(-2, 0)
 	
 	attackPhase[i].soundStart = nil
 	attackPhase[i].soundStartVariations = 0
@@ -365,8 +396,8 @@ function Create(self)
 	attackPhase[i].soundEnd = nil
 	attackPhase[i].soundEndVariations = 0
 	
-	-- Recover
-	i = 7
+	-- Late Recover
+	i = 8
 	attackPhase[i] = {}
 	attackPhase[i].durationMS = 100
 	
@@ -379,12 +410,39 @@ function Create(self)
 	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
+	attackPhase[i].frameStart = 6
+	attackPhase[i].frameEnd = 7
+	attackPhase[i].angleStart = -25
+	attackPhase[i].angleEnd = -25
+	attackPhase[i].offsetStart = Vector(-2, 0)
+	attackPhase[i].offsetEnd = Vector(-3, 0)
+	
+	attackPhase[i].soundStart = nil
+	attackPhase[i].soundStartVariations = 0
+	
+	attackPhase[i].soundEnd = nil
+	attackPhase[i].soundEndVariations = 0
+	
+	-- Late Late Recover
+	i = 9
+	attackPhase[i] = {}
+	attackPhase[i].durationMS = 80
+	
+	attackPhase[i].canBeBlocked = false
+	attackPhase[i].canDamage = false
+	attackPhase[i].attackDamage = 0
+	attackPhase[i].attackStunChance = 0
+	attackPhase[i].attackRange = 0
+	attackPhase[i].attackPush = 0
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
+	
 	attackPhase[i].frameStart = 7
 	attackPhase[i].frameEnd = 6
-	attackPhase[i].angleStart = -40
-	attackPhase[i].angleEnd = -45
-	attackPhase[i].offsetStart = Vector(3, 0)
-	attackPhase[i].offsetEnd = Vector(3, 0)
+	attackPhase[i].angleStart = -25
+	attackPhase[i].angleEnd = -15
+	attackPhase[i].offsetStart = Vector(-3, 0)
+	attackPhase[i].offsetEnd = Vector(0, 0)
 	
 	attackPhase[i].soundStart = nil
 	attackPhase[i].soundStartVariations = 0
@@ -537,7 +595,7 @@ function Create(self)
 	stabAttackPhase[i] = {}
 	stabAttackPhase[i].durationMS = 100
 	
-	stabAttackPhase[i].firstRecvoery = true
+	stabAttackPhase[i].firstRecovery = true
 	stabAttackPhase[i].canBeBlocked = false
 	stabAttackPhase[i].canDamage = false
 	stabAttackPhase[i].attackDamage = 0
@@ -577,7 +635,7 @@ function Create(self)
 	stabAttackPhase[i].frameStart = 7
 	stabAttackPhase[i].frameEnd = 6
 	stabAttackPhase[i].angleStart = -60
-	stabAttackPhase[i].angleEnd = -45
+	stabAttackPhase[i].angleEnd = -15
 	stabAttackPhase[i].offsetStart = Vector(7, -3)
 	stabAttackPhase[i].offsetEnd = Vector(3, 0)
 	
@@ -696,7 +754,7 @@ function Create(self)
 	overheadAttackPhase[i] = {}
 	overheadAttackPhase[i].durationMS = 60
 	
-	overheadAttackPhase[i].firstRecvoery = true	
+	overheadAttackPhase[i].firstRecovery = true	
 	overheadAttackPhase[i].canBeBlocked = false
 	overheadAttackPhase[i].canDamage = false
 	overheadAttackPhase[i].attackDamage = 0
@@ -728,7 +786,7 @@ function Create(self)
 	overheadAttackPhase[i].frameStart = 6
 	overheadAttackPhase[i].frameEnd = 6
 	overheadAttackPhase[i].angleStart = -120
-	overheadAttackPhase[i].angleEnd = -50
+	overheadAttackPhase[i].angleEnd = -15
 	overheadAttackPhase[i].offsetStart = Vector(10, 15)
 	overheadAttackPhase[i].offsetEnd = Vector(3, -5)
 	
@@ -821,7 +879,7 @@ function Create(self)
 	flourishPhase[i] = {}
 	flourishPhase[i].durationMS = 0
 	
-	flourishPhase[i].firstRecvoery = false
+	flourishPhase[i].firstRecovery = false
 	flourishPhase[i].canBeBlocked = false
 	flourishPhase[i].canDamage = false
 	flourishPhase[i].attackDamage = 3.4
@@ -1511,7 +1569,7 @@ function Update(self)
 					self.wasCharged = false;
 					self.parent:SetNumberValue("Medium Attack", 1);				
 				end
-			elseif currentPhase.firstRecvoery == true then
+			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
 			elseif self.chargeDecided == false then
 				-- block cancelling
@@ -1598,7 +1656,7 @@ function Update(self)
 				
 			end	
 
-			if self.Recovering == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+			if self.partiallyRecovered == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 			
 				self.chargeDecided = false;
 				playAttackAnimation(self, self.attackAnimationBuffered)
@@ -1629,7 +1687,7 @@ function Update(self)
 				self.pseudoPhase.frameEnd = currentPhase.frameEnd or 6
 				self.pseudoPhase.angleStart = (self.rotation * self.FlipFactor) * (180/math.pi)
 				self.pseudoPhase.angleEnd = currentPhase.angleEnd or 0
-				self.pseudoPhase.offsetStart = self.originalStanceOffset + self.stance
+				self.pseudoPhase.offsetStart = self.stance
 				self.pseudoPhase.offsetEnd = currentPhase.offsetEnd or Vector(0, 0)
 				
 				self.pseudoPhase.soundStart = currentPhase.soundStart or nil
@@ -1682,6 +1740,10 @@ function Update(self)
 				self.Parrying = false;
 				
 				self.pseudoPhase = nil;
+				
+				if self.Recovering == true then
+					self.partiallyRecovered = true;
+				end
 				
 				self.currentAttackStart = false
 				self.attackAnimationTimer:Reset()
@@ -1841,7 +1903,7 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, -3, 0, false, 2); -- Raycast

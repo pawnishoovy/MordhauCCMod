@@ -644,7 +644,9 @@ function ArcherAIBehaviours.handleVoicelines(self)
 				ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.victorySpoken, 6, 4);
 				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
 					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
-				end
+				end			
+			elseif self:NumberValueExists("Ye Olde Defeat") then
+				ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Defeat, 6, 4);
 			end
 			if self.Victory ~= true then
 				ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
