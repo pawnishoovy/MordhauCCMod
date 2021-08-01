@@ -1358,13 +1358,13 @@ function Update(self)
 					self.attackCooldown = false;
 				end
 			else
-				stab = (math.random(0, 100) < 50) and true;
-				overhead = true;
-				if stab or overhead or flourish or throw or warcry then
-					controller:SetState(Controller.PRESS_PRIMARY, true)
-					self:Activate();
-				end
-				attack = (math.random(0, 100) < 50)
+				-- stab = (math.random(0, 100) < 50) and true;
+				-- overhead = true;
+				-- if stab or overhead or flourish or throw or warcry then
+					-- controller:SetState(Controller.PRESS_PRIMARY, true)
+					-- self:Activate();
+				-- end
+				-- attack = (math.random(0, 100) < 50)
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
@@ -1847,7 +1847,7 @@ function Update(self)
 			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
-			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, -3, 0, false, 2); -- Raycast
+			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
