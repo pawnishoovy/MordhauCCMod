@@ -14,6 +14,8 @@ function Create(self)
 	
 	-- Start modded code --
 	
+	self.Frame = self.Team
+	
 	self.RTE = "Mordhau.rte";
 	self.baseRTE = "Mordhau.rte";
 	
@@ -419,6 +421,15 @@ function Update(self)
 	if self.visibleInventory then
 		HumanFunctions.DoVisibleInventory(self, false);	--Argument: whether to show all items
 	end
+	
+	-- TEST --
+	if not self.EquippedItem and UInputMan:KeyPressed(16) then -- P
+		local item = CreateThrownDevice("Javelin");
+		self:AddInventoryItem(item);
+		self:EquipNamedDevice("Javelin", true);
+		--ToMOSRotating(self.FGArm):RemoveAttachable(ToAttachable(item), false, false)
+	end
+	-- TEST --
 	
 	-- Start modded code--
 	

@@ -12,11 +12,11 @@ function Create(self)
 	self.GFXDelayMax = 600
 	
 	self.fuelData = {}
-	local maxi = 24
+	local maxi = 12
 	for i = 1, maxi do
 		local data = {}
 		data.Pos = Vector(self.Pos.X, self.Pos.Y)
-		data.Vel = Vector(25 * ((i-1) / (maxi-1) - 0.5) + math.random(-2,2), math.random(0,-6))
+		data.Vel = Vector(25 * ((i-1) / (maxi-1) - 0.5) + math.random(-2,2), math.random(0,-6)) * 0.5
 		data.ID = math.random(0,999)
 		data.Active = true
 		data.Settled = false
@@ -49,7 +49,7 @@ function Update(self)
 
 	self.burnLoopSound.Pos = self.Pos;
 	
-	--PrimitiveMan:DrawCirclePrimitive(self.Pos, self.fuelRange, 5)
+	PrimitiveMan:DrawCirclePrimitive(self.Pos, self.fuelRange, 5)
 	
 	if self.Age > self.burnTime then
 		self.ToDelete = true
@@ -171,7 +171,7 @@ function Update(self)
 				fuel.GFXDelay = math.random(self.GFXDelayMin, self.GFXDelayMax)
 			end
 			
-			--PrimitiveMan:DrawCirclePrimitive(fuel.Pos, 13 - 10 * (1 - strength), 13) -- Debug draw
+			PrimitiveMan:DrawCirclePrimitive(fuel.Pos, 13 - 10 * (1 - strength), 13) -- Debug draw
 		end
 	end
 	

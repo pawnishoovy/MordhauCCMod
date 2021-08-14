@@ -36,7 +36,7 @@ function Create(self)
 	
 	self.ramRodReplaceSound = CreateSoundContainer("RamRodReplace Flintlock", "Mordhau.rte");
 	
-	self:SetNumberValue("DelayedFireTimeMS", 100)
+	self:SetNumberValue("DelayedFireTimeMS", 150)
 	
 	self.lastAge = self.Age
 	
