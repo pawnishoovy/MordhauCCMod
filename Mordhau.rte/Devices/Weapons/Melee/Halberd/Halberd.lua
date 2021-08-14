@@ -37,7 +37,7 @@ function playAttackAnimation(self, animation)
 	
 	return
 end
-
+--
 -- function OnAttach(self)
 
 	-- self.Frame = 1;
@@ -52,8 +52,8 @@ function OnDetach(self)
 
 	if self.wasThrown == true then
 	
-		self.throwWounds = 8;
-		self.throwPitch = 1;
+		self.throwWounds = 10;
+		self.throwPitch = 0.9;
 	
 		self.HUDVisible = false;
 		
@@ -82,11 +82,11 @@ end
 
 function Create(self)
 
-	self.equipSound = CreateSoundContainer("MediumSword Equip Mordhau", "Mordhau.rte");
+	self.equipSound = CreateSoundContainer("LargeSword Equip Mordhau", "Mordhau.rte");
 	self.equipSound.Pitch = 1.0;
 	
 	self.pickUpSound = CreateSoundContainer("Blade Pickup Mordhau", "Mordhau.rte");
-	self.pickUpSound.Pitch = 1.0;
+	self.pickUpSound.Pitch = 0.8;
 
 	-- throwing stuff
 	
@@ -113,15 +113,18 @@ function Create(self)
 	self.soundHitMetal = CreateSoundContainer("Impact Metal Javelin", "Mordhau.rte");
 	
 	
+	
 	self.equipAnimationTimer = Timer();
 	
 	self.swingRotationFrames = 1; -- this is the amount of frames it takes us to go from sideways to facing forwards again (after a swing)
 								  -- for swords this might just be one, for big axes it could be as high as 4
+								  
+	self.sweetSpotThreshold = 0.7; -- if our hit position is at least 70% of the range away from the hit origin, we deal max damage. otherwise, linearly decrease towards 25% damage
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
-	self.originalBaseRotation = -35;
-	self.baseRotation = -35;
+	self.originalBaseRotation = 0;
+	self.baseRotation = 0;
 	
 	self.attackAnimations = {}
 	self.attackAnimationCanHit = false
@@ -161,13 +164,13 @@ function Create(self)
 	local regularAttackSounds = {}
 	local i
 	
-	self.blockedSound = CreateSoundContainer("Blocked Longsword Mordhau", "Mordhau.rte");
-	self.parrySound = CreateSoundContainer("Parry Longsword Mordhau", "Mordhau.rte");
-	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Longsword Mordhau", "Mordhau.rte");
+	self.blockedSound = CreateSoundContainer("Blocked Halberd Mordhau", "Mordhau.rte");
+	self.parrySound = CreateSoundContainer("Parry Halberd Mordhau", "Mordhau.rte");
+	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Halberd Mordhau", "Mordhau.rte");
 	
 	self.blockSounds = {};
-	self.blockSounds.Slash = CreateSoundContainer("Slash Block Longsword Mordhau", "Mordhau.rte");
-	self.blockSounds.Stab = CreateSoundContainer("Stab Block Longsword Mordhau", "Mordhau.rte");
+	self.blockSounds.Slash = CreateSoundContainer("Slash Block Halberd Mordhau", "Mordhau.rte");
+	self.blockSounds.Stab = CreateSoundContainer("Stab Block Halberd Mordhau", "Mordhau.rte");
 	
 	self.blockGFX = {};
 	self.blockGFX.Slash = "Slash Block Effect Mordhau";
@@ -183,11 +186,11 @@ function Create(self)
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
 	
-	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Halberd Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Halberd Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Longsword Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Halberd Mordhau", "Mordhau.rte");
 	
 	local stabAttackSounds = {}
 	
@@ -195,11 +198,11 @@ function Create(self)
 	--stabAttackSounds.hitDefaultSound
 	--stabAttackSounds.hitDefaultSoundVariations
 	
-	stabAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Halberd Mordhau", "Mordhau.rte");
 	
-	stabAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Halberd Mordhau", "Mordhau.rte");
 	
-	stabAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Longsword Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Halberd Mordhau", "Mordhau.rte");
 	
 	local regularAttackGFX = {}
 	
@@ -243,7 +246,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 100
+	attackPhase[i].durationMS = 450
 	
 	attackPhase[i].lastPrepare = true
 	attackPhase[i].canBeBlocked = false
@@ -271,13 +274,13 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 110
+	attackPhase[i].durationMS = 160
 	
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 30
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
@@ -289,20 +292,20 @@ function Create(self)
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(7, -2)
 	
-	attackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	attackPhase[i].soundStart = CreateSoundContainer("Slash Halberd Mordhau", "Mordhau.rte");
 	
 	attackPhase[i].soundEnd = nil
 	
 	-- Early Attack
 	i = 4
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 30
+	attackPhase[i].durationMS = 50
 	
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 30
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 70;
@@ -321,14 +324,14 @@ function Create(self)
 	-- Attack
 	i = 5
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 110
+	attackPhase[i].durationMS = 160
 	
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 3.4
-	attackPhase[i].attackStunChance = 0.05
-	attackPhase[i].attackRange = 20
-	attackPhase[i].attackPush = 0.8
+	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].attackRange = 30
+	attackPhase[i].attackPush = 0.80
 	attackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
@@ -343,10 +346,37 @@ function Create(self)
 	
 	attackPhase[i].soundEnd = nil
 	
-	-- Early Recover
+	-- Early Early Recover
 	i = 6
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 100
+	attackPhase[i].durationMS = 80
+	
+	attackPhase[i].canBeBlocked = false
+	attackPhase[i].canDamage = false
+	attackPhase[i].attackDamage = 0
+	attackPhase[i].attackStunChance = 0
+	attackPhase[i].attackRange = 0
+	attackPhase[i].attackPush = 0
+	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	attackPhase[i].attackAngle = 90;
+	
+	attackPhase[i].frameStart = 16
+	attackPhase[i].frameEnd = 16
+	attackPhase[i].angleStart = -90
+	attackPhase[i].angleEnd = -86
+	attackPhase[i].offsetStart = Vector(15, -4)
+	attackPhase[i].offsetEnd = Vector(8, -2)
+	
+	attackPhase[i].soundStart = nil
+	attackPhase[i].soundStartVariations = 0
+	
+	attackPhase[i].soundEnd = nil
+	attackPhase[i].soundEndVariations = 0
+	
+	-- Early Recover
+	i = 7
+	attackPhase[i] = {}
+	attackPhase[i].durationMS = 250
 	
 	attackPhase[i].firstRecovery = true
 	attackPhase[i].canBeBlocked = false
@@ -360,10 +390,10 @@ function Create(self)
 	
 	attackPhase[i].frameStart = 16
 	attackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
-	attackPhase[i].angleStart = -90
-	attackPhase[i].angleEnd = -80
-	attackPhase[i].offsetStart = Vector(15, -4)
-	attackPhase[i].offsetEnd = Vector(10, 0)
+	attackPhase[i].angleStart = -86
+	attackPhase[i].angleEnd = -55
+	attackPhase[i].offsetStart = Vector(8, -2)
+	attackPhase[i].offsetEnd = Vector(3, 0)
 	
 	attackPhase[i].soundStart = nil
 	attackPhase[i].soundStartVariations = 0
@@ -372,36 +402,9 @@ function Create(self)
 	attackPhase[i].soundEndVariations = 0
 	
 	-- Recover
-	i = 7
-	attackPhase[i] = {}
-	attackPhase[i].durationMS = 300
-	
-	attackPhase[i].canBeBlocked = false
-	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 0
-	attackPhase[i].attackStunChance = 0
-	attackPhase[i].attackRange = 0
-	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	attackPhase[i].attackAngle = 90;
-	
-	attackPhase[i].frameStart = 6
-	attackPhase[i].frameEnd = 6
-	attackPhase[i].angleStart = -80
-	attackPhase[i].angleEnd = -25
-	attackPhase[i].offsetStart = Vector(10, 0)
-	attackPhase[i].offsetEnd = Vector(-2, 0)
-	
-	attackPhase[i].soundStart = nil
-	attackPhase[i].soundStartVariations = 0
-	
-	attackPhase[i].soundEnd = nil
-	attackPhase[i].soundEndVariations = 0
-	
-	-- Late Recover
 	i = 8
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 200
+	attackPhase[i].durationMS = 400
 	
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
@@ -413,37 +416,10 @@ function Create(self)
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 6
-	attackPhase[i].frameEnd = 7
-	attackPhase[i].angleStart = -25
-	attackPhase[i].angleEnd = -25
-	attackPhase[i].offsetStart = Vector(-2, 0)
-	attackPhase[i].offsetEnd = Vector(-3, 0)
-	
-	attackPhase[i].soundStart = nil
-	attackPhase[i].soundStartVariations = 0
-	
-	attackPhase[i].soundEnd = nil
-	attackPhase[i].soundEndVariations = 0
-	
-	-- Late Late Recover
-	i = 9
-	attackPhase[i] = {}
-	attackPhase[i].durationMS = 125
-	
-	attackPhase[i].canBeBlocked = false
-	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 0
-	attackPhase[i].attackStunChance = 0
-	attackPhase[i].attackRange = 0
-	attackPhase[i].attackPush = 0
-	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	attackPhase[i].attackAngle = 90;
-	
-	attackPhase[i].frameStart = 7
 	attackPhase[i].frameEnd = 6
-	attackPhase[i].angleStart = -25
-	attackPhase[i].angleEnd = -45
-	attackPhase[i].offsetStart = Vector(-3, 0)
+	attackPhase[i].angleStart = -55
+	attackPhase[i].angleEnd = 0
+	attackPhase[i].offsetStart = Vector(3, 0)
 	attackPhase[i].offsetEnd = Vector(0, 0)
 	
 	attackPhase[i].soundStart = nil
@@ -459,344 +435,371 @@ function Create(self)
 	self.attackAnimationsTypes[1] = attackPhase.Type
 	
 	-- (stab)
-	stabattackPhase = {}
-	stabattackPhase.Type = "Stab";
+	stabAttackPhase = {}
+	stabAttackPhase.Type = "Stab";
 	
 	-- Prepare
 	i = 1
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 200
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 200
 	
-	stabattackPhase[i].canBeBlocked = false
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 0
-	stabattackPhase[i].attackStunChance = 0
-	stabattackPhase[i].attackRange = 0
-	stabattackPhase[i].attackPush = 0
-	stabattackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -45
-	stabattackPhase[i].angleEnd = -85
-	stabattackPhase[i].offsetStart = Vector(0, 0)
-	stabattackPhase[i].offsetEnd = Vector(-2, -3)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = 0
+	stabAttackPhase[i].angleEnd = -85
+	stabAttackPhase[i].offsetStart = Vector(0, 0)
+	stabAttackPhase[i].offsetEnd = Vector(-9, 0)
 	
-	stabattackPhase[i].soundStart = nil
-	stabattackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	stabattackPhase[i].soundEnd = nil
-	stabattackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Late Prepare
 	i = 2
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 200
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 450
 	
-	stabattackPhase[i].lastPrepare = true
-	stabattackPhase[i].canBeBlocked = false
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 0
-	stabattackPhase[i].attackStunChance = 0
-	stabattackPhase[i].attackRange = 0
-	stabattackPhase[i].attackPush = 0
-	stabattackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].lastPrepare = true
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -85
-	stabattackPhase[i].angleEnd = -90
-	stabattackPhase[i].offsetStart = Vector(-2, -3)
-	stabattackPhase[i].offsetEnd = Vector(-3, -4)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -85
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(-9, 0)
+	stabAttackPhase[i].offsetEnd = Vector(-9, 0)
 	
-	stabattackPhase[i].soundStart = nil
-	stabattackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	stabattackPhase[i].soundEnd = nil
-	stabattackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Early Attack
 	i = 3
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 110
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 160
 	
-	stabattackPhase[i].canBeBlocked = true
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 4
-	stabattackPhase[i].attackStunChance = 0.15
-	stabattackPhase[i].attackRange = 22
-	stabattackPhase[i].attackPush = 0.8
-	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.10
+	stabAttackPhase[i].attackRange = 32
+	stabAttackPhase[i].attackPush = 0.85
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -70
-	stabattackPhase[i].angleEnd = -80
-	stabattackPhase[i].offsetStart = Vector(-3, -4)
-	stabattackPhase[i].offsetEnd = Vector(0, -5)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(-9, 0)
+	stabAttackPhase[i].offsetEnd = Vector(0, 0)
 	
-	stabattackPhase[i].soundStart = CreateSoundContainer("Stab Longsword Mordhau", "Mordhau.rte");
+	stabAttackPhase[i].soundStart = CreateSoundContainer("Stab Halberd Mordhau", "Mordhau.rte");
 	
-	stabattackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
 	-- Early Attack
 	i = 4
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 30
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 35
 	
-	stabattackPhase[i].canBeBlocked = true
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 4
-	stabattackPhase[i].attackStunChance = 0.15
-	stabattackPhase[i].attackRange = 22
-	stabattackPhase[i].attackPush = 0.8
-	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackRange = 32
+	stabAttackPhase[i].attackPush = 0.8
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -80
-	stabattackPhase[i].angleEnd = -90
-	stabattackPhase[i].offsetStart = Vector(0, -5)
-	stabattackPhase[i].offsetEnd = Vector(4, -6)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(0, 0)
+	stabAttackPhase[i].offsetEnd = Vector(4, 0)
 	
-	stabattackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStart = nil
 	
-	stabattackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
 	-- Attack
 	i = 5
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 110
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 130
 	
-	stabattackPhase[i].canBeBlocked = true
-	stabattackPhase[i].canDamage = true
-	stabattackPhase[i].attackDamage = 4.5
-	stabattackPhase[i].attackStunChance = 0.05
-	stabattackPhase[i].attackRange = 20
-	stabattackPhase[i].attackPush = 0.8
-	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = true
+	stabAttackPhase[i].canDamage = true
+	stabAttackPhase[i].attackDamage = 4
+	stabAttackPhase[i].attackStunChance = 0.15
+	stabAttackPhase[i].attackRange = 30
+	stabAttackPhase[i].attackPush = 0.8
+	stabAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -90
-	stabattackPhase[i].angleEnd = -90
-	stabattackPhase[i].offsetStart = Vector(4 , -6)
-	stabattackPhase[i].offsetEnd = Vector(15, -6)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(4 , 0)
+	stabAttackPhase[i].offsetEnd = Vector(15, 0)
 	
-	stabattackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStart = nil
 	
-	stabattackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = nil
 	
-	-- Early Recover
+	-- Pause
 	i = 6
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 100
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 200
 	
-	stabattackPhase[i].firstRecovery = true
-	stabattackPhase[i].canBeBlocked = false
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 0
-	stabattackPhase[i].attackStunChance = 0
-	stabattackPhase[i].attackRange = 0
-	stabattackPhase[i].attackPush = 0
-	stabattackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].firstRecovery = true
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 6
-	stabattackPhase[i].frameEnd = 7
-	stabattackPhase[i].angleStart = -90
-	stabattackPhase[i].angleEnd = -60
-	stabattackPhase[i].offsetStart = Vector(15, -6)
-	stabattackPhase[i].offsetEnd = Vector(7, -3)
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 7
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -90
+	stabAttackPhase[i].offsetStart = Vector(15, 0)
+	stabAttackPhase[i].offsetEnd = Vector(6, 4)
 	
-	stabattackPhase[i].soundStart = nil
-	stabattackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	stabattackPhase[i].soundEnd = nil
-	stabattackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Recover
 	i = 7
-	stabattackPhase[i] = {}
-	stabattackPhase[i].durationMS = 100
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 100
 	
-	stabattackPhase[i].canBeBlocked = false
-	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 0
-	stabattackPhase[i].attackStunChance = 0
-	stabattackPhase[i].attackRange = 0
-	stabattackPhase[i].attackPush = 0
-	stabattackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	stabattackPhase[i].attackAngle = 90;
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
 	
-	stabattackPhase[i].frameStart = 7
-	stabattackPhase[i].frameEnd = 6
-	stabattackPhase[i].angleStart = -60
-	stabattackPhase[i].angleEnd = -45
-	stabattackPhase[i].offsetStart = Vector(7, -3)
-	stabattackPhase[i].offsetEnd = Vector(3, 0)
+	stabAttackPhase[i].frameStart = 7
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -90
+	stabAttackPhase[i].angleEnd = -85
+	stabAttackPhase[i].offsetStart = Vector(6, 4)
+	stabAttackPhase[i].offsetEnd = Vector(-6, 0)
 	
-	stabattackPhase[i].soundStart = nil
-	stabattackPhase[i].soundStartVariations = 0
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
 	
-	stabattackPhase[i].soundEnd = nil
-	stabattackPhase[i].soundEndVariations = 0
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Recover
+	i = 8
+	stabAttackPhase[i] = {}
+	stabAttackPhase[i].durationMS = 300
+	
+	stabAttackPhase[i].canBeBlocked = false
+	stabAttackPhase[i].canDamage = false
+	stabAttackPhase[i].attackDamage = 0
+	stabAttackPhase[i].attackStunChance = 0
+	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].attackPush = 0
+	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	stabAttackPhase[i].attackAngle = 90;
+	
+	stabAttackPhase[i].frameStart = 6
+	stabAttackPhase[i].frameEnd = 6
+	stabAttackPhase[i].angleStart = -85
+	stabAttackPhase[i].angleEnd = 0
+	stabAttackPhase[i].offsetStart = Vector(-6, 0)
+	stabAttackPhase[i].offsetEnd = Vector(0, 0)
+	
+	stabAttackPhase[i].soundStart = nil
+	stabAttackPhase[i].soundStartVariations = 0
+	
+	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Add the animation to the animation table
 	self.attackAnimationsSounds[2] = stabAttackSounds
 	self.attackAnimationsGFX[2] = regularAttackGFX
-	self.attackAnimations[2] = stabattackPhase
-	self.attackAnimationsTypes[2] = stabattackPhase.Type
+	self.attackAnimations[2] = stabAttackPhase
+	self.attackAnimationsTypes[2] = stabAttackPhase.Type
 	
 	-- Charged Attack
 
-	overheadattackPhase = {}
-	overheadattackPhase.Type = "Slash";
+	overheadAttackPhase = {}
+	overheadAttackPhase.Type = "Slash";
 	
 	-- Prepare
 	i = 1
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 300
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 330
 	
-	overheadattackPhase[i].canBeBlocked = false
-	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 0
-	overheadattackPhase[i].attackStunChance = 0
-	overheadattackPhase[i].attackRange = 0
-	overheadattackPhase[i].attackPush = 0
-	overheadattackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = 0
-	overheadattackPhase[i].angleEnd = 25
-	overheadattackPhase[i].offsetStart = Vector(0, 0)
-	overheadattackPhase[i].offsetEnd = Vector(4,-13)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 0
+	overheadAttackPhase[i].angleEnd = 25
+	overheadAttackPhase[i].offsetStart = Vector(0, 0)
+	overheadAttackPhase[i].offsetEnd = Vector(-4,-15)
 	
 	-- Late Prepare
 	i = 2
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 200
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 450
 	
-	overheadattackPhase[i].lastPrepare = true
-	overheadattackPhase[i].canBeBlocked = false
-	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 0
-	overheadattackPhase[i].attackStunChance = 0
-	overheadattackPhase[i].attackRange = 0
-	overheadattackPhase[i].attackPush = 0
-	overheadattackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].lastPrepare = true
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = 25
-	overheadattackPhase[i].angleEnd = 27
-	overheadattackPhase[i].offsetStart = Vector(4, -13)
-	overheadattackPhase[i].offsetEnd = Vector(4, -13)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 25
+	overheadAttackPhase[i].angleEnd = 27
+	overheadAttackPhase[i].offsetStart = Vector(-4, -15)
+	overheadAttackPhase[i].offsetEnd = Vector(-4, -15)
 	
-	overheadattackPhase[i].soundStart = nil
-	overheadattackPhase[i].soundStartVariations = 0
+	overheadAttackPhase[i].soundStart = nil
+	overheadAttackPhase[i].soundStartVariations = 0
 	
-	overheadattackPhase[i].soundEnd = nil
-	overheadattackPhase[i].soundEndVariations = 0
+	overheadAttackPhase[i].soundEnd = nil
+	overheadAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Attack
 	i = 3
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 40
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 70
 	
-	overheadattackPhase[i].canBeBlocked = true
-	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 5
-	overheadattackPhase[i].attackStunChance = 0.3
-	overheadattackPhase[i].attackRange = 20
-	overheadattackPhase[i].attackPush = 0.8
-	overheadattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	overheadattackPhase[i].attackAngle = 55;
+	overheadAttackPhase[i].canBeBlocked = true
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 5
+	overheadAttackPhase[i].attackStunChance = 0.3
+	overheadAttackPhase[i].attackRange = 30
+	overheadAttackPhase[i].attackPush = 0.8
+	overheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackAngle = 55;
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = 27
-	overheadattackPhase[i].angleEnd = 20
-	overheadattackPhase[i].offsetStart = Vector(4, -13)
-	overheadattackPhase[i].offsetEnd = Vector(6, -10)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 27
+	overheadAttackPhase[i].angleEnd = 20
+	overheadAttackPhase[i].offsetStart = Vector(0, -15)
+	overheadAttackPhase[i].offsetEnd = Vector(3, -10)
 	
-	overheadattackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	overheadAttackPhase[i].soundStart = CreateSoundContainer("Slash Halberd Mordhau", "Mordhau.rte");
 	
-	overheadattackPhase[i].soundEnd = nil
+	overheadAttackPhase[i].soundEnd = nil
 	
 	-- Attack
 	i = 4
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 120
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 170
 	
-	overheadattackPhase[i].canBeBlocked = true
-	overheadattackPhase[i].canDamage = true
-	overheadattackPhase[i].attackDamage = 4
-	overheadattackPhase[i].attackStunChance = 0.3
-	overheadattackPhase[i].attackRange = 20
-	overheadattackPhase[i].attackPush = 1.0
-	overheadattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	overheadattackPhase[i].attackAngle = 55;
+	overheadAttackPhase[i].canBeBlocked = true
+	overheadAttackPhase[i].canDamage = true
+	overheadAttackPhase[i].attackDamage = 6
+	overheadAttackPhase[i].attackStunChance = 0.3
+	overheadAttackPhase[i].attackRange = 30
+	overheadAttackPhase[i].attackPush = 0.9
+	overheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].attackAngle = 55;
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = 20
-	overheadattackPhase[i].angleEnd = -150
-	overheadattackPhase[i].offsetStart = Vector(6, -10)
-	overheadattackPhase[i].offsetEnd = Vector(15, 15)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = 20
+	overheadAttackPhase[i].angleEnd = -150
+	overheadAttackPhase[i].offsetStart = Vector(3, -10)
+	overheadAttackPhase[i].offsetEnd = Vector(15, 15)
 	
 	-- Early Recover
 	i = 5
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 60
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 100
 	
-	overheadattackPhase[i].firstRecovery = true	
-	overheadattackPhase[i].canBeBlocked = false
-	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 0
-	overheadattackPhase[i].attackStunChance = 0
-	overheadattackPhase[i].attackRange = 0
-	overheadattackPhase[i].attackPush = 0
-	overheadattackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].firstRecovery = true	
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = -120
-	overheadattackPhase[i].angleEnd = -150
-	overheadattackPhase[i].offsetStart = Vector(15, 15)
-	overheadattackPhase[i].offsetEnd = Vector(10, 15)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = -120
+	overheadAttackPhase[i].angleEnd = -150
+	overheadAttackPhase[i].offsetStart = Vector(15, 15)
+	overheadAttackPhase[i].offsetEnd = Vector(10, 15)
 	
 	-- Recover
 	i = 6
-	overheadattackPhase[i] = {}
-	overheadattackPhase[i].durationMS = 250
+	overheadAttackPhase[i] = {}
+	overheadAttackPhase[i].durationMS = 560
 	
-	overheadattackPhase[i].canBeBlocked = false
-	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 0
-	overheadattackPhase[i].attackStunChance = 0
-	overheadattackPhase[i].attackRange = 0
-	overheadattackPhase[i].attackPush = 0
-	overheadattackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
+	overheadAttackPhase[i].canBeBlocked = false
+	overheadAttackPhase[i].canDamage = false
+	overheadAttackPhase[i].attackDamage = 0
+	overheadAttackPhase[i].attackStunChance = 0
+	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].attackPush = 0
+	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadattackPhase[i].frameStart = 6
-	overheadattackPhase[i].frameEnd = 6
-	overheadattackPhase[i].angleStart = -120
-	overheadattackPhase[i].angleEnd = -50
-	overheadattackPhase[i].offsetStart = Vector(10, 15)
-	overheadattackPhase[i].offsetEnd = Vector(3, -5)
+	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].angleStart = -120
+	overheadAttackPhase[i].angleEnd = 0
+	overheadAttackPhase[i].offsetStart = Vector(10, 15)
+	overheadAttackPhase[i].offsetEnd = Vector(1, -1)
 	
 	-- Add the animation to the animation table
 	self.attackAnimationsSounds[3] = regularAttackSounds
 	self.attackAnimationsGFX[3] = regularAttackGFX
-	self.attackAnimations[3] = overheadattackPhase
-	self.attackAnimationsTypes[3] = overheadattackPhase.Type
+	self.attackAnimations[3] = overheadAttackPhase
+	self.attackAnimationsTypes[3] = overheadAttackPhase.Type
 	
 	-- Flourish... obviously
 	flourishPhase = {}
@@ -805,7 +808,7 @@ function Create(self)
 	-- Surprise
 	i = 1
 	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 150
+	flourishPhase[i].durationMS = 300
 	
 	flourishPhase[i].canBeBlocked = false
 	flourishPhase[i].canDamage = false
@@ -817,18 +820,18 @@ function Create(self)
 	flourishPhase[i].attackAngle = 90;
 	
 	flourishPhase[i].frameStart = 6
-	flourishPhase[i].frameEnd = 9
+	flourishPhase[i].frameEnd = 11
 	flourishPhase[i].angleStart = 0
-	flourishPhase[i].angleEnd = 180
+	flourishPhase[i].angleEnd = 0
 	flourishPhase[i].offsetStart = Vector(0, 0)
 	flourishPhase[i].offsetEnd = Vector(-6, -5)
 	
-	flourishPhase[i].soundStart = CreateSoundContainer("Flourish Longsword Mordhau", "Mordhau.rte");
+	flourishPhase[i].soundStart = CreateSoundContainer("Flourish Halberd Mordhau", "Mordhau.rte");
 	
 	-- Bedazzle
 	i = 2
 	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 150
+	flourishPhase[i].durationMS = 100
 	
 	flourishPhase[i].canBeBlocked = false
 	flourishPhase[i].canDamage = false
@@ -839,10 +842,10 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 9
-	flourishPhase[i].frameEnd = 6
-	flourishPhase[i].angleStart = 180
-	flourishPhase[i].angleEnd = 360
+	flourishPhase[i].frameStart = 11
+	flourishPhase[i].frameEnd = 11
+	flourishPhase[i].angleStart = 0
+	flourishPhase[i].angleEnd = -30
 	flourishPhase[i].offsetStart = Vector(-6, -5)
 	flourishPhase[i].offsetEnd = Vector(-6, -5)
 	
@@ -855,7 +858,7 @@ function Create(self)
 	-- Amaze
 	i = 3
 	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 150
+	flourishPhase[i].durationMS = 250
 	
 	flourishPhase[i].lastPrepare = true
 	flourishPhase[i].canBeBlocked = false
@@ -867,19 +870,19 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 6
-	flourishPhase[i].frameEnd = 9
-	flourishPhase[i].angleStart = 360
-	flourishPhase[i].angleEnd = 180
+	flourishPhase[i].frameStart = 11
+	flourishPhase[i].frameEnd = 8
+	flourishPhase[i].angleStart = -30
+	flourishPhase[i].angleEnd = -30
 	flourishPhase[i].offsetStart = Vector(-6, -5)
-	flourishPhase[i].offsetEnd = Vector(7, -2)
+	flourishPhase[i].offsetEnd = Vector(0, -2)
 	
 	flourishPhase[i].soundEnd = nil
 	
 	-- Bask
 	i = 4
 	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 150
+	flourishPhase[i].durationMS = 300
 	
 	flourishPhase[i].firstRecovery = false
 	flourishPhase[i].canBeBlocked = false
@@ -891,12 +894,12 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 9
+	flourishPhase[i].frameStart = 8
 	flourishPhase[i].frameEnd = 6
-	flourishPhase[i].angleStart = 180
-	flourishPhase[i].angleEnd = 0
-	flourishPhase[i].offsetStart = Vector(7, -2)
-	flourishPhase[i].offsetEnd = Vector(7, -2)
+	flourishPhase[i].angleStart = -30
+	flourishPhase[i].angleEnd = -0
+	flourishPhase[i].offsetStart = Vector(0, -2)
+	flourishPhase[i].offsetEnd = Vector(0, -1)
 	
 	flourishPhase[i].soundStart = nil
 	
@@ -912,8 +915,30 @@ function Create(self)
 	warcryPhase = {}
 	warcryPhase.Type = "Warcry";
 	
-	-- Pump
+	-- Prepare
 	i = 1
+	warcryPhase[i] = {}
+	warcryPhase[i].durationMS = 450
+	
+	warcryPhase[i].lastPrepare = true
+	warcryPhase[i].canBeBlocked = false
+	warcryPhase[i].canDamage = false
+	warcryPhase[i].attackDamage = 0
+	warcryPhase[i].attackStunChance = 0
+	warcryPhase[i].attackRange = 0
+	warcryPhase[i].attackPush = 0
+	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	warcryPhase[i].attackAngle = 90;
+	
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].angleStart = 0
+	warcryPhase[i].angleEnd = -15
+	warcryPhase[i].offsetStart = Vector(0, 0)
+	warcryPhase[i].offsetEnd = Vector(-2, 3)
+	
+	-- Pump
+	i = 2
 	warcryPhase[i] = {}
 	warcryPhase[i].durationMS = 250
 	
@@ -929,15 +954,15 @@ function Create(self)
 	
 	warcryPhase[i].frameStart = 6
 	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = -25
-	warcryPhase[i].angleEnd = -45
-	warcryPhase[i].offsetStart = Vector(0, 0)
+	warcryPhase[i].angleStart = -15
+	warcryPhase[i].angleEnd = -15
+	warcryPhase[i].offsetStart = Vector(-2, 3)
 	warcryPhase[i].offsetEnd = Vector(6, -15)
 	
-	warcryPhase[i].soundStart = nil
+	warcryPhase[i].soundStart = CreateSoundContainer("Stab Halberd Mordhau", "Mordhau.rte");
 	
 	-- Pause
-	i = 2
+	i = 3
 	warcryPhase[i] = {}
 	warcryPhase[i].durationMS = 500
 	
@@ -953,17 +978,17 @@ function Create(self)
 	
 	warcryPhase[i].frameStart = 6
 	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = -45
-	warcryPhase[i].angleEnd = -45
+	warcryPhase[i].angleStart = -15
+	warcryPhase[i].angleEnd = -15
 	warcryPhase[i].offsetStart = Vector(6, -15)
 	warcryPhase[i].offsetEnd = Vector(6, -15)
 	
 	warcryPhase[i].soundStart = nil
 	
 	-- Lower
-	i = 3
+	i = 4
 	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 200
+	warcryPhase[i].durationMS = 300
 	
 	warcryPhase[i].canBeBlocked = false
 	warcryPhase[i].canDamage = false
@@ -976,38 +1001,15 @@ function Create(self)
 	
 	warcryPhase[i].frameStart = 6
 	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = -45
-	warcryPhase[i].angleEnd = 15
+	warcryPhase[i].angleStart = -15
+	warcryPhase[i].angleEnd = -60
 	warcryPhase[i].offsetStart = Vector(6, -15)
-	warcryPhase[i].offsetEnd = Vector(0, -5)
-	
-	-- Pump
-	i = 4
-	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 150
-	
-	warcryPhase[i].canBeBlocked = false
-	warcryPhase[i].canDamage = false
-	warcryPhase[i].attackDamage = 3.4
-	warcryPhase[i].attackStunChance = 0.15
-	warcryPhase[i].attackRange = 20
-	warcryPhase[i].attackPush = 0.8
-	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	warcryPhase[i].attackAngle = 0;
-	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 15
-	warcryPhase[i].angleEnd = 45
-	warcryPhase[i].offsetStart = Vector(0, -5)
-	warcryPhase[i].offsetEnd = Vector(0, -15)
-	
-	warcryPhase[i].soundEnd = nil
+	warcryPhase[i].offsetEnd = Vector(6, -5)
 	
 	-- Pause
 	i = 5
 	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 150
+	warcryPhase[i].durationMS = 450
 	
 	warcryPhase[i].canBeBlocked = false
 	warcryPhase[i].canDamage = false
@@ -1020,80 +1022,13 @@ function Create(self)
 	
 	warcryPhase[i].frameStart = 6
 	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 45
-	warcryPhase[i].angleEnd = 45
-	warcryPhase[i].offsetStart = Vector(0, -15)
-	warcryPhase[i].offsetEnd = Vector(0, -15)
-	
-	-- Lower
-	i = 6
-	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 75
-	
-	warcryPhase[i].canBeBlocked = false
-	warcryPhase[i].canDamage = false
-	warcryPhase[i].attackDamage = 0
-	warcryPhase[i].attackStunChance = 0
-	warcryPhase[i].attackRange = 0
-	warcryPhase[i].attackPush = 0
-	warcryPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
-	warcryPhase[i].attackAngle = 0;
-	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 45
-	warcryPhase[i].angleEnd = 45
-	warcryPhase[i].offsetStart = Vector(0, -15)
-	warcryPhase[i].offsetEnd = Vector(0, -5)
-	
-	-- Pump
-	i = 7
-	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 150
-	
-	warcryPhase[i].canBeBlocked = false
-	warcryPhase[i].canDamage = false
-	warcryPhase[i].attackDamage = 3.4
-	warcryPhase[i].attackStunChance = 0.15
-	warcryPhase[i].attackRange = 20
-	warcryPhase[i].attackPush = 0.8
-	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	warcryPhase[i].attackAngle = 0;
-	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 45
-	warcryPhase[i].angleEnd = 45
-	warcryPhase[i].offsetStart = Vector(0, -5)
-	warcryPhase[i].offsetEnd = Vector(0, -15)
-	
-	warcryPhase[i].soundEnd = nil
-	
-	-- Pause
-	i = 8
-	warcryPhase[i] = {}
-	warcryPhase[i].durationMS = 400
-	
-	warcryPhase[i].canBeBlocked = false
-	warcryPhase[i].canDamage = false
-	warcryPhase[i].attackDamage = 3.4
-	warcryPhase[i].attackStunChance = 0.15
-	warcryPhase[i].attackRange = 20
-	warcryPhase[i].attackPush = 0.8
-	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	warcryPhase[i].attackAngle = 0;
-	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 45
-	warcryPhase[i].angleEnd = 45
-	warcryPhase[i].offsetStart = Vector(0, -15)
-	warcryPhase[i].offsetEnd = Vector(0, -15)
-	
-	warcryPhase[i].soundEnd = nil
+	warcryPhase[i].angleStart = -60
+	warcryPhase[i].angleEnd = -60
+	warcryPhase[i].offsetStart = Vector(6, -5)
+	warcryPhase[i].offsetEnd = Vector(6, -5)
 	
 	-- Return
-	i = 9
+	i = 6
 	warcryPhase[i] = {}
 	warcryPhase[i].durationMS = 300
 	
@@ -1108,9 +1043,9 @@ function Create(self)
 	
 	warcryPhase[i].frameStart = 6
 	warcryPhase[i].frameEnd = 6
-	warcryPhase[i].angleStart = 45
-	warcryPhase[i].angleEnd = -35
-	warcryPhase[i].offsetStart = Vector(0, -15)
+	warcryPhase[i].angleStart = -60
+	warcryPhase[i].angleEnd = 0
+	warcryPhase[i].offsetStart = Vector(6, -5)
 	warcryPhase[i].offsetEnd = Vector(0, 0)
 	
 	warcryPhase[i].soundStart = nil
@@ -1130,7 +1065,7 @@ function Create(self)
 	-- Windup
 	i = 1
 	throwPhase[i] = {}
-	throwPhase[i].durationMS = 700
+	throwPhase[i].durationMS = 800
 	
 	throwPhase[i].canBeBlocked = false
 	throwPhase[i].canDamage = false
@@ -1179,7 +1114,7 @@ function Create(self)
 	
 	throwPhase[i].canBeBlocked = true
 	throwPhase[i].canDamage = true
-	throwPhase[i].attackDamage = 2
+	throwPhase[i].attackDamage = 2.3
 	throwPhase[i].attackStunChance = 0
 	throwPhase[i].attackRange = 15
 	throwPhase[i].attackPush = 0.8
@@ -1212,7 +1147,7 @@ function Create(self)
 	-- Out
 	i = 1
 	equipPhase[i] = {}
-	equipPhase[i].durationMS = 250
+	equipPhase[i].durationMS = 300
 	
 	equipPhase[i].canBeBlocked = false
 	equipPhase[i].canDamage = false
@@ -1225,10 +1160,10 @@ function Create(self)
 	
 	equipPhase[i].frameStart = 6
 	equipPhase[i].frameEnd = 6
-	equipPhase[i].angleStart = -260
-	equipPhase[i].angleEnd = -215
-	equipPhase[i].offsetStart = Vector(-4, 0)
-	equipPhase[i].offsetEnd = Vector(4, -15)
+	equipPhase[i].angleStart = 170
+	equipPhase[i].angleEnd = 150
+	equipPhase[i].offsetStart = Vector(-15, -25)
+	equipPhase[i].offsetEnd = Vector(-12, -15)
 	
 	-- Upright
 	i = 2
@@ -1245,10 +1180,10 @@ function Create(self)
 	equipPhase[i].attackAngle = 0;
 	
 	equipPhase[i].frameStart = 6
-	equipPhase[i].frameEnd = 9
-	equipPhase[i].angleStart = -215
+	equipPhase[i].frameEnd = 8
+	equipPhase[i].angleStart = 150
 	equipPhase[i].angleEnd = 0
-	equipPhase[i].offsetStart = Vector(4, 0)
+	equipPhase[i].offsetStart = Vector(-12, -15)
 	equipPhase[i].offsetEnd = Vector(-5, -10)
 	
 	equipPhase[i].soundStart = nil
@@ -1271,10 +1206,10 @@ function Create(self)
 	equipPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	equipPhase[i].attackAngle = 0;
 	
-	equipPhase[i].frameStart = 9
+	equipPhase[i].frameStart = 8
 	equipPhase[i].frameEnd = 6
 	equipPhase[i].angleStart = 0
-	equipPhase[i].angleEnd = -35
+	equipPhase[i].angleEnd = -15
 	equipPhase[i].offsetStart = Vector(-5, -5)
 	equipPhase[i].offsetEnd = Vector(0, 0)
 	
@@ -1284,7 +1219,7 @@ function Create(self)
 	self.attackAnimationsSounds[10] = regularAttackSounds
 	self.attackAnimationsGFX[10] = regularAttackGFX
 	self.attackAnimations[10] = equipPhase
-	self.attackAnimationsTypes[10] = equipPhase.Type	
+	self.attackAnimationsTypes[10] = equipPhase.Type
 	
 	self.rotation = 0
 	self.rotationInterpolation = 1 -- 0 instant, 1 smooth, 2 wiggly smooth
@@ -1320,17 +1255,17 @@ function Update(self)
 		playAttackAnimation(self, 10)
 		self.equipAnim = false;
 
-		-- local rotationTarget = -225 / 180 * math.pi
-		-- local stanceTarget = Vector(-4, 0);
+		local rotationTarget = 170 / 180 * math.pi
+		local stanceTarget = Vector(-10, -10);
 	
-		-- self.stance = self.stance + stanceTarget
+		self.stance = self.stance + stanceTarget
 		
-		-- rotationTarget = rotationTarget * self.FlipFactor
-		-- self.rotation = self.rotation + rotationTarget
+		rotationTarget = rotationTarget * self.FlipFactor
+		self.rotation = self.rotation + rotationTarget
 		
-		-- self.StanceOffset = self.originalStanceOffset + self.stance
-		-- self.RotAngle = self.RotAngle + self.rotation
-	
+		self.StanceOffset = self.originalStanceOffset + self.stance
+		self.RotAngle = self.RotAngle + self.rotation
+		
 	elseif controller then --          :-)
 	
 		-- INPUT
@@ -1345,32 +1280,36 @@ function Update(self)
 			if player then
 				throw = (player and UInputMan:KeyPressed(10));
 				flourish = (player and UInputMan:KeyPressed(8));
-				stab = (player and UInputMan:KeyPressed(2))
-				overhead = (player and UInputMan:KeyPressed(22))
-				if stab or overhead or flourish or throw or warcry then
+				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
+				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
+				if stab or overhead or flourish or throw or warcry or self.attackBuffered == true  then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
-				attack = controller:IsState(Controller.PRESS_PRIMARY) and not self.attackCooldown;
+				attack = controller:IsState(Controller.PRESS_PRIMARY);
 				if self:IsActivated() and self.attackCooldown == true then
 					self:Deactivate();
+					self.attackBuffered = false;
+					self.stabBuffered = false;
+					self.overheadBuffered = false;
 				else
+					self.attackBuffered = false;
+					self.stabBuffered = false;
+					self.overheadBuffered = false;
 					self.attackCooldown = false;
 				end
 			else
 				-- stab = (math.random(0, 100) < 50) and true;
 				-- overhead = true;
-				-- if stab or overhead or flourish or throw or warcry then
+				-- if stab or overhead or flourish or throw or warcry or self.attackBuffered == true then
 					-- controller:SetState(Controller.PRESS_PRIMARY, true)
 					-- self:Activate();
 				-- end
-				-- attack = (math.random(0, 100) < 50)
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
 			self.parriedCooldown = false;
 		end
-		
 		local attacked = false
 		
 		-- if player then -- PLAYER INPUT
@@ -1431,8 +1370,8 @@ function Update(self)
 				
 				stanceTarget = Vector(0, 0);
 				
-				self.originalBaseRotation = -35;
-				self.baseRotation = -35;
+				self.originalBaseRotation = 0;
+				self.baseRotation = 0;
 				
 			end
 			
@@ -1538,14 +1477,13 @@ function Update(self)
 						
 						self:SetNumberValue("Blocking", 1);
 						
-						stanceTarget = Vector(4, -10);
+						stanceTarget = Vector(4, 0);
 						
-						self.originalBaseRotation = -160;
-						self.baseRotation = -145;
+						self.originalBaseRotation = -60;
+						self.baseRotation = -45;
 					end
 				end
 			end
-
 			
 			local factor = self.attackAnimationTimer.ElapsedSimTimeMS / currentPhase.durationMS
 			if factor > 1 then
@@ -1584,7 +1522,6 @@ function Update(self)
 				damageStun = damageStun * 1.3;
 				damagePush = damagePush * 1.3;
 			end
-				
 			
 			rotationTarget = rotationTarget + (currentPhase.angleStart * (1 - factor) + currentPhase.angleEnd * factor) / 180 * math.pi -- interpolate rotation
 			stanceTarget = stanceTarget + (currentPhase.offsetStart * (1 - factor) + currentPhase.offsetEnd * factor) -- interpolate stance offset
@@ -1644,7 +1581,7 @@ function Update(self)
 				self.pseudoPhase.soundEnd = currentPhase.soundEnd or nil
 					
 				
-			end
+			end			
 			
 			-- DEBUG
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 40), "animation = "..animation, true, 0);
@@ -1654,20 +1591,19 @@ function Update(self)
 				if (self.currentAttackSequence+1) <= #attackPhases then
 					self.currentAttackSequence = self.currentAttackSequence + 1
 				else
-					if not self.attackBuffered == true then
+					if not self.attackBuffered == true and not self.stabBuffered and not self.overheadBuffered then
 						self.attackCooldown = true;
 					end
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
 					self.attackAnimationIsPlaying = false
-					
 					if self.Throwing == true then
-						local throwChargeFactor = self.wasCharged and 15 or 0
+						local throwChargeFactor = self.wasCharged and 10 or 0
 						self.Throwing = false;
 						self.wasThrown = true;
 						self:GetParent():RemoveAttachable(self, true, false);
-						self.Vel = self.parent.Vel + Vector((throwChargeFactor + 35)*self.FlipFactor, 0):RadRotate(self.RotAngle);
+						self.Vel = self.parent.Vel + Vector((throwChargeFactor + 25)*self.FlipFactor, 0):RadRotate(self.RotAngle);
 						self.throwSoundPlayed = false;
 						
 					end
@@ -1708,7 +1644,7 @@ function Update(self)
 			if self:NumberValueExists("Mordhau Flinched") or self.parent:NumberValueExists("Mordhau Flinched") then
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
-			end		
+			end
 			if self.baseRotation < self.originalBaseRotation then
 				self.baseRotation = self.baseRotation + 1;
 			elseif self.baseRotation > self.originalBaseRotation then
@@ -1727,16 +1663,16 @@ function Update(self)
 					
 					self:SetNumberValue("Blocking", 1);
 					
-					stanceTarget = Vector(4, -10);
+					stanceTarget = Vector(4, 0);
 					
-					self.originalBaseRotation = -160;
-					self.baseRotation = -145;
+					self.originalBaseRotation = -60;
+					self.baseRotation = -45;
 				
 				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
 				
-					self.originalBaseRotation = -160;
+					self.originalBaseRotation = -60;
 				
-					stanceTarget = Vector(4, -10);
+					stanceTarget = Vector(4, 0);
 				
 				elseif UInputMan:KeyReleased(18) then
 				
@@ -1746,8 +1682,8 @@ function Update(self)
 					
 					self:RemoveNumberValue("Blocking");
 					
-					self.originalBaseRotation = -35;
-					self.baseRotation = -45;
+					self.originalBaseRotation = 0;
+					self.baseRotation = 0;
 				
 				else
 					
@@ -1755,8 +1691,8 @@ function Update(self)
 					
 					self:RemoveNumberValue("Blocking");
 					
-					self.originalBaseRotation = -35;
-					self.baseRotation = -45;
+					self.originalBaseRotation = 0;
+					self.baseRotation = 0;
 					
 				end
 			elseif not self.attackAnimationIsPlaying then
@@ -1765,10 +1701,10 @@ function Update(self)
 				
 				self:SetNumberValue("Blocking", 1);
 				
-				stanceTarget = Vector(4, -10);
+				stanceTarget = Vector(4, 0);
 				
-				self.originalBaseRotation = -160;
-				self.baseRotation = -160;
+				self.originalBaseRotation = -60;
+				self.baseRotation = -45;
 				
 			end
 				
@@ -1844,12 +1780,13 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
+				local rayHitPos = Vector(rayHitPos.X, rayHitPos.Y);
 				local MO = MovableMan:GetMOFromID(moCheck)
 				if (IsMOSRotating(MO) and canDamage) and not (MO:IsInGroup("Weapons - Mordhau Melee")
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
@@ -1907,9 +1844,20 @@ function Update(self)
 					
 					if MO:IsInGroup("Shields") then
 						self.blockedSound:Play(self.Pos);
-					end
+					end					
 					
-					local woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					local hitRange = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX);
+					local minimumRange = damageRange* self.sweetSpotThreshold;
+					
+					local woundsToAdd;
+					
+					if hitRange.Magnitude > minimumRange then
+						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					else
+						local mult = hitRange.Magnitude / minimumRange;
+						damage = damage * math.max(0.25, mult);
+						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					end
 					
 					-- Hurt the actor, add extra damage
 					local actorHit = MovableMan:GetMOFromID(MO.RootID)
