@@ -1,52 +1,9 @@
 
-function Create(self)
+function Explode(self)
+	if not self.explode then return end
+	self.explode = false
 	
-	self.soundFlyLoop = CreateSoundContainer("Large Rock FlightLoop Catapult", "Mordhau.rte");
-	self.originalPitch = math.random(8, 12) / 100;
-	self.soundFlyLoop:Play(self.Pos);
-	
-	self.HitsMOs = false; -- avoid hitting ourselves
-	self.hitTimer = Timer();
-
-	self.explodeSound = CreateSoundContainer("Large Rock Gib Catapult", "Mordhau.rte");
-	
-end
-
-function Update(self)
-	
-	self.soundFlyLoop.Pos = self.Pos
-	
-	self.soundFlyLoop.Volume = math.min(self.Vel.Magnitude / 20, 50) + 0.10;
-	self.soundFlyLoop.Pitch = (self.Vel.Magnitude / 35) + self.originalPitch;
-	
-	if self.hitTimer:IsPastSimMS(400) then
-		self.HitsMOs = true;
-	end
-	
-end
-
-function OnCollideWithTerrain(self, terrainID)
-	if self.Vel.Magnitude > 13 then
-		self:GibThis();
-		self.enoughForce = true;
-	end
-end
-
-function OnCollideWithMO(self, MO, rootMO)
-	if MO then
-		MO:GibThis();
-	end
-	if self.Vel.Magnitude > 13 then
-		self:GibThis();
-		if rootMO and rootMO.UniqueID ~= MO.UniqueID then
-			rootMO:GibThis();
-		end
-		self.enoughForce = true;
-	end
-end
-
-function Destroy(self)
-	self.soundFlyLoop:Stop(-1);
+	self:GibThis();
 	
 	local smokeAmount = 20
 	local smokeLingering = 5
@@ -121,4 +78,85 @@ function Destroy(self)
 		MovableMan:AddParticle(particle);
 	end	
 
+end
+
+function Create(self)
+	self.explode = true
+	self.soundFlyLoop = CreateSoundContainer("Large Rock FlightLoop Catapult", "Mordhau.rte");
+	--self.originalPitch = math.random(8, 12) / 100;
+	--self.soundFlyLoop:Play(self.Pos);
+	
+	self.HitsMOs = false; -- avoid hitting ourselves
+	--self.hitTimer = Timer();
+	
+	self.lastPos = Vector(self.Pos.X, self.Pos.Y)
+	self.launchVector = Vector()
+
+	self.explodeSound = CreateSoundContainer("Large Rock Gib Catapult", "Mordhau.rte");
+	
+	self.flying = false
+	
+	--local parent = self:GetRootParent()
+	--if parent and IsACrab(parent) then
+	--	ToACrab(parent):SetNumberValue("Arm Rotation", ToACrab(parent):GetNumberValue("Arm Rotation") + math.pi * 0.01 * self.FlipFactor)
+	--end
+end
+
+function OnDetach(self)
+	self.flying = true
+	
+	self.Vel = self.launchVector / rte.PxTravelledPerFrame * 0.5
+	self.Vel = self.Vel + Vector(0, -self.Vel.Magnitude * 0.3)
+	self.AngularVel = RangeRand(-1, 1) * 6
+	
+	self.originalPitch = math.random(8, 12) / 100;
+	self.soundFlyLoop:Play(self.Pos);
+	
+	--self.HitsMOs = false; -- avoid hitting ourselves
+	self.hitTimer = Timer();
+	
+	self.HitsMOs = true
+end
+
+function Update(self)
+	self.launchVector = SceneMan:ShortestDistance(self.lastPos, self.Pos,SceneMan.SceneWrapsX)
+	self.lastPos = Vector(self.Pos.X, self.Pos.Y)
+	
+	if not self.flying then return end
+	
+	self.ToSettle = false
+	
+	self.soundFlyLoop.Pos = self.Pos
+	
+	self.soundFlyLoop.Volume = math.min(self.Vel.Magnitude / 20, 50) + 0.10;
+	self.soundFlyLoop.Pitch = (self.Vel.Magnitude / 35) + self.originalPitch;
+	
+	--if self.hitTimer:IsPastSimMS(400) then
+	--	self.HitsMOs = true;
+	--end
+	
+end
+
+function OnCollideWithTerrain(self, terrainID)
+	if self.Vel.Magnitude > 13 then
+		Explode(self)
+		self.enoughForce = true;
+	end
+end
+
+function OnCollideWithMO(self, MO, rootMO)
+	if MO then
+		MO:GibThis();
+	end
+	if self.Vel.Magnitude > 13 then
+		Explode(self)
+		if rootMO and rootMO.UniqueID ~= MO.UniqueID then
+			rootMO:GibThis();
+		end
+		self.enoughForce = true;
+	end
+end
+
+function Destroy(self)
+	self.soundFlyLoop:Stop(-1);
 end

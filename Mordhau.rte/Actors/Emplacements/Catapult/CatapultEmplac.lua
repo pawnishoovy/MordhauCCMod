@@ -31,6 +31,8 @@ function Create(self)
 	
 	self.chargeFactor = 0.5;
 	
+	self.chargeFactorPresistant = 0.5
+	
 	-- TWO different delayedfireds for a catapult. has science gone too far?
 	
 	self.preDelayedFire = false
@@ -83,7 +85,24 @@ function Create(self)
 	self.Loaded = true;
 	
 	self.ReloadTime = 15000;
-
+	
+	local payload = CreateAttachable(self.ammoLoaded, "Mordhau.rte");
+	
+	local parent = ToACrab(self:GetRootParent())
+	local spoon
+	for attachable in parent.Attachables do
+		if string.find(attachable.PresetName, "Catapult Arm") then -- Spoon, not arm, think pawnis, think
+			spoon = attachable
+			break
+		end
+	end
+	local offset = Vector(7, -72)
+	
+	-- Vector(7 * spoon.FlipFactor, -72):RadRotate(spoon.RotAngle)
+	payload.ParentOffset = offset
+	payload.Team = parent.Team
+	payload.IgnoresTeamHits = true
+	spoon:AddAttachable(payload);
 end
 
 function Update(self)
@@ -245,7 +264,7 @@ function Update(self)
 			
 				-- PAWNIS RELOAD ANIMATION HERE
 				if self:IsReloading() then
-
+					self.chargeFactorPresistant = 0
 					if self.reloadPhase == 0 then
 						self.reloadDelay = self.baseChargePrepareDelay;
 						self.afterDelay = self.baseChargeAfterDelay;			
@@ -301,9 +320,27 @@ function Update(self)
 								self.chargeFactor = 0.5;
 								
 							elseif self.reloadPhase == 2 then
-								self.phaseOnStop = 2;								
-								self.Loaded = true;
-							
+								self.phaseOnStop = 2;		
+								if not self.Loaded then
+									self.Loaded = true;
+									local payload = CreateAttachable(self.ammoLoaded, "Mordhau.rte");
+									
+									local parent = ToACrab(self:GetRootParent())
+									local spoon
+									for attachable in parent.Attachables do
+										if string.find(attachable.PresetName, "Catapult Arm") then -- Spoon, not arm, think pawnis, think
+											spoon = attachable
+											break
+										end
+									end
+									local offset = Vector(7, -72)
+									
+									-- Vector(7 * spoon.FlipFactor, -72):RadRotate(spoon.RotAngle)
+									payload.ParentOffset = offset
+									payload.Team = parent.Team
+									payload.IgnoresTeamHits = true
+									spoon:AddAttachable(payload);
+								end
 							else
 								self.phaseOnStop = nil;
 							end
@@ -329,11 +366,24 @@ function Update(self)
 						end
 					end
 				else
-				
+					
 					if self:StringValueExists("Switch Ammo") then
 						self.ammoLoaded = self:GetStringValue("Switch Ammo");
 						self:RemoveStringValue("Switch Ammo");
 						self.rockOnSound:Play(self.Pos);
+						
+						local parent = ToACrab(self:GetRootParent())
+						local spoon
+						for attachable in parent.Attachables do
+							if string.find(attachable.PresetName, "Catapult Arm") then -- Spoon, not arm, think pawnis, think
+								spoon = attachable
+								break
+							end
+						end
+						
+						for payload in spoon.Attachables do
+							spoon:RemoveAttachable(payload, false, false)
+						end
 					end
 					
 					self.reloadTimer:Reset();
@@ -347,7 +397,7 @@ function Update(self)
 									self.chargeSoundPlaying = true;
 									self.chargeSound:Play(self.Pos);
 								end
-								local value = (0.25 * TimerMan.DeltaTimeSecs);
+								local value = self.chargeFactor * TimerMan.DeltaTimeSecs * 0.3 + (0.05 * TimerMan.DeltaTimeSecs);
 								self.chargeFactor = self.chargeFactor + value;
 							elseif self.chargeFactor > 1 and self.fullyCharged ~= true then
 								self.chargeFullSound:Play(self.Pos);
@@ -382,7 +432,7 @@ function Update(self)
 					-- local minTime = 0
 					-- local maxTime = 200
 					
-					factor = self.delayedFireTimer.ElapsedSimTimeMS / (630 * self.finalChargeFactor);
+					factor = self.delayedFireTimer.ElapsedSimTimeMS / self.delayedFireTimeMS;
 					
 					if factor > 0.75 then -- make half the sound go by, also shorten animation itself... bodge city, goddamn it all
 						local otherFactor = (factor - 0.75) * 4
@@ -395,11 +445,25 @@ function Update(self)
 					
 					local shot = self.ammoLoaded;
 					if shot ~= "Nothing" then
+						--[[
 						shot = CreateMOSRotating(shot, "Mordhau.rte");
 						shot.Vel = self.parent.Vel + Vector(40 * self.FlipFactor * self.finalChargeFactor, -20 * self.finalChargeFactor):RadRotate(self.parent.RotAngle);
 						shot.Pos = self.parent.Pos + Vector(20*self.FlipFactor,-120):RadRotate((self.parent.RotAngle/1.5) + self.Rotation);
 						shot.Team = self.Team;
-						MovableMan:AddParticle(shot);
+						MovableMan:AddParticle(shot);]]
+						
+						local parent = ToACrab(self:GetRootParent())
+						local spoon
+						for attachable in parent.Attachables do
+							if string.find(attachable.PresetName, "Catapult Arm") then -- Spoon, not arm, think pawnis, think
+								spoon = attachable
+								break
+							end
+						end
+						
+						for payload in spoon.Attachables do
+							spoon:RemoveAttachable(payload, true, false)
+						end
 					end
 					
 					if self.boarder then
@@ -413,6 +477,10 @@ function Update(self)
 						
 						self.boarder = nil;
 					end
+					
+					--self.chargeFactorPresistant = 0
+				else
+					self.chargeFactorPresistant = math.max(self.chargeFactorPresistant, self.chargeFactor)
 				end
 					
 				if self:DoneReloading() or self:IsReloading() then
@@ -448,7 +516,7 @@ function Update(self)
 				if self.preDelayedFire and self.preDelayedFireTimer:IsPastSimMS(self.preDelayedFireTimeMS) then
 					self.delayedFire = true;
 					self.delayedFireTimer:Reset();
-					self.delayedFireTimeMS = 630 * self.chargeFactor;
+					self.delayedFireTimeMS = 630 * self.chargeFactor * (1 - self.chargeFactorPresistant * 0.5);
 					self.finalChargeFactor = self.chargeFactor;
 					self.releaseSound:Play(self.Pos);
 					self.Locked = false;

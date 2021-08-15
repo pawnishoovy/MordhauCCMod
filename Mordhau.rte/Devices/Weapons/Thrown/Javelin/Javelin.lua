@@ -88,19 +88,10 @@ function Update(self)
 				--self.InheritedRotAngleOffset = self.heldAngleOffset + math.pi * factor * 0.5
 				--self.StartThrowOffset = Vector(-6, -1) + Vector(-6, -7) * factor
 				
-				local min_value = -math.pi;
-				local max_value = math.pi;
 				local value = -ToArm(self:GetParent()).RotAngle + parent:GetAimAngle(true) - self.heldAngleOffset;
-				local result;
-				
-				local range = max_value - min_value;
-				if range <= 0 then
-					result = min_value;
-				else
-					local ret = (value - min_value) % range;
-					if ret < 0 then ret = ret + range end
-					result = ret + min_value;
-				end
+				local ret = (value + math.pi) % (math.pi * 2);
+				if ret < 0 then ret = ret + (math.pi * 2) end
+				local result = ret - math.pi;
 				
 				self.InheritedRotAngleOffset = self.heldAngleOffset + result * factor * self.FlipFactor
 			else
