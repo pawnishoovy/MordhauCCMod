@@ -45,11 +45,15 @@ function Create(self)
 	
 	self.laserTimer = Timer();
 	self.guideTable = {};
+	
+	self.squadModeReload = false
 
 	self.projectileVel = 100;
-	if self.Magazine ~= null and self.Magazine.RoundCount ~= 0 then
+	if self.Magazine ~= nil and self.Magazine.RoundCount ~= 0 then
 		self.projectileVel = self.Magazine.NextRound.FireVel;
 	end
+	
+	self.originalReloadTime = self.ReloadTime
 
 	self.maxTrajectoryPars = 120;
 end
@@ -68,6 +72,7 @@ function Update(self)
 	
 	local sharpaiming = false
 	local stanceOffset = Vector()
+	local squadMode = false
 	
 	-- Check if switched weapons/hide in the inventory, etc.
 	if self.Age > (self.lastAge + TimerMan.DeltaTimeSecs * 2000) then
@@ -81,6 +86,14 @@ function Update(self)
 	
 	if self.parent then
 		sharpaiming = self.parent:GetController():IsState(Controller.AIM_SHARP) == true and self.parent:GetController():IsState(Controller.MOVE_LEFT) == false and self.parent:GetController():IsState(Controller.MOVE_RIGHT) == false
+		squadMode = self.parent.AIMode == 11
+		
+		if squadMode then -- Random crouching
+			--if self.parent.UniqueID % 2 == 0 and self.parent:GetController():IsState(Controller.WEAPON_FIRE) and not self.parent:GetController():IsState(Controller.MOVE_LEFT) and not self.parent:GetController():IsState(Controller.MOVE_RIGHT) then
+			if self:IsReloading() and not self.parent:GetController():IsState(Controller.MOVE_LEFT) and not self.parent:GetController():IsState(Controller.MOVE_RIGHT) then
+				self.parent:GetController():SetState(Controller.BODY_CROUCH, true)
+			end
+		end
 		
 		if self:DoneReloading() then
 			--
@@ -106,7 +119,17 @@ function Update(self)
 			
 			self.Frame = 0
 		else
-			local active = self:IsActivated()
+			local active = self.parent:GetController():IsState(Controller.WEAPON_FIRE)--self:IsActivated()
+			
+			if active and not self.parent:IsPlayerControlled() then
+				self.AICharging = true
+			end
+			
+			if self.AICharging then
+				self.AICharging = not self.chargeTimer:IsPastSimMS(self.chargeTime)
+				active = self.AICharging
+			end
+			
 			self:Deactivate()
 			
 			local chargeFactor = math.min(self.chargeTimer.ElapsedSimTimeMS / self.chargeTime, 1)
@@ -130,11 +153,12 @@ function Update(self)
 				self.Frame = 0
 			end
 			
+			if self.parent:IsPlayerControlled() then
+				self.AICharging = false;
+			end
+			
 			if active and self.Magazine then
 				if not self.charging then
-					if not self.parent:IsPlayerControlled() then
-						self.AICharging = true;
-					end
 					self.charging = true
 					self.chargeTimer:Reset()
 					self.soundDraw:Play(self.Pos)
@@ -164,24 +188,18 @@ function Update(self)
 					end
 				
 				end
-			elseif self.parent:IsPlayerControlled() then
+			else
 				if self.charging then
 					self.soundDraw:FadeOut(50);
 					self.charging = false
 					self.lastChargeFactor = chargeFactor
-					if self.lastChargeFactor > 0.1 then
+					if self.lastChargeFactor > 0.25 then
 						self.shoot = true
 					end
+					
+					self.AICharging = false
 				end
 				self.chargeTimer:Reset()
-			elseif self.charging and self.AICharging then
-				if self.chargeTimer:IsPastSimMS(self.chargeTime) then
-					self.soundDraw:FadeOut(50);
-					self.charging = false
-					self.lastChargeFactor = chargeFactor
-					self.shoot = true
-					self.AICharging = false;
-				end
 			end
 			
 			self.projectileVel = self.arrowVelocityMin + (self.arrowVelocityMax - self.arrowVelocityMin) * chargeFactor
@@ -194,11 +212,16 @@ function Update(self)
 				if self.FiredFrame then
 					self.RotAngle = self.RotAngle + (math.rad(math.random((self.shakeMult*-100), (self.shakeMult*100))/100)*self.FlipFactor)
 					
+					local spread = 0
+					if squadMode then
+						spread = math.rad(7) * RangeRand(-1.0, 1.0) * RangeRand(-1.0, 1.0)
+					end
+					
 					--
 					local arrow = CreateMOSRotating("RecurveBow Arrow", "Mordhau.rte");
 					arrow.Pos = self.Pos + Vector(self.MuzzleOffset.X * self.FlipFactor, self.MuzzleOffset.Y):RadRotate(self.RotAngle + RangeRand(-0.1,0.1));
-					arrow.Vel = self.Vel + Vector(1 * self.FlipFactor,0):RadRotate(self.RotAngle) * (self.arrowVelocityMin + (self.arrowVelocityMax - self.arrowVelocityMin) * self.lastChargeFactor) * RangeRand(0.95, 1.05);
-					arrow.RotAngle = self.RotAngle + (math.pi * (-self.FlipFactor + 1) / 2)
+					arrow.Vel = self.Vel + Vector(1 * self.FlipFactor,0):RadRotate(self.RotAngle + spread) * (self.arrowVelocityMin + (self.arrowVelocityMax - self.arrowVelocityMin) * self.lastChargeFactor) * RangeRand(0.95, 1.05);
+					arrow.RotAngle = self.RotAngle + (math.pi * (-self.FlipFactor + 1) / 2) + spread
 					
 					arrow.Team = self.parent.Team;
 					arrow.IgnoresTeamHits = true;
@@ -212,6 +235,8 @@ function Update(self)
 					self.lastChargeFactor = 0
 					
 					self.soundDraw:Stop()
+					
+					self.squadModeReload = true
 					
 					self.shoot = false
 					self.chargeTimer:Reset()
@@ -239,6 +264,27 @@ function Update(self)
 		end
 	elseif self:IsActivated() then
 		self:Reload();
+	end
+	
+	if self.Magazine then
+		if squadMode then
+			if self.squadModeReload then
+				self:Reload()
+				self.squadModeReload = false
+				
+				stringMode = 0
+				
+				self.ReloadTime = self.originalReloadTime * RangeRand(0.5, 1.0)
+			else
+				self.Magazine.RoundCount = 2
+			end
+		else
+			if self.Magazine.RoundCount > 1 then
+				self.Magazine.RoundCount = 1
+			end
+			
+			self.ReloadTime = self.originalReloadTime
+		end
 	end
 	
 	local stringStartPosA = self.Pos + Vector((-3 - self.Frame) * self.FlipFactor, -10):RadRotate(self.RotAngle)
