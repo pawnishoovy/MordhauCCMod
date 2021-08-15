@@ -616,6 +616,20 @@ function KnightAIBehaviours.handleVoicelines(self)
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
 	end
 	
+	if self:NumberValueExists("Catapulted") then
+		self:RemoveNumberValue("Catapulted");
+		local randomChance = math.random(0, 100);
+		if randomChance > 75 then
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.whoaMedium, 4, 2);
+		elseif randomChance > 50 then
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Rage, 6, 4);
+		elseif randomChance > 25 then
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.frustratedSerious, 6, 4);
+		else
+			CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Victory, 5, 4);			
+		end
+	end	
+	
 	if (self:IsPlayerControlled() and UInputMan:KeyPressed(24)) then
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
 		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then

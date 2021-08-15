@@ -665,6 +665,11 @@ function ArcherAIBehaviours.handleVoicelines(self)
 		end
 	end
 	
+	if self:NumberValueExists("Catapulted") then
+		self:RemoveNumberValue("Catapulted")
+		ArcherAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Victory, 5, 4);
+	end
+	
 	if self:NumberValueExists("Mordhau Arrow Suppression") then
 		self:RemoveNumberValue("Mordhau Arrow Suppression");
 		self.Suppression = self.Suppression + 3;

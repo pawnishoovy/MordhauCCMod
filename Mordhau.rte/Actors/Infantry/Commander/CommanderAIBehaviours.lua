@@ -585,6 +585,16 @@ function CommanderAIBehaviours.handleVoicelines(self)
 		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.burnScream, 16, 5);
 	end
 		
+	if self:NumberValueExists("Catapulted") then
+		self:RemoveNumberValue("Catapulted");
+		local randomChance = math.random(0, 100);
+		if randomChance > 66 then
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.whoaMedium, 3, 0);
+		else
+			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
+		end
+	end		
+		
 	if (self:IsPlayerControlled() and UInputMan:KeyPressed(24)) then
 		local randomChance = math.random(0, 100);
 		if randomChance > 66 then
