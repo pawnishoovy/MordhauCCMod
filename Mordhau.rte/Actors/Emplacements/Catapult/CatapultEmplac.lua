@@ -3,6 +3,10 @@
 
 function Create(self)
 
+	self.Rotation = 0;
+	
+	self.ammoLoaded = "Catapult Large Rock";
+
 	if IsACrab(self:GetRootParent()) then
 		self.parent = ToACrab(self:GetRootParent());
 		self.IsPlayer = ActivityMan:GetActivity():IsHumanTeam(self.parent.Team)
@@ -137,7 +141,12 @@ function Update(self)
 					PrimitiveMan:DrawTextPrimitive(screen, self.parent.AboveHUDPos + Vector(-25, -15), "REQUIRES: GUNNER", true, 0);	
 				end
 
-				if self.optimizationTimer:IsPastSimMS(self.optimizationDelay) then
+				if self.boarder then
+					self.gunner = ToAHuman(self.boarder);
+					self.boarder = nil
+					self.gunner:RemoveInventoryItem("Reloader Holder")
+					
+				elseif self.optimizationTimer:IsPastSimMS(self.optimizationDelay) then
 					self.optimizationTimer:Reset();
 					for actor in MovableMan.Actors do 
 						if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos, SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
@@ -162,6 +171,75 @@ function Update(self)
 					end
 				end
 			elseif self.gunner then			--We have gunner
+			
+				if (self.boarder == nil or not MovableMan:IsActor(self.boarder)) then		--Get second guy: Boarder
+					
+					self:SetNumberValue("Has Reloader", 0)
+
+					if self.optimizationTimer:IsPastSimMS(self.optimizationDelay) then
+						self.optimizationTimer:Reset();
+						if not (math.abs(self.parent.AngularVel) > 7 or math.abs(self.parent.RotAngle) > 0.8 or not MovableMan:IsActor(self.parent) or self.parent.Health <= 0) then
+							for actor in MovableMan.Actors do 
+								if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos, SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
+									if IsAHuman(actor) then
+										if (actor:IsPlayerControlled() and UInputMan:KeyPressed(6)) then	--F to mount
+											self.boarder = ToAHuman(actor);
+											if self.boarder.FGArm and (not self.boarder.EquippedItem  or (self.boarder.EquippedItem and self.boarder.EquippedItem.PresetName ~= "Gunner Holder")) then
+												self.boarder.AIMode = Actor.AIMODE_NONE
+												self.boarder.HUDVisible = false
+											else
+												self.boarder = nil							
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				elseif self.boarder then
+
+
+					if self.IsPlayer and self.boarder:IsPlayerControlled() then
+						local switcher = ActivityMan:GetActivity()
+						switcher:SwitchToActor(self.parent, self.boarder:GetController().Player, self.Team)
+					end		
+
+					if self.boarder:GetController().InputMode ~= Controller.CIM_DISABLED then
+						self.boarder:SetControllerMode(Controller.CIM_DISABLED , self.boarder:GetController().Player);
+						self.boarder.AIMode = Actor.AIMODE_NONE;
+					end
+					
+					--Set reloader pos and vel so it moves with the turret
+					
+					self.boarder.Vel = self.motorParent.Vel/1.5;
+					self.boarder.Pos = self.parent.Pos + Vector(10*self.FlipFactor,-70):RadRotate((self.parent.RotAngle/1.5) + self.Rotation)							
+					self.boarder.HFlipped = self.HFlipped;							
+					self.boarder:SetAimAngle(self.parent.RotAngle)
+
+					if self.boarder.Status ~= 0 then						
+						self.boarder = nil;
+					end	
+					
+					-- Remove boarder if turret moves a lot or is very rotated
+					
+					if self.boarder and (math.abs(self.parent.AngularVel) > 7 or math.abs(self.parent.RotAngle) > 0.8 or not MovableMan:IsActor(self.parent) or self.parent.Health <= 0 
+					or (self.parent:IsPlayerControlled() and UInputMan:KeyPressed(8)) or  self.boarder.FGArm == nil) then
+						
+						if self.boarder.EquippedItem then							
+							self.boarder.EquippedItem.ToDelete = true
+						end
+						self.boarder.AIMode = 1
+						self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)	
+						self.boarder.HUDVisible = true
+
+						if self.IsPlayer and self.parent:IsPlayerControlled() then
+							local switcher = ActivityMan:GetActivity()
+							switcher:SwitchToActor(self.boarder, self.parent:GetController().Player, self.Team)
+						end
+
+						self.boarder = nil
+					end
+				end
 			
 				local reloadHeld = self.parent and self.parent:IsPlayerControlled() and UInputMan:KeyHeld(18)
 			
@@ -251,6 +329,12 @@ function Update(self)
 						end
 					end
 				else
+				
+					if self:StringValueExists("Switch Ammo") then
+						self.ammoLoaded = self:GetStringValue("Switch Ammo");
+						self:RemoveStringValue("Switch Ammo");
+						self.rockOnSound:Play(self.Pos);
+					end
 					
 					self.reloadTimer:Reset();
 					self.afterSoundPlayed = false;
@@ -300,14 +384,35 @@ function Update(self)
 					
 					factor = self.delayedFireTimer.ElapsedSimTimeMS / (630 * self.finalChargeFactor);
 					
-					if factor > 0.80 then -- make half the sound go by, also shorten animation itself... bodge city, goddamn it all
-						local otherFactor = (factor - 0.8) * 5
+					if factor > 0.75 then -- make half the sound go by, also shorten animation itself... bodge city, goddamn it all
+						local otherFactor = (factor - 0.75) * 4
 						self.chargeFactor = self.finalChargeFactor - (self.finalChargeFactor * otherFactor);
 					end
 				end
 				
 				if self.FiredFrame then
 					self.Loaded = false;
+					
+					local shot = self.ammoLoaded;
+					if shot ~= "Nothing" then
+						shot = CreateMOSRotating(shot, "Mordhau.rte");
+						shot.Vel = self.parent.Vel + Vector(40 * self.FlipFactor * self.finalChargeFactor, -20 * self.finalChargeFactor):RadRotate(self.parent.RotAngle);
+						shot.Pos = self.parent.Pos + Vector(20*self.FlipFactor,-120):RadRotate((self.parent.RotAngle/1.5) + self.Rotation);
+						shot.Team = self.Team;
+						MovableMan:AddParticle(shot);
+					end
+					
+					if self.boarder then
+						self.boarder.Vel = self.parent.Vel + Vector(40 * self.FlipFactor * self.finalChargeFactor, -20 * self.finalChargeFactor):RadRotate(self.parent.RotAngle);
+						self.boarder.Pos = self.parent.Pos + Vector(20*self.FlipFactor,-120):RadRotate((self.parent.RotAngle/1.5) + self.Rotation);
+						self.boarder.AIMode = 1
+						self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)					
+						self.boarder.HUDVisible = true
+						
+						self.boarder:SetNumberValue("Catapulted", 1);
+						
+						self.boarder = nil;
+					end
 				end
 					
 				if self:DoneReloading() or self:IsReloading() then
@@ -318,7 +423,7 @@ function Update(self)
 				self:Deactivate()
 				
 				--if self.parent:GetController():IsState(Controller.WEAPON_FIRE) and not self:IsReloading() then
-				if fire and not self:IsReloading() then
+				if self.Locked and fire and not self:IsReloading() then
 					if not self.Magazine or self.Magazine.RoundCount < 1 then
 						--self:Reload()
 						self:Activate()
@@ -346,6 +451,7 @@ function Update(self)
 					self.delayedFireTimeMS = 630 * self.chargeFactor;
 					self.finalChargeFactor = self.chargeFactor;
 					self.releaseSound:Play(self.Pos);
+					self.Locked = false;
 					self.preDelayedFire = false;
 				end
 				
@@ -440,6 +546,18 @@ function Update(self)
 				end	
 			end	
 			
+			if self.boarder then
+				if self.boarder.Status ~= 0 then						
+					self.boarder = nil;	
+				else					
+					self.boarder.AIMode = 1
+					self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)					
+					self.boarder.HUDVisible = true
+					
+					self.boarder = nil;
+				end	
+			end		
+			
 			self.parent = nil
 		end
 	else
@@ -452,10 +570,20 @@ function Update(self)
 			end					
 			self.gunner = nil;
 		end
+		if self.boarder then
+			if self.boarder.Status ~= 0 then						
+				self.boarder.AIMode = 1
+				self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)
+				self.boarder.HUDVisible = true
+			end					
+			self.boarder = nil;
+		end
 	end
 	
+	self.Rotation = math.rad(0 + (90 * self.chargeFactor)) * self.FlipFactor;
+	
 	if self.parent then
-		self.parent:SetNumberValue("Arm Rotation", math.rad(0 + (90 * self.chargeFactor)) * self.FlipFactor);
+		self.parent:SetNumberValue("Arm Rotation", self.Rotation);
 	end
 	
 end
@@ -473,5 +601,11 @@ function Destroy(self)
 		end
 		
 		self.gunner = nil
+	end
+	if self.boarder then
+		self.boarder.AIMode = 1
+		self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)
+		self.boarder.HUDVisible = true		
+		self.boarder = nil
 	end
 end

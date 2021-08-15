@@ -66,7 +66,8 @@ function Create(self)
 	Victory = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Victory", "Mordhau.rte"),
 	victorySpoken = CreateSoundContainer("VO " .. self.IdentityPrimary .. " VictorySpoken", "Mordhau.rte"),
 	whoaLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaLight", "Mordhau.rte"),
-	whoaMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaMedium", "Mordhau.rte")};
+	whoaMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaMedium", "Mordhau.rte"),
+	Rage = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Rage", "Mordhau.rte")};
 	
 	-- TERRAIN SOUNDS
 	
