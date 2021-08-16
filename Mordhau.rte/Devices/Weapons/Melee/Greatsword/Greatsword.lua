@@ -1428,12 +1428,10 @@ function Update(self)
 					self.attackCooldown = false;
 				end
 			else
-				-- stab = (math.random(0, 100) < 50) and true;
-				-- overhead = true;
-				-- if stab or overhead or flourish or throw or warcry or self.attackBuffered == true then
-					-- controller:SetState(Controller.PRESS_PRIMARY, true)
-					-- self:Activate();
-				-- end
+				if stab or overhead or flourish or throw or warcry then
+					controller:SetState(Controller.PRESS_PRIMARY, true)
+					self:Activate();
+				end
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then

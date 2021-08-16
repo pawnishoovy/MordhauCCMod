@@ -1233,7 +1233,7 @@ function Create(self)
 	throwPhase[i].angleStart = 120
 	throwPhase[i].angleEnd = -90
 	throwPhase[i].offsetStart = Vector(-15, -15)
-	throwPhase[i].offsetEnd = Vector(6, -15)
+	throwPhase[i].offsetEnd = Vector(6, -2)
 	
 	throwPhase[i].soundStart = nil
 	throwPhase[i].soundStartVariations = 0
