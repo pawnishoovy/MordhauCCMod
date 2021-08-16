@@ -1140,7 +1140,7 @@ function Create(self)
 	
 	-- Throw
 	throwPhase = {}
-	throwPhase.Type = "Throw";
+	throwPhase.Type = "Slash";
 	
 	-- Windup
 	i = 1
@@ -1364,7 +1364,6 @@ function Update(self)
 				overhead = (player and UInputMan:KeyPressed(22))
 				if stab or overhead or flourish or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
-					print("yes")":
 					self:Activate();
 				end
 				attack = controller:IsState(Controller.PRESS_PRIMARY) and not self.attackCooldown;

@@ -1972,7 +1972,7 @@ function Create(self)
 	
 	-- warcry
 	warcryPhase = {}
-	warcryPhase.Type = "Warcry";
+	warcryPhase.Type = "Slash";
 	
 	-- Prepare
 	i = 1
@@ -2365,7 +2365,7 @@ function Create(self)
 	
 	-- Throw
 	throwPhase = {}
-	throwPhase.Type = "Throw";
+	throwPhase.Type = "Slash";
 	
 	-- Windup
 	i = 1

@@ -1060,7 +1060,7 @@ function Create(self)
 	
 	-- Throw
 	throwPhase = {}
-	throwPhase.Type = "Throw";
+	throwPhase.Type = "Stab";
 	
 	-- Windup
 	i = 1

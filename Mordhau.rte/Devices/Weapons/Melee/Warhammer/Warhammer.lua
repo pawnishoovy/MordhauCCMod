@@ -115,6 +115,8 @@ function Create(self)
 	
 	self.swingRotationFrames = 1; -- this is the amount of frames it takes us to go from sideways to facing forwards again (after a swing)
 								  -- for swords this might just be one, for big axes it could be as high as 4
+								  
+	self.sweetSpotThreshold = 0.7; -- if our hit position is at least 70% of the range away from the hit origin, we deal max damage. otherwise, linearly decrease towards 25% damage
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
@@ -1167,7 +1169,7 @@ function Create(self)
 	
 	-- Throw
 	throwPhase = {}
-	throwPhase.Type = "Throw";
+	throwPhase.Type = "Slash";
 	
 	-- Windup
 	i = 1
@@ -1968,7 +1970,18 @@ function Update(self)
 						self.blockedSound:Play(self.Pos);
 					end
 					
-					local woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					local hitRange = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX);
+					local minimumRange = damageRange* self.sweetSpotThreshold;
+					
+					local woundsToAdd;
+					
+					if hitRange.Magnitude > minimumRange then
+						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					else
+						local mult = hitRange.Magnitude / minimumRange;
+						damage = damage * math.max(0.25, mult);
+						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+					end
 					
 					-- Hurt the actor, add extra damage
 					local actorHit = MovableMan:GetMOFromID(MO.RootID)
