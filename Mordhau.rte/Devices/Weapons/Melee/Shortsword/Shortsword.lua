@@ -1880,7 +1880,7 @@ function Update(self)
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
-				if (IsMOSRotating(MO) and canDamage) and not (MO:IsInGroup("Weapons - Mordhau Melee")
+				if (IsMOSRotating(MO) and canDamage) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
 				and ToMOSRotating(MO):GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]))) then
 					hit = true
@@ -2023,7 +2023,7 @@ function Update(self)
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end
 					end
-				elseif MO:IsInGroup("Weapons - Mordhau Melee") or MO:IsInGroup("Mordhau Counter Shields") then
+				elseif (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")

@@ -193,7 +193,7 @@ function Update(self)
 				end
 				
 				
-				if not MO:IsInGroup("Weapons - Mordhau Melee") then -- deflect coolly off of weapons! 
+				if not (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) then -- deflect coolly off of weapons! 
 					self.PinStrength = 1000;
 					self.Vel = Vector()
 					self.AngularVel = 0;

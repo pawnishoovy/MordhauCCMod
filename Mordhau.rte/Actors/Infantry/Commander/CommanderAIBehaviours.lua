@@ -602,7 +602,7 @@ function CommanderAIBehaviours.handleVoicelines(self)
 		else
 			CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
 		end
-		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+		if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 		end
 		for actor in MovableMan.Actors do
@@ -631,7 +631,7 @@ function CommanderAIBehaviours.handleVoicelines(self)
 			else
 				CommanderAIBehaviours.createVoiceSoundEffect(self, self.atmosphericVoiceSounds.Warcry, 5, 4);
 			end
-			if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+			if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 				ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 			end
 		end
@@ -676,7 +676,7 @@ function CommanderAIBehaviours.handleVoicelines(self)
 			local gunMag = gun.Magazine
 			local reloading = gun:IsReloading();
 			
-			if self.EquippedItem:IsInGroup("Weapons - Primary") then
+			if self.EquippedItem:IsInGroup("Weapons - Primary") and not ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee") then
 				
 				if gun.FullAuto == true and gunMag and gunMag.Capacity > 40  and gun:IsActivated() then
 					if gun.FiredFrame then
@@ -690,7 +690,7 @@ function CommanderAIBehaviours.handleVoicelines(self)
 					self.gunShotCounter = 0;
 				end			
 				
-			elseif self.EquippedItem:IsInGroup("Weapons - Melee") then
+			elseif (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 				if self:NumberValueExists("Block Foley") then
 					self:RemoveNumberValue("Block Foley");
 					self.movementSounds.AttackLight:Play(self.Pos);
