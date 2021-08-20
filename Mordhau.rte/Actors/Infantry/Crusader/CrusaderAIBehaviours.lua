@@ -632,7 +632,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 	
 	if (self:IsPlayerControlled() and UInputMan:KeyPressed(24)) then
 		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
-		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+		if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 		end
 		for actor in MovableMan.Actors do
@@ -659,7 +659,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 			if self:NumberValueExists("Ye Olde Victory") then
 				self.Victory = true;
 				CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.victorySpoken, 6, 4);
-				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+				if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 				end
 			elseif self:NumberValueExists("Ye Olde Defeat") then
@@ -667,7 +667,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 			end
 			if self.Victory ~= true then
 				CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Warcry, 6, 4);
-				if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+				if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 					ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 				end
 			end
@@ -677,7 +677,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 	
 	if self.Victory then
 		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Victory, 5, 4);
-		if self.EquippedItem and self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") then
+		if self.EquippedItem and (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 			ToHDFirearm(self.EquippedItem):SetNumberValue("Warcried", 1);
 		end
 	end
@@ -718,7 +718,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 			local gunMag = gun.Magazine
 			local reloading = gun:IsReloading();
 			
-			if self.EquippedItem:IsInGroup("Weapons - Primary") then
+			if self.EquippedItem:IsInGroup("Weapons - Primary") and not ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee") then
 				
 				if gun.FullAuto == true and gunMag and gunMag.Capacity > 40  and gun:IsActivated() then
 					if gun.FiredFrame then
@@ -732,7 +732,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 					self.gunShotCounter = 0;
 				end			
 				
-			elseif self.EquippedItem:IsInGroup("Weapons - Melee") then
+			elseif (self.EquippedItem:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(self.EquippedItem):NumberValueExists("Weapons - Mordhau Melee")) then
 				if self:NumberValueExists("Block Foley") then
 					self:RemoveNumberValue("Block Foley");
 					self.movementSounds.AttackLight:Play(self.Pos);

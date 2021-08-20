@@ -27,7 +27,7 @@ function Create(self)
 	self.perceptivenessValue = 0.95 --Value in which the gunners/reloaders/whateva percetivness is multiplied before aplying it in total to the turret
 
 	self.optimizationTimer = Timer();
-	self.optimizationDelay = 10
+	self.optimizationDelay = 500
 	
 	self.chargeFactor = 0.5;
 	

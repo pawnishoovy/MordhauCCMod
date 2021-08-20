@@ -1,4 +1,23 @@
+function OnScriptEnable(self)
+
+	self.reloadTimer:Reset();
+	
+	self.SharpLength = 400;
+
+	-- self.Magazine = CreateMagazine("Magazine Flintlock", "Mordhau.rte");
+	-- self.Magazine.RoundCount = self.lastRoundCount;
+	
+	if self.lastRoundCount == 0 then
+		self.setAmmo = true;
+	end
+	
+	self:SetNextMagazineName("Magazine Flintlock");
+	
+end
+
 function Create(self)
+
+	self.lastRoundCount = 1;
 
 	self.equipSound = CreateSoundContainer("Generic Equip Mordhau", "Mordhau.rte");
 	self.equipSound.Pitch = 1.0;
@@ -118,6 +137,9 @@ function Create(self)
 	self.recoilMax = 3 -- in deg.
 	self.originalSharpLength = self.SharpLength
 	-- Progressive Recoil System 
+	
+	self:DisableScript("Mordhau.rte/Devices/Weapons/Handheld/Flintlock/MeleeMode.lua");	
+	
 end
 
 function Update(self)
@@ -366,6 +388,7 @@ function Update(self)
 				if self.reloadPhase == 10 then
 					self.ReloadTime = 0;
 					self.reloadPhase = 0;
+					self.lastRoundCount = 1;
 					self.phaseOnStop = nil;
 					
 					self.SharpLength = self.original2SharpLength
@@ -398,7 +421,17 @@ function Update(self)
 		
 	end
 	
+	if self:DoneReloading() then
+		self.SharpLength = 400;
+		self.originalSharpLength = 400;
+		if self.setAmmo == true then
+			self.setAmmo = false;
+			self.Magazine.RoundCount = 0;
+		end
+	end
+	
 	if self.FiredFrame then
+		self.reloadPhase = 0;
 		self.Frame = 0;
 		self.angVel = self.angVel - RangeRand(0.7,1.1) * 7
 		
@@ -528,6 +561,48 @@ function Update(self)
 	
 	-- Animation
 	if self.parent then
+	
+		if self:NumberValueExists("Switch Mode") then
+		
+			self:SetNumberValue("Weapons - Mordhau Melee", 1);
+		
+			self.delayedFireDisabled = true;
+			
+			self.lastRoundCount = self.RoundInMagCount;
+		
+			if self:IsReloading() then
+				self.reloadPhase = math.min(self.reloadPhase, 1);
+				self.ReloadTime = 0;
+			else
+				self.ReloadTime = 50;
+				self:Reload();
+			end
+		
+			self.StanceOffset = Vector(8, 7);
+			self.SharpStanceOffset = Vector(8, 7);
+			self.meleeOriginalStanceOffset = Vector(8, 7);
+			self.SharpLength = 0;
+			self.JointOffset = Vector(8, 0);
+			self.SupportOffset = Vector(9, 0);
+		
+			self:RemoveNumberValue("Switch Mode");
+			self.meleeMode = true;
+			
+			self.InheritedRotAngleOffset = 0;
+			
+			self.originalBaseRotation = -115;
+			self.baseRotation = 0;
+			
+			self:DisableScript("Mordhau.rte/Devices/Weapons/Handheld/Flintlock/Chamber.lua");
+			self:EnableScript("Mordhau.rte/Devices/Weapons/Handheld/Flintlock/MeleeMode.lua");
+			
+			self.Flash = nil;
+			self.FireSound = nil;
+			
+			return
+			
+		end
+	
 		self.horizontalAnim = math.floor(self.horizontalAnim / (1 + TimerMan.DeltaTimeSecs * 24.0) * 1000) / 1000
 		self.verticalAnim = math.floor(self.verticalAnim / (1 + TimerMan.DeltaTimeSecs * 15.0) * 1000) / 1000
 		
