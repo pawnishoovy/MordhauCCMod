@@ -1,26 +1,7 @@
-function OnScriptEnable(self)
-
-	self.reloadTimer:Reset();
-	
-	self.SharpLength = 400;
-
-	-- self.Magazine = CreateMagazine("Magazine FlintlockPistol", "Mordhau.rte");
-	-- self.Magazine.RoundCount = self.lastRoundCount;
-	
-	if self.lastRoundCount == 0 then
-		self.setAmmo = true;
-	end
-	
-	self:SetNextMagazineName("Magazine FlintlockPistol");
-	
-end
-
 function Create(self)
 
-	self.lastRoundCount = 1;
-
 	self.equipSound = CreateSoundContainer("Generic Equip Mordhau", "Mordhau.rte");
-	self.equipSound.Pitch = 1.1;
+	self.equipSound.Pitch = 1.0;
 	
 	self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
 	self.pickUpSound.Pitch = 1.2;
@@ -54,8 +35,6 @@ function Create(self)
 	self.ramRodRemoveSound = CreateSoundContainer("RamRodRemove FlintlockPistol", "Mordhau.rte");
 	
 	self.ramRodReplaceSound = CreateSoundContainer("RamRodReplace FlintlockPistol", "Mordhau.rte");
-	
-	self:SetNumberValue("DelayedFireTimeMS", 50)
 	
 	self.lastAge = self.Age
 	
@@ -137,9 +116,6 @@ function Create(self)
 	self.recoilMax = 3 -- in deg.
 	self.originalSharpLength = self.SharpLength
 	-- Progressive Recoil System 
-	
-	self:DisableScript("Mordhau.rte/Devices/Weapons/Handheld/FlintlockPistol/MeleeMode.lua");	
-	
 end
 
 function Update(self)
@@ -187,11 +163,6 @@ function Update(self)
 	
 	-- PAWNIS RELOAD ANIMATION HERE
 	if self:IsReloading() then
-	
-		if self.parent and self.parent:IsInGroup("No Muskets") then
-			self.parent:SetNumberValue("Mordhau Invalid", 1);
-			self:SetNumberValue("Switch Mode", 1);
-		end
 
 		if self.reloadPhase == 0 then
 			self.reloadDelay = self.cockPrepareDelay;
@@ -393,7 +364,6 @@ function Update(self)
 				if self.reloadPhase == 10 then
 					self.ReloadTime = 0;
 					self.reloadPhase = 0;
-					self.lastRoundCount = 1;
 					self.phaseOnStop = nil;
 					
 					self.SharpLength = self.original2SharpLength
@@ -426,17 +396,7 @@ function Update(self)
 		
 	end
 	
-	if self:DoneReloading() then
-		self.SharpLength = 400;
-		self.originalSharpLength = 400;
-		if self.setAmmo == true then
-			self.setAmmo = false;
-			self.Magazine.RoundCount = 0;
-		end
-	end
-	
 	if self.FiredFrame then
-		self.reloadPhase = 0;
 		self.Frame = 0;
 		self.angVel = self.angVel - RangeRand(0.7,1.1) * 7
 		
@@ -446,7 +406,7 @@ function Update(self)
 		
 		local xSpread = 0
 		
-		local smokeAmount = 50
+		local smokeAmount = 75
 		local particleSpread = 25
 		
 		local smokeLingering = math.sqrt(smokeAmount / 8) * 4
@@ -469,7 +429,7 @@ function Update(self)
 		end
 		
 		-- Muzzle musket smoke
-		for i = 1, 30 do
+		for i = 1, 60 do -- my God
 			local spread = math.pi * RangeRand(-1, 1) * 0.05
 			local velocity = 50 * RangeRand(0.1, 0.9) * 0.4;
 			
@@ -566,48 +526,6 @@ function Update(self)
 	
 	-- Animation
 	if self.parent then
-	
-		if self:NumberValueExists("Switch Mode") then
-		
-			self:SetNumberValue("Weapons - Mordhau Melee", 1);
-		
-			self.delayedFireDisabled = true;
-			
-			self.lastRoundCount = self.RoundInMagCount;
-		
-			if self:IsReloading() then
-				self.reloadPhase = math.min(self.reloadPhase, 1);
-				self.ReloadTime = 0;
-			else
-				self.ReloadTime = 50;
-				self:Reload();
-			end
-		
-			self.StanceOffset = Vector(8, 3);
-			self.SharpStanceOffset = Vector(8, 3);
-			self.meleeOriginalStanceOffset = Vector(8, 3);
-			self.SharpLength = 0;
-			self.JointOffset = Vector(5, -1);
-			self.SupportOffset = Vector(500, 500);
-		
-			self:RemoveNumberValue("Switch Mode");
-			self.meleeMode = true;
-			
-			self.InheritedRotAngleOffset = 0;
-			
-			self.originalBaseRotation = -115;
-			self.baseRotation = -45;
-			
-			self:DisableScript("Mordhau.rte/Devices/Weapons/Handheld/FlintlockPistol/Chamber.lua");
-			self:EnableScript("Mordhau.rte/Devices/Weapons/Handheld/FlintlockPistol/MeleeMode.lua");
-			
-			self.Flash = nil;
-			self.FireSound = nil;
-			
-			return
-			
-		end
-	
 		self.horizontalAnim = math.floor(self.horizontalAnim / (1 + TimerMan.DeltaTimeSecs * 24.0) * 1000) / 1000
 		self.verticalAnim = math.floor(self.verticalAnim / (1 + TimerMan.DeltaTimeSecs * 15.0) * 1000) / 1000
 		
