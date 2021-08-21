@@ -187,6 +187,11 @@ function Update(self)
 	
 	-- PAWNIS RELOAD ANIMATION HERE
 	if self:IsReloading() then
+	
+		if self.parent and self.parent:IsInGroup("No Muskets") then
+			self.parent:SetNumberValue("Mordhau Invalid", 1);
+			self:SetNumberValue("Switch Mode", 1);
+		end
 
 		if self.reloadPhase == 0 then
 			self.reloadDelay = self.cockPrepareDelay;

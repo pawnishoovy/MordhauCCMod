@@ -47,6 +47,7 @@ function Create(self)
 	deathEpic = CreateSoundContainer("VO " .. self.IdentityPrimary .. " DeathEpic", "Mordhau.rte"),
 	Incap = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Incap", "Mordhau.rte"),
 	incapSpoken = CreateSoundContainer("VO " .. self.IdentityPrimary .. " IncapSpoken", "Mordhau.rte"),
+	Invalid = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Invalid", "Mordhau.rte"),
 	-- maleDown = CreateSoundContainer("VO " .. self.IdentityPrimary .. " MaleDown", "Mordhau.rte"),
 	-- femaleDown = CreateSoundContainer("VO " .. self.IdentityPrimary .. " FemaleDown", "Mordhau.rte"),
 	lostArm = CreateSoundContainer("VO " .. self.IdentityPrimary .. " LostArm", "Mordhau.rte"),
