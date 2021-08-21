@@ -4,7 +4,7 @@ function Create(self)
 	
 	self.delayedFire = false
 	self.delayedFireTimer = Timer();
-	self.delayedFireTimeMS = 50
+	self.delayedFireTimeMS = 70
 	self.delayedFireEnabled = true
 	
 	self.lastAge = self.Age + 0
@@ -20,11 +20,6 @@ end
 function Update(self)
 
 	if not self.delayedFireDisabled == true then
-	
-		if self:NumberValueExists("DelayedFireTimeMS") then
-			self.delayedFireTimeMS = self:GetNumberValue("DelayedFireTimeMS")
-			self:RemoveNumberValue("DelayedFireTimeMS")
-		end
 		
 		if self.ID == self.RootID then
 			self.parent = nil;

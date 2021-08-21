@@ -613,9 +613,9 @@ end
 
 function CrusaderAIBehaviours.handleVoicelines(self)
 
-	if self:NumberValueExists("Death By Fire") then
-		self:RemoveNumberValue("Death By Fire");
-		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
+	if self:NumberValueExists("Mordhau Invalid") then
+		self:RemoveNumberValue("Mordhau Invalid");
+		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Invalid, 4, 3);
 	end
 	
 	if self:NumberValueExists("Catapulted") then

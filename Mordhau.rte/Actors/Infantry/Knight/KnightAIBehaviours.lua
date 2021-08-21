@@ -611,6 +611,11 @@ end
 
 function KnightAIBehaviours.handleVoicelines(self)
 
+	if self:NumberValueExists("Mordhau Invalid") then
+		self:RemoveNumberValue("Mordhau Invalid");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Invalid, 4, 3);
+	end
+
 	if self:NumberValueExists("Death By Fire") then
 		self:RemoveNumberValue("Death By Fire");
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
