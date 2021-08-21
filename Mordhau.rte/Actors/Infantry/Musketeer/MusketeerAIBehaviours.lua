@@ -370,7 +370,11 @@ function MusketeerAIBehaviours.handleHealth(self)
 			
 			if self.Health > 0 then
 			else
-				MusketeerAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.painSerious, 10, 5)
+				if math.random(1, 100) < 80 then
+					MusketeerAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.painSerious, 15, 5)
+				else
+					MusketeerAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.deathEpic, 15, 5)
+				end
 
 				self.seriousDeath = true;
 				self.deathSoundPlayed = true;

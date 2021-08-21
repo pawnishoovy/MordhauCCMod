@@ -53,6 +53,7 @@ function Create(self)
 	painLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " PainLight", "Mordhau.rte"),
 	painMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " PainMedium", "Mordhau.rte"),
 	painSerious = CreateSoundContainer("VO " .. self.IdentityPrimary .. " PainSerious", "Mordhau.rte"),
+	deathEpic = CreateSoundContainer("VO " .. self.IdentityPrimary .. " DeathEpic", "Mordhau.rte"),
 	Scream = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Scream", "Mordhau.rte"),
 	Spot = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Spot", "Mordhau.rte"),
 	Suppressing = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Suppressing", "Mordhau.rte"),

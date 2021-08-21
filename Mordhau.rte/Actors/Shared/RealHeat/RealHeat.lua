@@ -66,7 +66,7 @@ function Update(self)
 		if self.parent.Status ~= Actor.DEAD and self.parent.Status ~= Actor.DYING then
 			--HeatIncrease
 			if self.HeatBurning then
-				self.parent.Health = self.parent.Health - 1.5 * TimerMan.DeltaTimeSecs
+				self.parent.Health = self.parent.Health - ((35 * TimerMan.DeltaTimeSecs) / (self.parent.Mass / 100))
 			elseif self.Heat > self.HeatOverheatThreshold then -- Overheat instakill
 				self.parent:SetNumberValue("Death By Fire", self.Heat)
 				self.igniteSound:Play(self.Pos);
