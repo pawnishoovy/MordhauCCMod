@@ -1,3 +1,5 @@
+package.path = package.path .. ";Mordhau.rte/?.lua";
+require("Actors/Vehicles/Horse/HorseAIBehaviours")
 
 -- Huge thanks to SunoMikey and his awesome IK code!
 function calcIK(l1, l2, point)
@@ -95,12 +97,96 @@ function Create(self)
 	self.deathCrippleLeg = 0
 	
 	self.movementInput = 0
-	self.movementTargetVel = 7
-	self.movementAcceleration = 1
+	self.movementTargetVel = 4
+	self.movementAcceleration = 1.5
+	
+	self.healthUpdateTimer = Timer();
+	self.oldHealth = self.Health;
+	
+	self.headWounds = 0;
+	
+	self.Suppression = 0;
+	self.Suppressed = false;	
+	
+	self.suppressionUpdateTimer = Timer();
+	self.suppressedVoicelineTimer = Timer();
+	self.suppressedVoicelineDelay = 8000;
+	
+	self.emotionTimer = Timer();
+	self.emotionDuration = 0;
+	
+	self.deathFallSound = CreateSoundContainer("Horse Gear DeathFall", "Mordhau.rte");
+	
+	self.jingleSound = CreateSoundContainer("Horse Gear Jingle", "Mordhau.rte");
+	self.jingleSound.Volume = 0;
+	self.jingleSound:Play(self.Pos);
+	self.creakSound = CreateSoundContainer("Horse Gear SaddleCreak", "Mordhau.rte");
+	self.creakSound.Volume = 0;
+	self.creakSound:Play(self.Pos);
+	
+	self.jumpSound = CreateSoundContainer("Horse Gear Jump", "Mordhau.rte");
+	self.landSound = CreateSoundContainer("Horse Gear Land", "Mordhau.rte");
+	
+	self.mountGrabSound = CreateSoundContainer("Horse Gear MountGrab", "Mordhau.rte");
+	self.mountingSound = CreateSoundContainer("Horse Gear Mounting", "Mordhau.rte");
+	
+	self.terrainSounds = {
+	HoofStep = {[12] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[164] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[177] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[9] = CreateSoundContainer("Horse HoofStep Dirt", "Mordhau.rte"),
+			[10] = CreateSoundContainer("Horse HoofStep Dirt", "Mordhau.rte"),
+			[11] = CreateSoundContainer("Horse HoofStep Dirt", "Mordhau.rte"),
+			[128] = CreateSoundContainer("Horse HoofStep Dirt", "Mordhau.rte"),
+			[6] = CreateSoundContainer("Horse HoofStep Sand", "Mordhau.rte"),
+			[8] = CreateSoundContainer("Horse HoofStep Sand", "Mordhau.rte"),
+			[178] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[179] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[180] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[181] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
+			[182] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte")},
+	};
+	
+	self.voiceSounds = {
+	breathIdle = CreateSoundContainer("Horse Breath Idle", "Mordhau.rte"),
+	breathInFast = CreateSoundContainer("Horse Breath InFast", "Mordhau.rte"),
+	breathInSlow = CreateSoundContainer("Horse Breath InSlow", "Mordhau.rte"),
+	breathOutFast = CreateSoundContainer("Horse Breath OutFast", "Mordhau.rte"),
+	breathOutSlow = CreateSoundContainer("Horse Breath OutSlow", "Mordhau.rte"),
+	gruntAggressive = CreateSoundContainer("Horse Grunt Aggressive", "Mordhau.rte"),
+	gruntGeneric = CreateSoundContainer("Horse Grunt Generic", "Mordhau.rte"),
+	gruntScared = CreateSoundContainer("Horse Grunt Scared", "Mordhau.rte"),
+	neighAggressive = CreateSoundContainer("Horse Grunt Aggressive", "Mordhau.rte"),
+	neighGeneric = CreateSoundContainer("Horse Neigh Generic", "Mordhau.rte"),
+	neighScared = CreateSoundContainer("Horse Neigh Scared", "Mordhau.rte"),
+	snortFast = CreateSoundContainer("Horse Snort Fast", "Mordhau.rte"),
+	snortSlow = CreateSoundContainer("Horse Snort Slow", "Mordhau.rte")
+	};	
+	
+	self.voiceSound = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte");
+	-- MEANINGLESS! this is just so we can do voiceSound.Pos without an if check first! it will be overwritten first actual VO play
+	
 end
 
 function Update(self)
-	
+
+	if UInputMan:KeyPressed(12) then
+		self.Health = 0;
+	end
+	if UInputMan:KeyPressed(13) then
+		self:GibThis();
+	end
+	if UInputMan:KeyPressed(14) then
+		if self.head then
+			self.head:GibThis();
+		end
+	end
+	if UInputMan:KeyPressed(15) then
+		if self.head then
+			ToAttachable(self.head):RemoveFromParent(true, true);
+		end
+	end
+		
 	-- Death
 	if self.Status >= Actor.DYING then
 		if not self.death then
@@ -120,6 +206,15 @@ function Update(self)
 	
 	if self.Status < Actor.DYING and ctrl then
 		self.movementInput = 0 - (ctrl:IsState(Controller.MOVE_LEFT) and 1 or 0) + (ctrl:IsState(Controller.MOVE_RIGHT) and 1 or 0)
+		if self.movementInput == 0 then 
+			self.Moving = false;
+		elseif self.Moving == false then
+			self.Moving = true;
+			self.hoofStep1Played = false;
+			self.hoofStep2Played = false;
+			self.hoofStep3Played = false;
+			self.hoofStep4Played = false;
+		end
 	end
 	
 	local pointPositions = {self.Pos + Vector(-11, 0), self.Pos + Vector(11, 0)}
@@ -233,6 +328,24 @@ function Update(self)
 						local animationFactor = (self.walkAnimationAcc + animationOffset) % 1
 						local animationVector = getPathAnimationVector(self.runCyclePathAnimation, animationFactor)
 						
+						local sound = CreateSoundContainer("Pre Catapult");
+						sound.Volume = 0.7				
+						local toPlay = false;
+						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
+							self.hoofStep1Played = true;
+							toPlay = true;
+
+						elseif math.abs(self.walkAnimationAcc) > 0.22 and math.abs(self.walkAnimationAcc) < 0.28 and self.hoofStep2Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.25 then
+							self.hoofStep2Played = true;
+							toPlay = true;
+						elseif math.abs(self.walkAnimationAcc) > 0.46 and math.abs(self.walkAnimationAcc) < 0.54 and self.hoofStep3Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.50 then
+							self.hoofStep3Played = true;
+							toPlay = true;
+						elseif math.abs(self.walkAnimationAcc) > 0.72 and math.abs(self.walkAnimationAcc) < 0.78 and self.hoofStep4Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.75 then
+							self.hoofStep4Played = true;
+							toPlay = true;
+						end
+						
 						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4, 0) or Vector(0, 1))
 						
 						local rayOrigin = mo.Pos + Vector(2 * (leg - 1.5) * 2.0, 5)--:RadRotate(mo.RotAngle)
@@ -240,6 +353,7 @@ function Update(self)
 						
 						local terrCheck = SceneMan:CastStrengthRay(rayOrigin, rayVector, 15, Vector(), 0, 0, SceneMan.SceneWrapsX);
 						-- Debug
+						
 						--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 5);
 						
 						local length = rayVector.Magnitude
@@ -277,11 +391,36 @@ function Update(self)
 							--mo.Pos = mo.Pos + Vector(0, (1 - dif.Magnitude / rayVector.Magnitude) * -5 * TimerMan.DeltaTimeSecs)
 						end
 						
+						if toPlay == true then
+							local pos = Vector(0, 0);
+							SceneMan:CastObstacleRay(legHoof.Pos, Vector(0, 8), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
+							--PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
+							local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
+							
+							if terrPixel ~= 0 then -- 0 = air
+								if self.terrainSounds.HoofStep[terrPixel] ~= nil then
+									self.terrainSounds.HoofStep[terrPixel].Volume = 0.5;
+									self.terrainSounds.HoofStep[terrPixel]:Play(self.Pos);
+								else -- default to concrete
+									self.terrainSounds.HoofStep[177].Volume = 0.5;
+									self.terrainSounds.HoofStep[177]:Play(self.Pos);
+								end
+							end
+						end
+						
 						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07
 						if self.walkAnimationAcc > 1 then
 							self.walkAnimationAcc = self.walkAnimationAcc - 1
+							self.hoofStep1Played = false;
+							self.hoofStep2Played = false;
+							self.hoofStep3Played = false;
+							self.hoofStep4Played = false;
 						elseif self.walkAnimationAcc < -1 then
 							self.walkAnimationAcc = self.walkAnimationAcc + 1
+							self.hoofStep1Played = false;
+							self.hoofStep2Played = false;
+							self.hoofStep3Played = false;
+							self.hoofStep4Played = false;
 						end
 						
 						-- Leg rotation
@@ -316,6 +455,8 @@ function Update(self)
 				local dif = SceneMan:ShortestDistance(self.Pos, mo.Pos, SceneMan.SceneWrapsX)
 				pointVectors[i] = dif
 				
+				self.soundVel = mo.Vel;
+				
 				-- Debug
 				--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + dif, 5);
 				--PrimitiveMan:DrawCirclePrimitive(mo.Pos, mo.Radius, 5);
@@ -329,6 +470,30 @@ function Update(self)
 	
 	local center = pointPositions[1] + SceneMan:ShortestDistance(pointPositions[1], pointPositions[2], SceneMan.SceneWrapsX) * 0.5
 	self.Pos = center
+	
+	self.jingleSound.Pos = self.Pos;
+	self.creakSound.Pos = self.Pos;
+	if self.Moving then
+		if true then -- TODO!! different ranges and behaviour for the 4 gaits
+			if self.soundVel.Magnitude > 0 then
+				self.jingleSound.Volume = math.max(0, math.min(0.2, self.soundVel.Magnitude / 4 - 0.8))
+			end
+		end
+	else
+		if self.jingleSound.Volume > 0 then
+			self.jingleSound.Volume = self.jingleSound.Volume - 0.5 * TimerMan.DeltaTimeSecs;
+			if self.jingleSound.Volume < 0 then
+				self.jingleSound.Volume = 0
+			end
+		end
+		if self.creakSound.Volume > 0 then
+			self.creakSound.Volume = self.creakSound.Volume - 0.5 * TimerMan.DeltaTimeSecs;
+			if self.creakSound.Volume < 0 then
+				self.creakSound.Volume = 0
+			end
+		end
+	end	
+	
 	self.Vel = Vector(0,0)
 	
 	if SceneMan.SceneWrapsX then
@@ -438,9 +603,9 @@ function Update(self)
 			subAttachable.Pos = attachable.Pos + Vector(subAttachable.ParentOffset.X * self.FlipFactor, subAttachable.ParentOffset.Y):RadRotate(attachable.RotAngle) - Vector(subAttachable.JointOffset.X * self.FlipFactor, subAttachable.JointOffset.Y):RadRotate(subAttachable.RotAngle)
 			
 			-- Head
-			local head = MovableMan:FindObjectByUniqueID(self:GetNumberValue("Horse Head"))
-			if head then
-				head = ToAttachable(head)
+			self.head = MovableMan:FindObjectByUniqueID(self:GetNumberValue("Horse Head"))
+			if self.head then
+				self.head = ToAttachable(self.head)
 						
 				local time = (self.Age / 2000) * math.pi
 				local sinA = math.sin(time + self.UniqueID * 0.2) * 0.06
@@ -449,9 +614,9 @@ function Update(self)
 				local sinD = math.sin(time * 1.75 + self.UniqueID * 2.5) * 0.015
 				local angle = 2 * (sinA + sinB + sinC + sinD)
 				
-				head.InheritedRotAngleOffset = subAttachable.InheritedRotAngleOffset + angle
+				self.head.InheritedRotAngleOffset = subAttachable.InheritedRotAngleOffset + angle
 				
-				head.Pos = subAttachable.Pos + Vector(head.ParentOffset.X * self.FlipFactor, head.ParentOffset.Y):RadRotate(subAttachable.RotAngle) - Vector(head.JointOffset.X * self.FlipFactor, head.JointOffset.Y):RadRotate(head.RotAngle)
+				self.head.Pos = subAttachable.Pos + Vector(self.head.ParentOffset.X * self.FlipFactor, self.head.ParentOffset.Y):RadRotate(subAttachable.RotAngle) - Vector(self.head.JointOffset.X * self.FlipFactor, self.head.JointOffset.Y):RadRotate(self.head.RotAngle)
 			end
 		end
 	else
@@ -482,9 +647,40 @@ function Update(self)
 			ToMOSRotating(mo):GibThis()
 		end
 	end
+	
+	self.voiceSound.Pos = self.Pos;
+	
+	if self.Status < Actor.DYING then
+		
+		HorseAIBehaviours.handleMovement(self);
+		
+		HorseAIBehaviours.handleHealth(self);
+		
+		HorseAIBehaviours.handleSuppression(self);
+		
+		HorseAIBehaviours.handleVoicelines(self);
+		
+		--HorseAIBehaviours.handleHeadFrames(self);
+
+	else
+	
+		HorseAIBehaviours.handleDying(self);
+	
+		HorseAIBehaviours.handleHeadLoss(self);
+	
+		HorseAIBehaviours.handleMovement(self);
+		
+	end
+	
 end
 
 function OnCollideWithTerrain(self, terrainID)
+
+	if self.death and self.deathFallSoundPlayed ~= true then
+		self.deathFallSoundPlayed = true;
+		self.deathFallSound:Play(self.Pos);
+	end
+
 end
 
 function OnCollideWithMO(self, collidedMO, collidedRootMO)
@@ -503,4 +699,12 @@ function Destroy(self)
 			end
 		end
 	end
+	
+	if not self.ToSettle then -- we have been gibbed
+		self.voiceSound:Stop(-1);		
+	end	
+	
+	self.jingleSound:Stop(-1);	
+	self.creakSound:Stop(-1);
+	
 end
