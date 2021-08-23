@@ -50,27 +50,6 @@ end
 
 function OnDetach(self)
 
-	if self.wasThrown == true then
-	
-		self.throwWounds = 8;
-		self.throwPitch = 1;
-	
-		self.HUDVisible = false;
-		
-		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/StraightPierceThrow.lua");
-		self.thrownTeam = self.Team;
-		
-		self.stickMO = nil;
-		self.stickVecX = 0;
-		self.stickVecY = 0;
-		self.stickRot = 0;
-		self.stickDeepness = RangeRand(0.1, 1);
-
-		self.stuck = false;
-		
-		self.phase = 0;
-	end
-
 	-- self.Frame = 6;
 	-- self.unequipSound:Play(self.Pos);
 	-- self.unequipAnim = true;

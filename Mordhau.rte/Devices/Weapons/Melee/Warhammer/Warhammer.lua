@@ -50,18 +50,6 @@ end
 
 function OnDetach(self)
 
-	if self.wasThrown == true then
-	
-		self.throwWounds = 5;
-		self.throwPitch = 1;
-	
-		self.HUDVisible = false;
-		
-		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
-		self.thrownTeam = self.Team;
-
-	end
-
 	-- self.Frame = 6;
 	-- self.unequipSound:Play(self.Pos);
 	-- self.unequipAnim = true;

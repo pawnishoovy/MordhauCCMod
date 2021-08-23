@@ -1,5 +1,17 @@
 function OnDetach(self)
 
+	if self.wasThrown == true then
+	
+		self.throwWounds = 5;
+		self.throwPitch = 1;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
+		self.thrownTeam = self.Team;
+
+	end
+
 	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Warhammer/Warhammer.lua");
 	
 	self:RemoveStringValue("Parrying Type");
