@@ -77,6 +77,10 @@ function KnightAIBehaviours.createVoiceSoundEffect(self, soundContainer, priorit
 end
 
 function KnightAIBehaviours.handleMovement(self)
+
+	if self.PinStrength == 54 then
+		return
+	end
 	
 	local crouching = self.controller:IsState(Controller.BODY_CROUCH)
 	local moving = self.controller:IsState(Controller.MOVE_LEFT) or self.controller:IsState(Controller.MOVE_RIGHT);
