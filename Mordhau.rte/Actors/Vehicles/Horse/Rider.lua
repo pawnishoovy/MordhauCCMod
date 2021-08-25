@@ -43,6 +43,8 @@ function Update(self)
 								riderHandler:SetNumberValue("Horse ID", self.UniqueID);
 								actor:SetNumberValue("Mordhau Disable Movement", 0);
 								
+								self.mountingSound:Play(self.Pos);
+								
 								self.mountInProcess = true;								
 								-- get rider's pos relative to us so we ease between it and final pos for a mounting ""animation""
 								self.relativeMountPos = SceneMan:ShortestDistance(self.Pos, self.rider.Pos, SceneMan.SceneWrapsX);
@@ -63,7 +65,14 @@ function Update(self)
 			self.rider.Status = 1;
 			self.rider:SetControllerMode(2 , self.rider:GetController().Player)	
 			self.rider.HUDVisible = true
-			self.rider:RemoveNumberValue("Mordhau Riding Horse");
+			self.rider:RemoveNumberValue("Mordhau Disable Movement");
+			
+			if self.rider.BGLeg then
+				self.rider.BGLeg.Scale = 1;
+				if self.rider.BGFoot then
+					self.rider.BGFoot.Scale = 1;
+				end
+			end
 			
 			-- if self.IsPlayer and self and self:IsPlayerControlled() then
 				-- local switcher = ActivityMan:GetActivity()
@@ -74,8 +83,58 @@ function Update(self)
 		end	
 	
 	elseif self.mountInProcess == true then
+	
+		local ctrl = self:GetController();
+		local riderCtrl = self.rider:GetController();
+	
+		if self.IsPlayer and self and self:IsPlayerControlled() then
+			local switcher = ActivityMan:GetActivity()
+			switcher:SwitchToActor(self.rider, self:GetController().Player, self.Team)
+		end
+	
+		ctrl:SetState(Controller.MOVE_RIGHT, false);
+		ctrl:SetState(Controller.MOVE_LEFT, false);
+		ctrl:SetState(Controller.MOVE_UP, false);
+		ctrl:SetState(Controller.MOVE_DOWN, false);
+		ctrl:SetState(Controller.BODY_JUMPSTART, false);
+		ctrl:SetState(Controller.BODY_JUMP, false);
+		ctrl:SetState(Controller.BODY_CROUCH, false);
 		
-		self.rider.Vel = self.Vel;
+		if riderCtrl:IsState(Controller.MOVE_RIGHT) then
+			ctrl:SetState(Controller.MOVE_RIGHT, true);
+			self.movingRight = true;
+		else
+			ctrl:SetState(Controller.MOVE_RIGHT, false);
+			self.movingRight = false;
+		end
+		
+		if riderCtrl:IsState(Controller.MOVE_LEFT) then
+			ctrl:SetState(Controller.MOVE_LEFT, true);
+			self.movingLeft = true;
+		else
+			ctrl:SetState(Controller.MOVE_LEFT, false);
+			self.movingLeft = false;
+		end
+		
+		if riderCtrl:IsState(Controller.BODY_JUMPSTART) then
+			ctrl:SetState(Controller.BODY_JUMPSTART, true);
+			self.Jumping = true;
+		else
+			ctrl:SetState(Controller.BODY_JUMPSTART, false);
+			self.Jumping = false;
+		end
+	
+		riderCtrl:SetState(Controller.MOVE_RIGHT, false);
+		riderCtrl:SetState(Controller.MOVE_LEFT, false);
+		riderCtrl:SetState(Controller.MOVE_UP, false);
+		riderCtrl:SetState(Controller.MOVE_DOWN, false);
+		riderCtrl:SetState(Controller.BODY_JUMPSTART, false);
+		riderCtrl:SetState(Controller.BODY_JUMP, false);
+		riderCtrl:SetState(Controller.BODY_CROUCH, false);
+
+		self.mountingSound.Pos = self.Pos;		
+		
+		self.rider.Vel = self.effectiveVel;
 		local value = 1 * TimerMan.DeltaTimeSecs;
 		self.relativeMountMagnitude = self.relativeMountMagnitude - value;
 		local mountPos = Vector(self.relativeMountPos.X, self.relativeMountPos.Y):SetMagnitude(self.relativeMountPos.Magnitude * self.relativeMountMagnitude)
@@ -84,6 +143,7 @@ function Update(self)
 		
 		if self.relativeMountMagnitude <= 0 then
 			self.mountInProcess = false;
+			self.mountGrabSound:Play(self.Pos);
 		end
 		
 	elseif self.rider then			--We have rider
@@ -149,7 +209,7 @@ function Update(self)
 		
 		--Set rider pos and vel so it moves with the turret
 		
-		self.rider.Vel = self.Vel;
+		self.rider.Vel = self.effectiveVel;
 		self.rider.Pos = self.Pos + Vector(0*self.FlipFactor,-10):RadRotate(self.RotAngle)					
 		self.rider.HFlipped = self.HFlipped;				
 
@@ -171,6 +231,13 @@ function Update(self)
 			self.rider:SetControllerMode(2 , self.rider:GetController().Player)	
 			self.rider.HUDVisible = true
 			self.rider:RemoveNumberValue("Mordhau Disable Movement");
+			
+			if self.rider.BGLeg then
+				self.rider.BGLeg.Scale = 1;
+				if self.rider.BGFoot then
+					self.rider.BGFoot.Scale = 1;
+				end
+			end
 			
 			if self.IsPlayer and self and self:IsPlayerControlled() then
 				local switcher = ActivityMan:GetActivity()
@@ -201,6 +268,13 @@ function Destroy(self)
 		self.rider:SetControllerMode(2 , self.rider:GetController().Player)
 		self.rider.HUDVisible = true
 		self.rider:RemoveNumberValue("Mordhau Disable Movement");
+		
+		if self.rider.BGLeg then
+			self.rider.BGLeg.Scale = 1;
+			if self.rider.BGFoot then
+				self.rider.BGFoot.Scale = 1;
+			end
+		end
 	
 		if self.IsPlayer and self and self:IsPlayerControlled() then
 			local switcher = ActivityMan:GetActivity()

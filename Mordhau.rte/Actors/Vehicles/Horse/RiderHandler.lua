@@ -14,6 +14,13 @@ function Update(self)
 		if actor and IsAHuman(actor) then
 			self.parent = ToAHuman(actor);
 			self.parentSet = true;
+			if self.parent.BGLeg then
+				self.parent.BGLeg.Scale = 0;
+				if self.parent.BGFoot then
+					self.parent.BGFoot.Scale = 0;
+				end
+			end
+			
 		end
 		self.horseParent = ToACrab(MovableMan:FindObjectByUniqueID(self:GetNumberValue("Horse ID")));
 	end
@@ -23,8 +30,20 @@ function Update(self)
 		if not self.ToDelete then
 			if self.horseParent:IsDead() then
 				self.parent.Status = 1;
+				if self.parent.BGLeg then
+					self.parent.BGLeg.Scale = 1;
+					if self.parent.BGFoot then
+						self.parent.BGFoot.Scale = 1;
+					end
+				end
 				self.parent:RemoveNumberValue("Mordhau Disable Movement");
 			elseif self.horseParent == nil then
+				if self.parent.BGLeg then
+					self.parent.BGLeg.Scale = 1;
+					if self.parent.BGFoot then
+						self.parent.BGFoot.Scale = 1;
+					end
+				end
 				self.parent:RemoveNumberValue("Mordhau Disable Movement");
 			end
 		end
@@ -36,6 +55,12 @@ end
 function Destroy(self)
 
 	if self.parent then
+		if self.parent.BGLeg then
+			self.parent.BGLeg.Scale = 1;
+			if self.parent.BGFoot then
+				self.parent.BGFoot.Scale = 1;
+			end
+		end
 		self.parent:RemoveNumberValue("Mordhau Disable Movement");
 	end
 end
