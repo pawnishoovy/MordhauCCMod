@@ -77,6 +77,10 @@ function MusketeerAIBehaviours.createVoiceSoundEffect(self, soundContainer, prio
 end
 
 function MusketeerAIBehaviours.handleMovement(self)
+
+	if self:NumberValueExists("Mordhau Disable Movement") then
+		return;
+	end
 	
 	local crouching = self.controller:IsState(Controller.BODY_CROUCH)
 	local moving = self.controller:IsState(Controller.MOVE_LEFT) or self.controller:IsState(Controller.MOVE_RIGHT);

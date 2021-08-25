@@ -205,7 +205,7 @@ function Update(self)
 	end
 	
 	if self.Status < Actor.DYING and ctrl then
-		self.movementInput = 0 - (ctrl:IsState(Controller.MOVE_LEFT) and 1 or 0) + (ctrl:IsState(Controller.MOVE_RIGHT) and 1 or 0)
+		self.movementInput = 0 - ((ctrl:IsState(Controller.MOVE_LEFT) or self.movingLeft) and 1 or 0) + ((ctrl:IsState(Controller.MOVE_RIGHT) or self.movingRight) and 1 or 0)
 		if self.movementInput == 0 then 
 			self.Moving = false;
 		elseif self.Moving == false then
@@ -215,6 +215,9 @@ function Update(self)
 			self.hoofStep3Played = false;
 			self.hoofStep4Played = false;
 		end
+		self.movingRight = false;
+		self.movingLeft = false;
+		self.Jumping = false;
 	end
 	
 	local pointPositions = {self.Pos + Vector(-11, 0), self.Pos + Vector(11, 0)}

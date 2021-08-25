@@ -78,8 +78,8 @@ end
 
 function KnightAIBehaviours.handleMovement(self)
 
-	if self.PinStrength == 54 then
-		return
+	if self:NumberValueExists("Mordhau Disable Movement") then
+		return;
 	end
 	
 	local crouching = self.controller:IsState(Controller.BODY_CROUCH)
