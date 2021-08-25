@@ -4,6 +4,7 @@ function Create(self)
 
 	if IsAHuman(self:GetRootParent()) then
 		self.parent = ToAHuman(self:GetRootParent());
+		self.parent:SetNumberValue("Mordhau Disable Movement", 0);
 	else
 		self.parent = nil
 	end
@@ -40,6 +41,8 @@ function ActorHolder.delet(self)
 	self.parent.AIMode = Actor.AIMODE_SENTRY
 	self.parent:SetControllerMode(2 , self.parent:GetController().Player)
 	self.parent.HUDVisible = true
+	self.parent:RemoveNumberValue("Mordhau Disable Movement");
+	
 	self.ToDelete = true
 
 end

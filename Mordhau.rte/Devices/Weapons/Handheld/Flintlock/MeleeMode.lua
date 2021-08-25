@@ -156,7 +156,7 @@ function Create(self)
 	
 	self.blockedSound = CreateSoundContainer("Blocked Flintlock Mordhau", "Mordhau.rte");
 	self.parrySound = CreateSoundContainer("Parry Flintlock Mordhau", "Mordhau.rte");
-	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Flintlock Mordhau", "Mordhau.rte");
+	self.heavyBlockAddSound = CreateSoundContainer("Basic Melee Wood HeavyBlockAdd Mordhau", "Mordhau.rte");
 	
 	self.blockSounds = {};
 	self.blockSounds.Slash = CreateSoundContainer("Slash Block Flintlock Mordhau", "Mordhau.rte");

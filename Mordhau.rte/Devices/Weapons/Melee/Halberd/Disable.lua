@@ -1,5 +1,26 @@
 function OnDetach(self)
 
+	if self.wasThrown == true then
+	
+		self.throwWounds = 10;
+		self.throwPitch = 0.9;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/StraightPierceThrow.lua");
+		self.thrownTeam = self.Team;
+		
+		self.stickMO = nil;
+		self.stickVecX = 0;
+		self.stickVecY = 0;
+		self.stickRot = 0;
+		self.stickDeepness = RangeRand(0.1, 1);
+
+		self.stuck = false;
+		
+		self.phase = 0;
+	end
+
 	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Halberd/Halberd.lua");
 	
 	self:RemoveStringValue("Parrying Type");

@@ -1,6 +1,27 @@
 function OnDetach(self)
 
-	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Greatsword/Greatsword.lua");
+	if self.wasThrown == true then
+	
+		self.throwWounds = 15;
+		self.throwPitch = 0.7;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
+		self.thrownTeam = self.Team;
+		
+		self.stickMO = nil;
+		self.stickVecX = 0;
+		self.stickVecY = 0;
+		self.stickRot = 0;
+		self.stickDeepness = RangeRand(0.1, 1);
+
+		self.stuck = false;
+		
+		self.phase = 0;
+	end
+
+	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Maul/Maul.lua");
 	
 	self:RemoveStringValue("Parrying Type");
 	self.Parrying = false;
@@ -25,10 +46,10 @@ function OnAttach(self)
 
 	self.HUDVisible = true;
 
-	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/StraightPierceThrow.lua");
+	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlBluntThrow.lua");
 	self.PinStrength = 0;
 
-	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Greatsword/Greatsword.lua");
+	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Maul/Maul.lua");
 	
 	if self.RootID == 255 then --equipped from inv
 	

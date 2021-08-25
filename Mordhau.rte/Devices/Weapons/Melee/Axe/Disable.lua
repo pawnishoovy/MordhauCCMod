@@ -1,6 +1,27 @@
 function OnDetach(self)
 
-	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Shortsword/Shortsword.lua");
+	if self.wasThrown == true then
+	
+		self.throwWounds = 7;
+		self.throwPitch = 1.0;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlPierceThrow.lua");
+		self.thrownTeam = self.Team;
+		
+		self.stickMO = nil;
+		self.stickVecX = 0;
+		self.stickVecY = 0;
+		self.stickRot = 0;
+		self.stickDeepness = RangeRand(0.1, 1);
+
+		self.stuck = false;
+		
+		self.phase = 0;
+	end
+
+	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Axe/Axe.lua");
 	
 	self:RemoveStringValue("Parrying Type");
 	self.Parrying = false;
@@ -28,7 +49,7 @@ function OnAttach(self)
 	self:DisableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlPierceThrow.lua");
 	self.PinStrength = 0;
 
-	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Shortsword/Shortsword.lua");
+	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Axe/Axe.lua");
 	
 	if self.RootID == 255 then --equipped from inv
 	

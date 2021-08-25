@@ -50,27 +50,6 @@ end
 
 function OnDetach(self)
 
-	if self.wasThrown == true then
-	
-		self.throwWounds = 10;
-		self.throwPitch = 0.9;
-	
-		self.HUDVisible = false;
-		
-		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/StraightPierceThrow.lua");
-		self.thrownTeam = self.Team;
-		
-		self.stickMO = nil;
-		self.stickVecX = 0;
-		self.stickVecY = 0;
-		self.stickRot = 0;
-		self.stickDeepness = RangeRand(0.1, 1);
-
-		self.stuck = false;
-		
-		self.phase = 0;
-	end
-
 	-- self.Frame = 6;
 	-- self.unequipSound:Play(self.Pos);
 	-- self.unequipAnim = true;
@@ -1929,7 +1908,7 @@ function Update(self)
 					--if crit then
 					--	woundName = woundNameExit
 					--end
-					
+
 					if string.find(material,"Flesh") or string.find(woundName,"Flesh") or string.find(woundNameExit,"Flesh") or string.find(material,"Bone") or string.find(woundName,"Bone") or string.find(woundNameExit,"Bone") then
 						hitType = 1
 					else

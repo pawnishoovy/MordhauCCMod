@@ -170,6 +170,12 @@ end
 
 function Update(self)
 
+	if self.MOToNotHit then
+		if MovableMan:ValidMO(self.MOToNotHit) then
+			self:SetWhichMOToNotHit(self.MOToNotHit, -1)
+		end
+	end
+
 	if UInputMan:KeyPressed(12) then
 		self.Health = 0;
 	end
@@ -205,7 +211,7 @@ function Update(self)
 	end
 	
 	if self.Status < Actor.DYING and ctrl then
-		self.movementInput = 0 - (ctrl:IsState(Controller.MOVE_LEFT) and 1 or 0) + (ctrl:IsState(Controller.MOVE_RIGHT) and 1 or 0)
+		self.movementInput = 0 - ((ctrl:IsState(Controller.MOVE_LEFT) or self.movingLeft) and 1 or 0) + ((ctrl:IsState(Controller.MOVE_RIGHT) or self.movingRight) and 1 or 0)
 		if self.movementInput == 0 then 
 			self.Moving = false;
 		elseif self.Moving == false then
@@ -215,6 +221,9 @@ function Update(self)
 			self.hoofStep3Played = false;
 			self.hoofStep4Played = false;
 		end
+		self.movingRight = false;
+		self.movingLeft = false;
+		self.Jumping = false;
 	end
 	
 	local pointPositions = {self.Pos + Vector(-11, 0), self.Pos + Vector(11, 0)}
@@ -466,7 +475,7 @@ function Update(self)
 				local dif = SceneMan:ShortestDistance(self.Pos, mo.Pos, SceneMan.SceneWrapsX)
 				pointVectors[i] = dif
 				
-				self.soundVel = mo.Vel;
+				self.effectiveVel = mo.Vel;
 				
 				-- Debug
 				--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + dif, 5);
@@ -486,8 +495,8 @@ function Update(self)
 	self.creakSound.Pos = self.Pos;
 	if self.Moving then
 		if true then -- TODO!! different ranges and behaviour for the 4 gaits
-			if self.soundVel.Magnitude > 0 then
-				self.jingleSound.Volume = math.max(0, math.min(0.2, self.soundVel.Magnitude / 4 - 0.8))
+			if self.effectiveVel.Magnitude > 0 then
+				self.jingleSound.Volume = math.max(0, math.min(0.2, self.effectiveVel.Magnitude / 4 - 0.8))
 			end
 		end
 	else
@@ -613,6 +622,12 @@ function Update(self)
 			
 			subAttachable.Pos = attachable.Pos + Vector(subAttachable.ParentOffset.X * self.FlipFactor, subAttachable.ParentOffset.Y):RadRotate(attachable.RotAngle) - Vector(subAttachable.JointOffset.X * self.FlipFactor, subAttachable.JointOffset.Y):RadRotate(subAttachable.RotAngle)
 			
+			if self.MOToNotHit then
+				if MovableMan:ValidMO(self.MOToNotHit) then
+					self:SetWhichMOToNotHit(self.MOToNotHit, -1)
+				end
+			end	
+			
 			-- Head
 			self.head = MovableMan:FindObjectByUniqueID(self:GetNumberValue("Horse Head"))
 			if self.head then
@@ -628,11 +643,25 @@ function Update(self)
 				self.head.InheritedRotAngleOffset = subAttachable.InheritedRotAngleOffset + angle
 				
 				self.head.Pos = subAttachable.Pos + Vector(self.head.ParentOffset.X * self.FlipFactor, self.head.ParentOffset.Y):RadRotate(subAttachable.RotAngle) - Vector(self.head.JointOffset.X * self.FlipFactor, self.head.JointOffset.Y):RadRotate(self.head.RotAngle)
+				
+				if self.head.HitWhatMOID ~= 255 then
+					local id = self.head.HitWhatMOID
+					self.MOToNotHit = MovableMan:GetMOFromID(id);
+				end
+				
+				if self.MOToNotHit then
+					if MovableMan:ValidMO(self.MOToNotHit) then
+						self:SetWhichMOToNotHit(self.MOToNotHit, -1)
+					end
+				end
+				
 			end
 		end
 	else
 		self.Health = self.Health - 100
 	end
+	
+	self.MOToNotHit = nil;
 	
 	-- Legs
 	for i = 1, 2 do

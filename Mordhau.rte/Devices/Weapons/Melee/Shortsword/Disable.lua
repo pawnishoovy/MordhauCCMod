@@ -1,5 +1,26 @@
 function OnDetach(self)
 
+	if self.wasThrown == true then
+	
+		self.throwWounds = 4;
+		self.throwPitch = 1.4;
+	
+		self.HUDVisible = false;
+		
+		self:EnableScript("Mordhau.rte/Devices/Shared/Scripts/TwirlPierceThrow.lua");
+		self.thrownTeam = self.Team;
+		
+		self.stickMO = nil;
+		self.stickVecX = 0;
+		self.stickVecY = 0;
+		self.stickRot = 0;
+		self.stickDeepness = RangeRand(0.1, 1);
+
+		self.stuck = false;
+		
+		self.phase = 0;
+	end
+
 	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Shortsword/Shortsword.lua");
 	
 	self:RemoveStringValue("Parrying Type");
