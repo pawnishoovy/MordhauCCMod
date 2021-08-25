@@ -328,8 +328,8 @@ function Update(self)
 						local animationFactor = (self.walkAnimationAcc + animationOffset) % 1
 						local animationVector = getPathAnimationVector(self.runCyclePathAnimation, animationFactor)
 						
-						local sound = CreateSoundContainer("Pre Catapult");
-						sound.Volume = 0.7				
+						--local sound = CreateSoundContainer("Pre Catapult");
+						--sound.Volume = 0.7				
 						local toPlay = false;
 						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
 							self.hoofStep1Played = true;
@@ -346,22 +346,25 @@ function Update(self)
 							toPlay = true;
 						end
 						
-						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4, 0) or Vector(0, 1))
+						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4 * self.FlipFactor, 0) or Vector(0, 1))
 						
 						local rayOrigin = mo.Pos + Vector(2 * (leg - 1.5) * 2.0, 5)--:RadRotate(mo.RotAngle)
-						local rayVector = offset + Vector(self.Vel.X * GetPPM() * TimerMan.DeltaTimeSecs * 1.0, self.legLength) + Vector(animationVector.X * 0.75 * self.FlipFactor, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
+						local rayVector = offset + Vector(0, self.legLength) + Vector(animationVector.X * 0.75, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
 						
 						local terrCheck = SceneMan:CastStrengthRay(rayOrigin, rayVector, 15, Vector(), 0, 0, SceneMan.SceneWrapsX);
 						-- Debug
 						
-						--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 5);
+						PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 13);
 						
 						local length = rayVector.Magnitude
-						
+						local contact = false
 						if terrCheck then
 							local rayHitPos = SceneMan:GetLastRayHitPos()
 							local dif = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX)
 							
+							PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + dif, 5);
+							
+							contact = true
 							length = dif.Magnitude
 							
 							local factor = (1 - dif.Magnitude / rayVector.Magnitude)
@@ -391,7 +394,7 @@ function Update(self)
 							--mo.Pos = mo.Pos + Vector(0, (1 - dif.Magnitude / rayVector.Magnitude) * -5 * TimerMan.DeltaTimeSecs)
 						end
 						
-						if toPlay == true then
+						if legHoof and toPlay == true then
 							local pos = Vector(0, 0);
 							SceneMan:CastObstacleRay(legHoof.Pos, Vector(0, 8), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
 							--PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
@@ -430,16 +433,24 @@ function Update(self)
 							
 							local angles = calcIK(thighLength, shinLength, Vector(0.1 + math.max(length - footLength, 1), 0.0))
 							if (self.HFlipped and i == 2) or (not self.HFlipped and i == 1) then
-								legThigh.InheritedRotAngleOffset = -mo.RotAngle * self.FlipFactor + angles[1] + rayVector.AbsRadAngle
+								legThigh.InheritedRotAngleOffset = -mo.RotAngle * self.FlipFactor + angles[1] + rayVector.AbsRadAngle * self.FlipFactor + (math.pi * (-self.FlipFactor + 1) * 0.5)
 								legShin.InheritedRotAngleOffset = angles[2]
 								if legHoof then
-									legHoof.InheritedRotAngleOffset = -angles[2] - angles[1]
+									if contact then
+										legHoof.InheritedRotAngleOffset = -angles[2] - angles[1]
+									else
+										legHoof.InheritedRotAngleOffset = -angles[2]
+									end
 								end
 							else
-								legThigh.InheritedRotAngleOffset = -self.RotAngle * self.FlipFactor - angles[1] + rayVector.AbsRadAngle
+								legThigh.InheritedRotAngleOffset = -self.RotAngle * self.FlipFactor - angles[1] + rayVector.AbsRadAngle * self.FlipFactor + (math.pi * (-self.FlipFactor + 1) * 0.5)
 								legShin.InheritedRotAngleOffset = - angles[2]
 								if legHoof then
-									legHoof.InheritedRotAngleOffset = angles[2] + angles[1]
+									if contact then
+										legHoof.InheritedRotAngleOffset = angles[2] + angles[1]
+									else
+										legHoof.InheritedRotAngleOffset = 0
+									end
 								end
 							end
 							
@@ -596,7 +607,7 @@ function Update(self)
 			local sinB = math.sin(time * 0.5 + self.UniqueID * 1.55) * 0.045
 			local sinC = math.sin(time * 0.25 + self.UniqueID * 0.25) * 0.04
 			local sinD = math.sin(time * 1.75 + self.UniqueID * 0.15) * 0.01
-			local angle = 1 * (sinA + sinB + sinC + sinD)
+			local angle = 2 * (sinA + sinB + sinC + sinD)
 			
 			subAttachable.InheritedRotAngleOffset = -attachable.InheritedRotAngleOffset - math.abs(angle)
 			
@@ -607,7 +618,7 @@ function Update(self)
 			if self.head then
 				self.head = ToAttachable(self.head)
 						
-				local time = (self.Age / 2000) * math.pi
+				local time = (self.Age / 3000) * math.pi
 				local sinA = math.sin(time + self.UniqueID * 0.2) * 0.06
 				local sinB = math.sin(time * 0.5 + self.UniqueID * 0.5) * 0.05
 				local sinC = math.sin(time * 0.25 + self.UniqueID * 1) * 0.035
