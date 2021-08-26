@@ -338,14 +338,14 @@ function Update(self)
 						--local sound = CreateSoundContainer("Pre Catapult");
 						--sound.Volume = 0.7				
 						local toPlay = false;
-						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
+						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.50 then
 							self.hoofStep1Played = true;
 							toPlay = true;
 
 						elseif math.abs(self.walkAnimationAcc) > 0.22 and math.abs(self.walkAnimationAcc) < 0.28 and self.hoofStep2Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.25 then
 							self.hoofStep2Played = true;
 							toPlay = true;
-						elseif math.abs(self.walkAnimationAcc) > 0.46 and math.abs(self.walkAnimationAcc) < 0.54 and self.hoofStep3Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.50 then
+						elseif math.abs(self.walkAnimationAcc) > 0.46 and math.abs(self.walkAnimationAcc) < 0.54 and self.hoofStep3Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
 							self.hoofStep3Played = true;
 							toPlay = true;
 						elseif math.abs(self.walkAnimationAcc) > 0.72 and math.abs(self.walkAnimationAcc) < 0.78 and self.hoofStep4Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.75 then
@@ -361,7 +361,7 @@ function Update(self)
 						local terrCheck = SceneMan:CastStrengthRay(rayOrigin, rayVector, 15, Vector(), 0, 0, SceneMan.SceneWrapsX);
 						-- Debug
 						
-						PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 13);
+						--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 13);
 						
 						local length = rayVector.Magnitude
 						local contact = false
@@ -369,7 +369,7 @@ function Update(self)
 							local rayHitPos = SceneMan:GetLastRayHitPos()
 							local dif = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX)
 							
-							PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + dif, 5);
+							--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + dif, 5);
 							
 							contact = true
 							length = dif.Magnitude
@@ -404,7 +404,7 @@ function Update(self)
 						if legHoof and toPlay == true then
 							local pos = Vector(0, 0);
 							SceneMan:CastObstacleRay(legHoof.Pos, Vector(0, 8), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
-							--PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
+							PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
 							local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 							
 							if terrPixel ~= 0 then -- 0 = air
