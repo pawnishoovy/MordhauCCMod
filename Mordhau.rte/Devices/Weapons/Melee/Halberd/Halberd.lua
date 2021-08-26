@@ -413,6 +413,311 @@ function Create(self)
 	self.attackAnimations[1] = attackPhase
 	self.attackAnimationsTypes[1] = attackPhase.Type
 	
+	-- Regular Attack
+	horseAttackPhase = {}
+	horseAttackPhase.Type = "Slash";
+	
+	-- Prepare
+	i = 1
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 300
+	
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 6
+	horseAttackPhase[i].frameEnd = 11
+	horseAttackPhase[i].angleStart = 0
+	horseAttackPhase[i].angleEnd = -180
+	horseAttackPhase[i].offsetStart = Vector(0, 0)
+	horseAttackPhase[i].offsetEnd = Vector(-6, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Prepare
+	i = 2
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 450
+	
+	horseAttackPhase[i].lastPrepare = true
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 0;
+	
+	horseAttackPhase[i].frameStart = 11
+	horseAttackPhase[i].frameEnd = 9
+	horseAttackPhase[i].angleStart = -180
+	horseAttackPhase[i].angleEnd = -300
+	horseAttackPhase[i].offsetStart = Vector(-6, 0)
+	horseAttackPhase[i].offsetEnd = Vector(-15, -5)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Late Prepare
+	i = 3
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 400
+	
+	horseAttackPhase[i].lastPrepare = true
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 0;
+	
+	horseAttackPhase[i].frameStart = 9
+	horseAttackPhase[i].frameEnd = 8
+	horseAttackPhase[i].angleStart = -300
+	horseAttackPhase[i].angleEnd = -295
+	horseAttackPhase[i].offsetStart = Vector(-15, -5)
+	horseAttackPhase[i].offsetEnd = Vector(-15, -6)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Early Early Attack
+	i = 4
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 180
+	
+	horseAttackPhase[i].canBeBlocked = true
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 3.4
+	horseAttackPhase[i].attackStunChance = 0.15
+	horseAttackPhase[i].attackRange = 25
+	horseAttackPhase[i].attackPush = 0.80
+	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 167;
+	
+	horseAttackPhase[i].frameStart = 8
+	horseAttackPhase[i].frameEnd = 8
+	horseAttackPhase[i].angleStart = -300
+	horseAttackPhase[i].angleEnd = -220
+	horseAttackPhase[i].offsetStart = Vector(-15, -6)
+	horseAttackPhase[i].offsetEnd = Vector(-7, 2)
+	
+	horseAttackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	
+	horseAttackPhase[i].soundEnd = nil
+	
+	-- Early Attack
+	i = 5
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 60
+	
+	horseAttackPhase[i].canBeBlocked = true
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 3.4
+	horseAttackPhase[i].attackStunChance = 0.15
+	horseAttackPhase[i].attackRange = 25
+	horseAttackPhase[i].attackPush = 0.80
+	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 145;
+	
+	horseAttackPhase[i].frameStart = 8
+	horseAttackPhase[i].frameEnd = 8
+	horseAttackPhase[i].angleStart = -220
+	horseAttackPhase[i].angleEnd = -200
+	horseAttackPhase[i].offsetStart = Vector(-7, 2)
+	horseAttackPhase[i].offsetEnd = Vector(0, 3)
+	
+	horseAttackPhase[i].soundStart = nil
+	
+	horseAttackPhase[i].soundEnd = nil
+	
+	-- Attack
+	i = 6
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 240
+	
+	horseAttackPhase[i].canBeBlocked = true
+	horseAttackPhase[i].canDamage = true
+	horseAttackPhase[i].attackDamage = 3.4
+	horseAttackPhase[i].attackStunChance = 0.15
+	horseAttackPhase[i].attackRange = 25
+	horseAttackPhase[i].attackPush = 0.80
+	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 110;
+	
+	horseAttackPhase[i].frameStart = 8
+	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].angleStart = -200
+	horseAttackPhase[i].angleEnd = -45
+	horseAttackPhase[i].offsetStart = Vector(0 , 3)
+	horseAttackPhase[i].offsetEnd = Vector(15, 7)
+	
+	horseAttackPhase[i].soundStart = nil
+	
+	horseAttackPhase[i].soundEnd = nil
+	
+	-- Turn Around 90
+	i = 7
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 70
+	
+	horseAttackPhase[i].firstRecovery = false
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 16 + self.swingRotationFrames
+	horseAttackPhase[i].frameEnd = 15 -- goes towards it, will never reach 15
+	horseAttackPhase[i].angleStart = -45
+	horseAttackPhase[i].angleEnd = -40
+	horseAttackPhase[i].offsetStart = Vector(15, 7)
+	horseAttackPhase[i].offsetEnd = Vector(10, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Turn Around 90 again
+	i = 8
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 70
+	
+	horseAttackPhase[i].firstRecovery = true
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 16
+	horseAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it 
+	horseAttackPhase[i].angleStart = -40
+	horseAttackPhase[i].angleEnd = -43
+	horseAttackPhase[i].offsetStart = Vector(15, 7)
+	horseAttackPhase[i].offsetEnd = Vector(10, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Recover
+	i = 9
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 350
+	
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 6
+	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].angleStart = -43
+	horseAttackPhase[i].angleEnd = 5
+	horseAttackPhase[i].offsetStart = Vector(3, 0)
+	horseAttackPhase[i].offsetEnd = Vector(0, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Recover
+	i = 10
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 200
+	
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 6
+	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].angleStart = 5
+	horseAttackPhase[i].angleEnd = 9
+	horseAttackPhase[i].offsetStart = Vector(0, 0)
+	horseAttackPhase[i].offsetEnd = Vector(-3, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Late Late Recover
+	i = 11
+	horseAttackPhase[i] = {}
+	horseAttackPhase[i].durationMS = 300
+	
+	horseAttackPhase[i].canBeBlocked = false
+	horseAttackPhase[i].canDamage = false
+	horseAttackPhase[i].attackDamage = 0
+	horseAttackPhase[i].attackStunChance = 0
+	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackAngle = 90;
+	
+	horseAttackPhase[i].frameStart = 6
+	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].angleStart = 9
+	horseAttackPhase[i].angleEnd = 0
+	horseAttackPhase[i].offsetStart = Vector(-3, 0)
+	horseAttackPhase[i].offsetEnd = Vector(0, 0)
+	
+	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStartVariations = 0
+	
+	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEndVariations = 0
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[15] = regularAttackSounds
+	self.attackAnimationsGFX[15] = regularAttackGFX
+	self.attackAnimations[15] = horseAttackPhase
+	self.attackAnimationsTypes[15] = horseAttackPhase.Type
+	
 	-- (stab)
 	stabAttackPhase = {}
 	stabAttackPhase.Type = "Stab";
@@ -1353,7 +1658,11 @@ function Update(self)
 			end
 			
 			if not stab and not overhead and not flourish and not throw and not warcry then
-				playAttackAnimation(self, 1) -- regular attack
+				if self.parent:NumberValueExists("Mordhau Disable Movement") then -- we're probably on a horse if this is set... probably...
+					playAttackAnimation(self, 15) -- regular attack
+				else
+					playAttackAnimation(self, 1) -- regular attack
+				end
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
 			elseif overhead then
@@ -1508,7 +1817,7 @@ function Update(self)
 			if (self.Attacked == true and attack) and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 				if not stab and not overhead then
 					self.attackBuffered = true;
-					self.attackAnimationBuffered = 1;
+					self.attackAnimationBuffered = self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or 1;
 				elseif stab then
 					self.stabBuffered = true;
 					self.attackAnimationBuffered = 2;
@@ -1827,13 +2136,14 @@ function Update(self)
 					local minimumRange = damageRange* self.sweetSpotThreshold;
 					
 					local woundsToAdd;
+					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 2)); -- TODO: MAKE SURE THAT DIVIDER NUMBER SYNCS UP WITH INTENDED HORSE SPEED 
 					
 					if hitRange.Magnitude > minimumRange then
-						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
 					else
 						local mult = hitRange.Magnitude / minimumRange;
 						damage = damage * math.max(0.25, mult);
-						woundsToAdd = math.floor((damage) + RangeRand(0,0.9))
+						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
 					end
 					
 					-- Hurt the actor, add extra damage

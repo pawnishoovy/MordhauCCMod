@@ -577,7 +577,7 @@ function Create(self)
 	-- Attack
 	i = 6
 	horseAttackPhase[i] = {}
-	horseAttackPhase[i].durationMS = 110
+	horseAttackPhase[i].durationMS = 160
 	
 	horseAttackPhase[i].canBeBlocked = true
 	horseAttackPhase[i].canDamage = true
@@ -586,12 +586,12 @@ function Create(self)
 	horseAttackPhase[i].attackRange = 20
 	horseAttackPhase[i].attackPush = 0.8
 	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
-	horseAttackPhase[i].attackAngle = 90;
+	horseAttackPhase[i].attackAngle = 110;
 	
 	horseAttackPhase[i].frameStart = 6
 	horseAttackPhase[i].frameEnd = 6
 	horseAttackPhase[i].angleStart = -200
-	horseAttackPhase[i].angleEnd = -90
+	horseAttackPhase[i].angleEnd = -45
 	horseAttackPhase[i].offsetStart = Vector(0 , 3)
 	horseAttackPhase[i].offsetEnd = Vector(15, 7)
 	
@@ -616,8 +616,8 @@ function Create(self)
 	
 	horseAttackPhase[i].frameStart = 16 + self.swingRotationFrames
 	horseAttackPhase[i].frameEnd = 15 -- goes towards it, will never reach 15
-	horseAttackPhase[i].angleStart = -90
-	horseAttackPhase[i].angleEnd = -80
+	horseAttackPhase[i].angleStart = -45
+	horseAttackPhase[i].angleEnd = -40
 	horseAttackPhase[i].offsetStart = Vector(15, 7)
 	horseAttackPhase[i].offsetEnd = Vector(10, 0)
 	
@@ -644,8 +644,8 @@ function Create(self)
 	
 	horseAttackPhase[i].frameStart = 16
 	horseAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it 
-	horseAttackPhase[i].angleStart = -90
-	horseAttackPhase[i].angleEnd = -80
+	horseAttackPhase[i].angleStart = -40
+	horseAttackPhase[i].angleEnd = -43
 	horseAttackPhase[i].offsetStart = Vector(15, 7)
 	horseAttackPhase[i].offsetEnd = Vector(10, 0)
 	
@@ -671,7 +671,7 @@ function Create(self)
 	
 	horseAttackPhase[i].frameStart = 6
 	horseAttackPhase[i].frameEnd = 6
-	horseAttackPhase[i].angleStart = -80
+	horseAttackPhase[i].angleStart = -43
 	horseAttackPhase[i].angleEnd = -25
 	horseAttackPhase[i].offsetStart = Vector(10, 0)
 	horseAttackPhase[i].offsetEnd = Vector(-2, 0)
