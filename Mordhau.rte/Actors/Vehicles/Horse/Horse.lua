@@ -64,6 +64,8 @@ function Create(self)
 	self.legBackShinLength = 7.5
 	self.legBackThighLength = 8.5
 	
+	self.legStepData = {false, false, false, false}
+	
 	self.runCyclePathAnimation = {
 		{0, 7},
 		{8, 7},
@@ -216,10 +218,11 @@ function Update(self)
 			self.Moving = false;
 		elseif self.Moving == false then
 			self.Moving = true;
-			self.hoofStep1Played = false;
-			self.hoofStep2Played = false;
-			self.hoofStep3Played = false;
-			self.hoofStep4Played = false;
+			--self.hoofStep1Played = false;
+			--self.hoofStep2Played = false;
+			--self.hoofStep3Played = false;
+			--self.hoofStep4Played = false;
+			self.legStepData = {false, false, false, false}
 		end
 		self.movingRight = false;
 		self.movingLeft = false;
@@ -338,7 +341,8 @@ function Update(self)
 						local animationVector = getPathAnimationVector(self.runCyclePathAnimation, animationFactor)
 						
 						--local sound = CreateSoundContainer("Pre Catapult");
-						--sound.Volume = 0.7				
+						--sound.Volume = 0.7		
+						--[[
 						local toPlay = false;
 						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
 							self.hoofStep1Played = true;
@@ -353,6 +357,22 @@ function Update(self)
 						elseif math.abs(self.walkAnimationAcc) > 0.72 and math.abs(self.walkAnimationAcc) < 0.78 and self.hoofStep4Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.75 then
 							self.hoofStep4Played = true;
 							toPlay = true;
+						end]]
+						
+						local index = leg + (i - 1) * 2
+						
+						local dif
+						local value = animationFactor - 0.5
+						local ret = (value) % 1;
+						if ret < 0 then ret = ret + 1 end
+						dif = math.abs(ret);
+						
+						local toPlay = false
+						if self.legStepData[index] == false and dif < 0.06 then
+							self.legStepData[index] = true
+							toPlay = true
+						elseif self.legStepData[index] == true and dif > 0.12 then
+							self.legStepData[index] = false
 						end
 						
 						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4 * self.FlipFactor, 0) or Vector(0, 1))
@@ -361,9 +381,9 @@ function Update(self)
 						local rayVector = offset + Vector(0, self.legLength) + Vector(animationVector.X * 0.75, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
 						
 						local terrCheck = SceneMan:CastStrengthRay(rayOrigin, rayVector, 15, Vector(), 0, 0, SceneMan.SceneWrapsX);
-						-- Debug
 						
-						PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 13);
+						-- Debug
+						--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVector, 13);
 						
 						local length = rayVector.Magnitude
 						local contact = false
@@ -371,7 +391,8 @@ function Update(self)
 							local rayHitPos = SceneMan:GetLastRayHitPos()
 							local dif = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX)
 							
-							PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + dif, 5);
+							-- Debug
+							--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + dif, 5);
 							
 							contact = true
 							length = dif.Magnitude
@@ -611,12 +632,14 @@ function Update(self)
 		if subAttachable then
 			subAttachable = ToAttachable(subAttachable)
 			
+			local velFactor = (0.3 + 3.0 * math.min(math.abs(self.Vel.X / 7), 1.0))
+			
 			local time = (self.Age / 2000) * math.pi
 			local sinA = math.sin(time + self.UniqueID * 1.15) * 0.07
 			local sinB = math.sin(time * 0.5 + self.UniqueID * 1.55) * 0.045
 			local sinC = math.sin(time * 0.25 + self.UniqueID * 0.25) * 0.04
 			local sinD = math.sin(time * 1.75 + self.UniqueID * 0.15) * 0.01
-			local angle = 2 * (sinA + sinB + sinC + sinD)
+			local angle = 2 * (sinA + sinB + sinC + sinD) * velFactor
 			
 			subAttachable.InheritedRotAngleOffset = -attachable.InheritedRotAngleOffset - math.abs(angle)
 			
@@ -638,7 +661,7 @@ function Update(self)
 				local sinB = math.sin(time * 0.5 + self.UniqueID * 0.5) * 0.05
 				local sinC = math.sin(time * 0.25 + self.UniqueID * 1) * 0.035
 				local sinD = math.sin(time * 1.75 + self.UniqueID * 2.5) * 0.015
-				local angle = 2 * (sinA + sinB + sinC + sinD)
+				local angle = 2 * (sinA + sinB + sinC + sinD) * velFactor
 				
 				self.head.InheritedRotAngleOffset = subAttachable.InheritedRotAngleOffset + angle
 				
