@@ -76,6 +76,10 @@ end
 
 function Update(self)
 
+	if UInputMan:KeyPressed(38) then
+		self:ReloadScripts();
+	end
+
 	if self:IsAttached() == true then
 		if self.motorParent and self.motorParent:IsAttached() == true then
 
@@ -142,7 +146,8 @@ function Update(self)
 											self.gunner:EquipNamedDevice("Gunner Holder", true)
 											self.gunner.AIMode = Actor.AIMODE_NONE
 											self.gunner.HUDVisible = false
-											self.parent.AIMode = 1
+											self.gunner:SetNumberValue("Mordhau Disable Movement", 1);
+											self.parent.AIMode = 1				
 											self.parent:SetControllerMode(2 , self.parent:GetController().Player)
 										else
 											self.gunner = nil
@@ -334,7 +339,8 @@ function Update(self)
 				self.gunner.HFlipped = self.HFlipped;				
 				self.gunner:SetAimAngle(self.parent:GetAimAngle(false))
 
-				if self.gunner.Status ~= 0 then						
+				if self.gunner.Status ~= 0 then	
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;
 				end	
 				
@@ -355,6 +361,7 @@ function Update(self)
 						switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 					end
 
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil
 				end	
 			
@@ -374,7 +381,8 @@ function Update(self)
 		else
 			self.motorParent = nil
 			if self.gunner then
-				if self.gunner.Status ~= 0 then						
+				if self.gunner.Status ~= 0 then				
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;	
 				else					
 					self.gunner.AIMode = 1
@@ -386,6 +394,7 @@ function Update(self)
 						switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 					end
 					
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;
 				end	
 			end	
@@ -399,7 +408,9 @@ function Update(self)
 				self.gunner.AIMode = 1
 				self.gunner:SetControllerMode(2 , self.gunner:GetController().Player)
 				self.gunner.HUDVisible = true
-			end					
+			end				
+
+			self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 			self.gunner = nil;
 		end
 	end
@@ -417,6 +428,7 @@ function Destroy(self)
 			switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 		end
 		
+		self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 		self.gunner = nil
 	end
 end
