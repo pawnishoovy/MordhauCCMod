@@ -185,14 +185,12 @@ function Update(self)
 		self:GibThis();
 	end
 	if UInputMan:KeyPressed(14) then
-		if self.head then
-			self.head:GibThis();
-		end
+		self:AddWound(CreateAEmitter("Wound Flesh Body Entry Knight"), Vector(0, 0), true)
+		self.Health = self.Health - 20;
 	end
 	if UInputMan:KeyPressed(15) then
-		if self.head then
-			ToAttachable(self.head):RemoveFromParent(true, true);
-		end
+		self:AddWound(CreateAEmitter("Wound Flesh Body Entry Knight"), Vector(0, 0), true)
+		self.Health = self.Health - 55;
 	end
 		
 	-- Death
@@ -344,14 +342,14 @@ function Update(self)
 						--sound.Volume = 0.7		
 						--[[
 						local toPlay = false;
-						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
+						if self.hoofStep1Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.50 then
 							self.hoofStep1Played = true;
 							toPlay = true;
 
 						elseif math.abs(self.walkAnimationAcc) > 0.22 and math.abs(self.walkAnimationAcc) < 0.28 and self.hoofStep2Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.25 then
 							self.hoofStep2Played = true;
 							toPlay = true;
-						elseif math.abs(self.walkAnimationAcc) > 0.46 and math.abs(self.walkAnimationAcc) < 0.54 and self.hoofStep3Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.50 then
+						elseif math.abs(self.walkAnimationAcc) > 0.46 and math.abs(self.walkAnimationAcc) < 0.54 and self.hoofStep3Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0 then
 							self.hoofStep3Played = true;
 							toPlay = true;
 						elseif math.abs(self.walkAnimationAcc) > 0.72 and math.abs(self.walkAnimationAcc) < 0.78 and self.hoofStep4Played ~= true and ((leg - 1) * 0.5 + 0.25 * (i - 1)) == 0.75 then
@@ -427,7 +425,7 @@ function Update(self)
 						if legHoof and toPlay == true then
 							local pos = Vector(0, 0);
 							SceneMan:CastObstacleRay(legHoof.Pos, Vector(0, 8), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
-							--PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
+							PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
 							local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 							
 							if terrPixel ~= 0 then -- 0 = air

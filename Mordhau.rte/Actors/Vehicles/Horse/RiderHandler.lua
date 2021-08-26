@@ -29,13 +29,13 @@ function Update(self)
 
 		if not self.ToDelete then
 			if self.horseParent:IsDead() then
-				self.parent.Status = 1;
 				if self.parent.BGLeg then
 					self.parent.BGLeg.Scale = 1;
 					if self.parent.BGFoot then
 						self.parent.BGFoot.Scale = 1;
 					end
 				end
+				self.ToDelete = true;
 				self.parent:RemoveNumberValue("Mordhau Disable Movement");
 			elseif self.horseParent == nil then
 				if self.parent.BGLeg then
@@ -44,6 +44,7 @@ function Update(self)
 						self.parent.BGFoot.Scale = 1;
 					end
 				end
+				self.ToDelete = true;
 				self.parent:RemoveNumberValue("Mordhau Disable Movement");
 			end
 		end

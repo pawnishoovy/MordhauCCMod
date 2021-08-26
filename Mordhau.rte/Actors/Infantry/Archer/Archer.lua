@@ -66,7 +66,13 @@ function Create(self)
 	Victory = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Victory", "Mordhau.rte"),
 	victorySpoken = CreateSoundContainer("VO " .. self.IdentityPrimary .. " VictorySpoken", "Mordhau.rte"),
 	whoaLight = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaLight", "Mordhau.rte"),
-	whoaMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaMedium", "Mordhau.rte")};
+	whoaMedium = CreateSoundContainer("VO " .. self.IdentityPrimary .. " WhoaMedium", "Mordhau.rte"),
+	horseControl = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Control", "Mordhau.rte"),
+	horseDeath = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Death", "Mordhau.rte"),
+	horseDecelerate = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Decelerate", "Mordhau.rte"),
+	horseInitiate = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Initiate", "Mordhau.rte"),
+	horseMount = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Mount", "Mordhau.rte"),
+	horseSoothe = CreateSoundContainer("VO " .. self.IdentityPrimary .. " Horse Soothe", "Mordhau.rte")};
 	
 	-- TERRAIN SOUNDS
 	
@@ -207,6 +213,17 @@ function Create(self)
 	self.oldHealth = self.Health;
 	
 	self.headWounds = 0;
+	
+	self.horseResponseTimer = Timer();
+	self.horseResponseDelay = 1500;
+	
+	self.horseResponseTable = {};
+	self.horseResponseTable[1] = self.voiceSounds.horseControl;
+	self.horseResponseTable[2] = self.voiceSounds.horseDeath;
+	self.horseResponseTable[3] = self.voiceSounds.horseDecelerate;
+	self.horseResponseTable[4] = self.voiceSounds.horseInitiate;
+	self.horseResponseTable[5] = self.voiceSounds.horseMount;
+	self.horseResponseTable[6] = self.voiceSounds.horseSoothe;
 	
 	self.Suppression = 0;
 	self.Suppressed = false;	

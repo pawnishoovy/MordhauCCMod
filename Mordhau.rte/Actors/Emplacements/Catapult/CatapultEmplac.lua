@@ -27,7 +27,7 @@ function Create(self)
 	self.perceptivenessValue = 0.95 --Value in which the gunners/reloaders/whateva percetivness is multiplied before aplying it in total to the turret
 
 	self.optimizationTimer = Timer();
-	self.optimizationDelay = 500
+	self.optimizationDelay = 10
 	
 	self.chargeFactor = 0.5;
 	
@@ -107,6 +107,10 @@ end
 
 function Update(self)
 
+	if UInputMan:KeyPressed(38) then
+		self:ReloadScripts();
+	end
+
 	if self:IsAttached() == true then
 		if self.motorParent and self.motorParent:IsAttached() == true then
 
@@ -168,7 +172,7 @@ function Update(self)
 				elseif self.optimizationTimer:IsPastSimMS(self.optimizationDelay) then
 					self.optimizationTimer:Reset();
 					for actor in MovableMan.Actors do 
-						if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos, SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
+						if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos + Vector(-70*self.FlipFactor, 8), SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
 							if IsAHuman(actor) then
 								if not (math.abs(self.parent.AngularVel) > 7 or math.abs(self.parent.RotAngle) > 0.8 or not MovableMan:IsActor(self.parent) or self.parent.Health <= 0) then
 									if (actor:IsPlayerControlled() and UInputMan:KeyPressed(6)) or (not actor:IsPlayerControlled() and actor.AIMode == Actor.AIMODE_SENTRY) then	--F to mount
@@ -178,6 +182,7 @@ function Update(self)
 											self.gunner:EquipNamedDevice("Gunner Holder", true)
 											self.gunner.AIMode = Actor.AIMODE_NONE
 											self.gunner.HUDVisible = false
+											self.gunner:SetNumberValue("Mordhau Disable Movement", 1);
 											self.parent.AIMode = 1
 											self.parent:SetControllerMode(2 , self.parent:GetController().Player)
 										else
@@ -199,15 +204,29 @@ function Update(self)
 						self.optimizationTimer:Reset();
 						if not (math.abs(self.parent.AngularVel) > 7 or math.abs(self.parent.RotAngle) > 0.8 or not MovableMan:IsActor(self.parent) or self.parent.Health <= 0) then
 							for actor in MovableMan.Actors do 
-								if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos, SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
+								if actor.Team == self.Team and SceneMan:ShortestDistance(actor.Pos, self.Pos + Vector(-70*self.FlipFactor, 8), SceneMan.SceneWrapsX).Magnitude < 30 and actor.Vel.Magnitude < 10 and actor.Status == 0 then
 									if IsAHuman(actor) then
 										if (actor:IsPlayerControlled() and UInputMan:KeyPressed(6)) then	--F to mount
 											self.boarder = ToAHuman(actor);
-											if self.boarder.FGArm and (not self.boarder.EquippedItem  or (self.boarder.EquippedItem and self.boarder.EquippedItem.PresetName ~= "Gunner Holder")) then
-												self.boarder.AIMode = Actor.AIMODE_NONE
-												self.boarder.HUDVisible = false
-											else
-												self.boarder = nil							
+											self.boarder.AIMode = Actor.AIMODE_NONE
+											self.boarder.HUDVisible = false
+											self.boarder:SetNumberValue("Mordhau Disable Movement", 1);
+											
+											self.ammoLoaded = "Nothing";
+											self:RemoveStringValue("Switch Ammo");
+											self.rockOnSound:Play(self.Pos);
+											
+											local parent = ToACrab(self:GetRootParent())
+											local spoon
+											for attachable in parent.Attachables do
+												if string.find(attachable.PresetName, "Catapult Arm") then -- Spoon, not arm, think pawnis, think
+													spoon = attachable
+													break
+												end
+											end
+											
+											for payload in spoon.Attachables do
+												payload.ToDelete = true;
 											end
 										end
 									end
@@ -231,11 +250,13 @@ function Update(self)
 					--Set reloader pos and vel so it moves with the turret
 					
 					self.boarder.Vel = self.motorParent.Vel/1.5;
-					self.boarder.Pos = self.parent.Pos + Vector(10*self.FlipFactor,-70):RadRotate((self.parent.RotAngle/1.5) + self.Rotation)							
-					self.boarder.HFlipped = self.HFlipped;							
+					self.boarder.Pos = (self.parent.Pos + Vector(20*self.FlipFactor, -10)) + Vector(10*self.FlipFactor,-70):RadRotate(self.Rotation)							
+					self.boarder.HFlipped = self.HFlipped;					
+					self.boarder:GetController():SetState(Controller.BODY_CROUCH, true)
 					self.boarder:SetAimAngle(self.parent.RotAngle)
 
-					if self.boarder.Status ~= 0 then						
+					if self.boarder.Status ~= 0 then			
+						self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 						self.boarder = nil;
 					end	
 					
@@ -255,8 +276,9 @@ function Update(self)
 							local switcher = ActivityMan:GetActivity()
 							switcher:SwitchToActor(self.boarder, self.parent:GetController().Player, self.Team)
 						end
-
+						self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 						self.boarder = nil
+						
 					end
 				end
 			
@@ -323,6 +345,9 @@ function Update(self)
 								self.phaseOnStop = 2;		
 								if not self.Loaded then
 									self.Loaded = true;
+									if self.ammoLoaded == "Nothing" then
+										self.ammoLoaded = "Catapult Large Rock";
+									end
 									local payload = CreateAttachable(self.ammoLoaded, "Mordhau.rte");
 									
 									local parent = ToACrab(self:GetRootParent())
@@ -382,7 +407,7 @@ function Update(self)
 						end
 						
 						for payload in spoon.Attachables do
-							spoon:RemoveAttachable(payload, false, false)
+							payload.ToDelete = true;
 						end
 					end
 					
@@ -468,13 +493,14 @@ function Update(self)
 					
 					if self.boarder then
 						self.boarder.Vel = self.parent.Vel + Vector(40 * self.FlipFactor * self.finalChargeFactor, -20 * self.finalChargeFactor):RadRotate(self.parent.RotAngle);
-						self.boarder.Pos = self.parent.Pos + Vector(20*self.FlipFactor,-120):RadRotate((self.parent.RotAngle/1.5) + self.Rotation);
+						self.boarder.Pos = (self.parent.Pos + Vector(20*self.FlipFactor, -10)) + Vector(10*self.FlipFactor,-70):RadRotate(self.Rotation)			
 						self.boarder.AIMode = 1
 						self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)					
 						self.boarder.HUDVisible = true
 						
 						self.boarder:SetNumberValue("Catapulted", 1);
 						
+						self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 						self.boarder = nil;
 					end
 					
@@ -554,11 +580,12 @@ function Update(self)
 				--Set gunner pos and vel so it moves with the turret
 				
 				self.gunner.Vel = self.motorParent.Vel/1.5;
-				self.gunner.Pos = self.Pos + Vector(-21*self.FlipFactor,8):RadRotate(self.RotAngle/1.5)					
+				self.gunner.Pos = self.Pos + Vector(-70*self.FlipFactor,8);				
 				self.gunner.HFlipped = self.HFlipped;				
 				self.gunner:SetAimAngle(self.parent:GetAimAngle(false))
 
-				if self.gunner.Status ~= 0 then						
+				if self.gunner.Status ~= 0 then			
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;
 				end	
 				
@@ -579,6 +606,7 @@ function Update(self)
 						switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 					end
 
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil
 				end	
 			
@@ -591,14 +619,15 @@ function Update(self)
 			
 			local gunnerFrame = (math.abs(self.parent.AngularVel) > 7 or math.abs(self.parent.RotAngle) > 0.8) and 5 or self.gunner and (self.parent.Team + 1) or 0
 			local gunnerIcon = CreateMOSRotating("Gunner HUD Icon", "Mordhau.rte");
-			local gunnerIconPos = self.crewSize > 1 and self.parent.Pos + Vector(-6, -32) or self.parent.Pos + Vector(0, -32)
+			local gunnerIconPos = self.parent.Pos + Vector(-50*self.FlipFactor, -32)
 				
 			PrimitiveMan:DrawBitmapPrimitive(screen, gunnerIconPos, gunnerIcon, 3.14, gunnerFrame, true, true);
 
 		else
 			self.motorParent = nil
 			if self.gunner then
-				if self.gunner.Status ~= 0 then						
+				if self.gunner.Status ~= 0 then		
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;	
 				else					
 					self.gunner.AIMode = 1
@@ -610,18 +639,21 @@ function Update(self)
 						switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 					end
 					
+					self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 					self.gunner = nil;
 				end	
 			end	
 			
 			if self.boarder then
-				if self.boarder.Status ~= 0 then						
+				if self.boarder.Status ~= 0 then		
+					self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 					self.boarder = nil;	
 				else					
 					self.boarder.AIMode = 1
 					self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)					
 					self.boarder.HUDVisible = true
 					
+					self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 					self.boarder = nil;
 				end	
 			end		
@@ -635,7 +667,9 @@ function Update(self)
 				self.gunner.AIMode = 1
 				self.gunner:SetControllerMode(2 , self.gunner:GetController().Player)
 				self.gunner.HUDVisible = true
-			end					
+			end				
+
+			self.gunner:RemoveNumberValue("Mordhau Disable Movement");			
 			self.gunner = nil;
 		end
 		if self.boarder then
@@ -644,6 +678,7 @@ function Update(self)
 				self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)
 				self.boarder.HUDVisible = true
 			end					
+			self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 			self.boarder = nil;
 		end
 	end
@@ -668,12 +703,15 @@ function Destroy(self)
 			switcher:SwitchToActor(self.gunner, self.parent:GetController().Player, self.Team)
 		end
 		
+		self.gunner:RemoveNumberValue("Mordhau Disable Movement");
 		self.gunner = nil
 	end
 	if self.boarder then
 		self.boarder.AIMode = 1
 		self.boarder:SetControllerMode(2 , self.boarder:GetController().Player)
 		self.boarder.HUDVisible = true		
+		
+		self.boarder:RemoveNumberValue("Mordhau Disable Movement");
 		self.boarder = nil
 	end
 end

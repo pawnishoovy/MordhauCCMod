@@ -85,8 +85,8 @@ function HorseAIBehaviours.handleHealth(self)
 
 	local healthTimerReady = self.healthUpdateTimer:IsPastSimMS(750);
 	local wasLightlyInjured = self.Health < (self.oldHealth - 5);
-	local wasInjured = self.Health < (self.oldHealth - 25);
-	local wasHeavilyInjured = self.Health < (self.oldHealth - 50);
+	local wasInjured = self.Health < (self.oldHealth - 20);
+	local wasHeavilyInjured = self.Health < (self.oldHealth - 40);
 
 	if (healthTimerReady or wasLightlyInjured or wasInjured or wasHeavilyInjured) then
 	
@@ -188,11 +188,17 @@ function HorseAIBehaviours.handleSuppression(self)
 				local chance = math.random(0, 100);
 				if self.Suppression > 99 then
 					-- keep playing voicelines if we keep being suppressed
-						HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.neighScared, 6, 4);
+					HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.neighScared, 6, 4);
+					if self.rider and math.random(0, 100) < 50 then
+						self.rider:SetNumberValue("Horse Response", 1)
+					end	
 					self.suppressedVoicelineTimer:Reset();
 					self.suppressionUpdates = 0;
 				elseif self.Suppression > 55 then
 					HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntScared, 5, 4);
+					if self.rider and math.random(0, 100) < 50 then
+						self.rider:SetNumberValue("Horse Response", 6)
+					end	
 					self.suppressedVoicelineTimer:Reset();
 					self.suppressionUpdates = 0;
 				end
@@ -200,11 +206,28 @@ function HorseAIBehaviours.handleSuppression(self)
 					if self.Suppression > 55 then
 						if self.Health < 20 and math.random(0, 100) < 20 then
 							HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.neighAggressive, 5, 4);
+							if self.rider and math.random(0, 100) < 50 then
+								self.rider:SetNumberValue("Horse Response", 1)
+							end	
 						else
 							HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntAggressive, 5, 4);
+							if self.rider then
+								if math.random(0, 100) < 30 then
+									self.rider:SetNumberValue("Horse Response", 6)
+								elseif math.random(0, 100) < 60 then
+									self.rider:SetNumberValue("Horse Response", 1)
+								end
+							end
 						end
 					else
 						HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntAggressive, 5, 4);
+						if self.rider then
+							if math.random(0, 100) < 30 then
+								self.rider:SetNumberValue("Horse Response", 6)
+							elseif math.random(0, 100) < 60 then
+								self.rider:SetNumberValue("Horse Response", 1)
+							end
+						end
 					end
 					self.suppressedVoicelineTimer:Reset();
 				end

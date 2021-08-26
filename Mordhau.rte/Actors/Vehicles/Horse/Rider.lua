@@ -38,6 +38,11 @@ function Update(self)
 								self.AIMode = 1
 								self:SetControllerMode(2 , self:GetController().Player)
 								
+								if math.random(0, 100) < 70 then
+									actor:SetNumberValue("Horse Response", 5);
+									actor:SetNumberValue("Ignore Horse Timer", 0);
+								end
+								
 								local riderHandler = CreateAttachable("Rider Handler", "Mordhau.rte");
 								actor:AddAttachable(riderHandler);
 								riderHandler:SetNumberValue("Horse ID", self.UniqueID);
@@ -66,6 +71,9 @@ function Update(self)
 			self.rider:SetControllerMode(2 , self.rider:GetController().Player)	
 			self.rider.HUDVisible = true
 			self.rider:RemoveNumberValue("Mordhau Disable Movement");
+			if math.random(0, 100) < 50 then
+				self.rider:SetNumberValue("Horse Response", 2)
+			end
 			
 			if self.rider.BGLeg then
 				self.rider.BGLeg.Scale = 1;
