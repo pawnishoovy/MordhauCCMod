@@ -183,14 +183,12 @@ function Update(self)
 		self:GibThis();
 	end
 	if UInputMan:KeyPressed(14) then
-		if self.head then
-			self.head:GibThis();
-		end
+		self:AddWound(CreateAEmitter("Wound Flesh Body Entry Knight"), Vector(0, 0), true)
+		self.Health = self.Health - 20;
 	end
 	if UInputMan:KeyPressed(15) then
-		if self.head then
-			ToAttachable(self.head):RemoveFromParent(true, true);
-		end
+		self:AddWound(CreateAEmitter("Wound Flesh Body Entry Knight"), Vector(0, 0), true)
+		self.Health = self.Health - 55;
 	end
 		
 	-- Death

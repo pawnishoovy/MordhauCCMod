@@ -616,6 +616,29 @@ end
 
 function MusketeerAIBehaviours.handleVoicelines(self)
 
+	if self:NumberValueExists("Horse Response") then
+		-- 1: control
+		-- 2: death
+		-- 3: decelerate
+		-- 4: initiate
+		-- 5: mount
+		-- 6: soothe
+		if not self.horseResponseTimerReset == true then
+			self.horseResponseTimerReset = true;
+			self.horseResponseTimer:Reset();
+		end
+		if self.horseResponseTimer:IsPastSimMS(self.horseResponseDelay) then
+			MusketeerAIBehaviours.createVoiceSoundEffect(self, self.horseResponseTable[self:GetNumberValue("Horse Response")], 4, 3);
+			self:RemoveNumberValue("Horse Response");
+			self.horseResponseTimerReset = false;
+		elseif self:NumberValueExists("Ignore Horse Timer") then
+			MusketeerAIBehaviours.createVoiceSoundEffect(self, self.horseResponseTable[self:GetNumberValue("Horse Response")], 4, 3);
+			self:RemoveNumberValue("Horse Response");
+			self:RemoveNumberValue("Ignore Horse Timer");
+			self.horseResponseTimerReset = false;
+		end
+	end
+
 	if self:NumberValueExists("Death By Fire") then
 		self:RemoveNumberValue("Death By Fire");
 		MusketeerAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Scream, 16, 5);
