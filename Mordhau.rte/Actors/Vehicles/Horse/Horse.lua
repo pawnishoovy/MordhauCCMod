@@ -442,16 +442,8 @@ function Update(self)
 						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07
 						if self.walkAnimationAcc > 1 then
 							self.walkAnimationAcc = self.walkAnimationAcc - 1
-							self.hoofStep1Played = false;
-							self.hoofStep2Played = false;
-							self.hoofStep3Played = false;
-							self.hoofStep4Played = false;
 						elseif self.walkAnimationAcc < -1 then
 							self.walkAnimationAcc = self.walkAnimationAcc + 1
-							self.hoofStep1Played = false;
-							self.hoofStep2Played = false;
-							self.hoofStep3Played = false;
-							self.hoofStep4Played = false;
 						end
 						
 						-- Leg rotation
