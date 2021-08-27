@@ -66,7 +66,7 @@ function Create(self)
 	
 	self.legStepData = {false, false, false, false}
 	
-	self.runCyclePathAnimation = {
+	self.walkCyclePathAnimation = {
 		{0, 7},
 		{8, 7},
 		{11, 10},
@@ -74,16 +74,65 @@ function Create(self)
 		{-4, 12},
 		{-11, 11}
 	}
-	-- wtf, real shit
-	local longest = -1 -- Find the longest
-	for i, vec in ipairs(self.runCyclePathAnimation) do
-		longest = math.max(longest, Vector(vec[1], vec[2]).Magnitude)
+	self.walkCycleOffsetPerLeg = 0.5
+	self.walkCycleOffsetPerSet = 0.25
+	
+	self.trotCyclePathAnimation = {
+		{0, 7},
+		{8, 7},
+		{11, 10},
+		{6, 12},
+		{-4, 12},
+		{-11, 11}
+	}
+	self.trotCycleOffsetPerLeg = 0.5
+	self.trotCycleOffsetPerSet = 0.75
+	
+	self.canterCyclePathAnimation = {
+		{0, 7},
+		{8, 7},
+		{11, 10},
+		{6, 12},
+		{-4, 12},
+		{-11, 11}
+	}
+	self.canterCycleOffsetPerLeg = 0.3
+	self.canterCycleOffsetPerSet = 0.95 -- Little to no offset
+	
+	self.gallopCyclePathAnimation = {
+		{0, 7},
+		{8, 7},
+		{11, 10},
+		{6, 12},
+		{-4, 12},
+		{-11, 11}
+	}
+	self.gallopCycleOffsetPerLeg = 0.1
+	self.gallopCycleOffsetPerSet = 1.2
+	
+	
+	local pathAnimationsToNormalize = {self.walkCyclePathAnimation, self.trotCyclePathAnimation, self.canterCyclePathAnimation, self.gallopCyclePathAnimation}
+	
+	for i, animation in ipairs(pathAnimationsToNormalize) do
+		-- wtf, real shit
+		local longest = -1 -- Find the longest
+		for i, vec in ipairs(animation) do
+			longest = math.max(longest, Vector(vec[1], vec[2]).Magnitude)
+		end
+		for i = 1, #animation do -- Normalize them!
+			local vec = Vector(animation[i][1], animation[i][2])
+			vec = vec:SetMagnitude(vec.Magnitude / longest * ((self.legFrontShinLength + self.legFrontThighLength + self.legBackShinLength + self.legBackThighLength) * 0.5))
+			animation[i] = {vec.X, vec.Y}
+		end
 	end
-	for i = 1, #self.runCyclePathAnimation do -- Normalize them!
-		local vec = Vector(self.runCyclePathAnimation[i][1], self.runCyclePathAnimation[i][2])
-		vec = vec:SetMagnitude(vec.Magnitude / longest * ((self.legFrontShinLength + self.legFrontThighLength + self.legBackShinLength + self.legBackThighLength) * 0.5))
-		self.runCyclePathAnimation[i] = {vec.X, vec.Y}
-	end
+	
+	self.pathAnimations = {
+		{self.walkCyclePathAnimation, self.walkCycleOffsetPerLeg, self.walkCycleOffsetPerSet}, -- Idle
+		{self.walkCyclePathAnimation, self.walkCycleOffsetPerLeg, self.walkCycleOffsetPerSet}, -- Walk
+		{self.trotCyclePathAnimation, self.trotCycleOffsetPerLeg, self.trotCycleOffsetPerSet}, -- Trot
+		{self.canterCyclePathAnimation, self.canterCycleOffsetPerLeg, self.canterCycleOffsetPerSet}, -- Canter
+		{self.gallopCyclePathAnimation, self.gallopCycleOffsetPerLeg, self.gallopCycleOffsetPerSet} -- Gallop
+	}
 	
 	self.torsoPointBoundaryMagnitudeMax = 13
 	self.torsoPointBoundaryMagnitudeMin = 10
@@ -94,6 +143,8 @@ function Create(self)
 	
 	self.walkAnimationAcc = 0
 	
+	self.averageVel = Vector(0, 0)
+	
 	self.death = false
 	self.deathStagger = 0
 	self.deathCrippleLeg = 0
@@ -101,6 +152,17 @@ function Create(self)
 	self.movementInput = 0
 	self.movementTargetVel = 4
 	self.movementAcceleration = 1.5
+	
+	self.movementState = 0
+	self.movementStates = {
+		{name = "Idle", velocityMax = 0, accel = 1.5, target = 4, timeMax = 0, speed = 1},
+		{name = "Walk", velocityMax = 3, accel = 1.5, target = 4, timeMax = 1500, speed = 1},
+		{name = "Trot", velocityMax = 7, accel = 0.75, target = 8, timeMax = 1000, speed = 0.85},
+		{name = "Canter", velocityMax = 12, accel = 0.5, target = 14, timeMax = 1250, speed = 0.65},
+		{name = "Gallop", velocityMax = math.huge, accel = 0.1, target = 30, timeMax = math.huge, speed = 0.575} -- Impossible to go any furhter, that's why maximum velocity and time spent in the state are infinite :D
+	}
+	
+	self.movementStateTimer = Timer() -- Fucking gear change deal, horsegine
 	
 	self.healthUpdateTimer = Timer();
 	self.oldHealth = self.Health;
@@ -233,6 +295,18 @@ function Update(self)
 	
 	local legMOs = {{{nil,nil,nil}, {nil,nil,nil}}  ,  {{nil,nil,nil}, {nil,nil,nil}}}
 	
+	local value = self.RotAngle
+	local ret = (value + math.pi) % (math.pi * 2);
+	if ret < 0 then ret = ret + (math.pi * 2) end
+	local angleD = ret - math.pi;
+	
+	-- DEBUG
+	
+	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -36), self.movementStates[self.movementState + 1].name, false, 1);
+	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -26), tostring(math.floor(math.abs(self.averageVel.X))), false, 1);
+	
+	
+	self.averageVel = Vector(0, 0)
 	for i, point in ipairs(self.torsoPoints) do
 		if point then
 			local mo = MovableMan:FindObjectByUniqueID(point)
@@ -334,9 +408,13 @@ function Update(self)
 						end
 						
 						-- Animation system
-						local animationOffset = (leg - 1) * 0.5 + 0.25 * (i - 1)
+						--- !!!
+						local animationData = self.pathAnimations[self.movementState + 1]
+						
+						local animationOffset = (leg - 1) * animationData[2] + animationData[3] * (i - 1) --(leg - 1) * 0.5 + 0.25 * (i - 1)
 						local animationFactor = (self.walkAnimationAcc + animationOffset) % 1
-						local animationVector = getPathAnimationVector(self.runCyclePathAnimation, animationFactor)
+						local animationVector = getPathAnimationVector(animationData[1], animationFactor)
+						--- !!!
 						
 						--local sound = CreateSoundContainer("Pre Catapult");
 						--sound.Volume = 0.7		
@@ -375,8 +453,11 @@ function Update(self)
 						
 						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4 * self.FlipFactor, 0) or Vector(0, 1))
 						
+						local animationVectorFixed = Vector(animationVector.X * self.FlipFactor * 0.75, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
+						animationVectorFixed = Vector(animationVectorFixed.X * (1.0 + self.movementState * 0.1), animationVectorFixed.Y)
+						
 						local rayOrigin = mo.Pos + Vector(2 * (leg - 1.5) * 2.0, 5)--:RadRotate(mo.RotAngle)
-						local rayVector = offset + Vector(0, self.legLength) + Vector(animationVector.X * 0.75, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
+						local rayVector = offset + Vector(0, self.legLength) + animationVectorFixed
 						
 						local terrCheck = SceneMan:CastStrengthRay(rayOrigin, rayVector, 15, Vector(), 0, 0, SceneMan.SceneWrapsX);
 						
@@ -397,13 +478,16 @@ function Update(self)
 							
 							local factor = (1 - dif.Magnitude / rayVector.Magnitude)
 							
-							local strength = 0.5
+							local strength = 0.5 + self.movementState * 0.025
 							
+							-- Movement
 							if self.movementInput == 0 then
 								mo.Vel = Vector(mo.Vel.X / (1 + TimerMan.DeltaTimeSecs * 2), mo.Vel.Y)
 							else
-								local target = self.movementInput * self.movementTargetVel
-								local speed = self.movementAcceleration
+								local stateData = self.movementStates[self.movementState + 1]
+								
+								local target = self.movementInput * stateData.target --self.movementTargetVel
+								local speed = stateData.accel --self.movementAcceleration
 								mo.Vel = Vector((mo.Vel.X + target * TimerMan.DeltaTimeSecs * speed) / (1 + TimerMan.DeltaTimeSecs * speed), mo.Vel.Y)
 							end
 							
@@ -420,6 +504,15 @@ function Update(self)
 							--mo.Vel = Vector(mo.Vel.X, math.min(mo.Vel.Y, 0))
 							--mo.Vel = mo.Vel:RadRotate(rayVector.AbsRadAngle)
 							--mo.Pos = mo.Pos + Vector(0, (1 - dif.Magnitude / rayVector.Magnitude) * -5 * TimerMan.DeltaTimeSecs)
+						end
+						
+						if math.abs(angleD) < math.rad(25) and length > rayVector.Magnitude - 5 then
+							legThigh:EraseFromTerrain()
+							legShin:EraseFromTerrain()
+							--legHoof:EraseFromTerrain()
+							
+							--PrimitiveMan:DrawCirclePrimitive(legThigh.Pos, legThigh.Radius, 5);
+							--PrimitiveMan:DrawCirclePrimitive(legShin.Pos, legShin.Radius, 5);
 						end
 						
 						if legHoof and toPlay == true then
@@ -439,7 +532,7 @@ function Update(self)
 							end
 						end
 						
-						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07
+						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07 * self.movementStates[self.movementState + 1].speed * self.FlipFactor
 						if self.walkAnimationAcc > 1 then
 							self.walkAnimationAcc = self.walkAnimationAcc - 1
 						elseif self.walkAnimationAcc < -1 then
@@ -486,13 +579,26 @@ function Update(self)
 				local dif = SceneMan:ShortestDistance(self.Pos, mo.Pos, SceneMan.SceneWrapsX)
 				pointVectors[i] = dif
 				
-				self.effectiveVel = mo.Vel;
-				
+				--self.effectiveVel = mo.Vel;
+				self.averageVel = self.averageVel + mo.Vel
 				-- Debug
 				--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + dif, 5);
 				--PrimitiveMan:DrawCirclePrimitive(mo.Pos, mo.Radius, 5);
 			end
 		end
+	end
+	
+	self.averageVel = self.averageVel * 0.5
+	
+	if self.movementInput ~= 0 then
+		local stateData = self.movementStates[self.movementState + 1]
+		if math.abs(self.averageVel.X) > stateData.velocityMax and self.movementStateTimer:IsPastSimMS(stateData.timeMax) then
+			self.movementState = math.min(self.movementState + 1, #self.movementStates - 1)
+			self.movementStateTimer:Reset()
+		end
+	else
+		self.movementState = 0
+		self.movementStateTimer:Reset()
 	end
 	
 	-- Adjust torso according to the simulation point's positions
@@ -506,8 +612,8 @@ function Update(self)
 	self.creakSound.Pos = self.Pos;
 	if self.Moving then
 		if true then -- TODO!! different ranges and behaviour for the 4 gaits
-			if self.effectiveVel.Magnitude > 0 then
-				self.jingleSound.Volume = math.max(0, math.min(0.2, self.effectiveVel.Magnitude / 4 - 0.8))
+			if self.averageVel.Magnitude > 0 then
+				self.jingleSound.Volume = math.max(0, math.min(0.2, self.averageVel.Magnitude / 4 - 0.8))
 			end
 		end
 	else

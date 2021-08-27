@@ -142,7 +142,7 @@ function Update(self)
 
 		self.mountingSound.Pos = self.Pos;		
 		
-		self.rider.Vel = self.effectiveVel;
+		self.rider.Vel = self.averageVel;
 		local value = 1 * TimerMan.DeltaTimeSecs;
 		self.relativeMountMagnitude = self.relativeMountMagnitude - value;
 		local mountPos = Vector(self.relativeMountPos.X, self.relativeMountPos.Y):SetMagnitude(self.relativeMountPos.Magnitude * self.relativeMountMagnitude)
@@ -217,7 +217,7 @@ function Update(self)
 		
 		--Set rider pos and vel so it moves with the turret
 		
-		self.rider.Vel = self.effectiveVel;
+		self.rider.Vel = self.averageVel;
 		self.rider.Pos = self.Pos + Vector(0*self.FlipFactor,-10):RadRotate(self.RotAngle)					
 		self.rider.HFlipped = self.HFlipped;				
 
