@@ -288,6 +288,10 @@ function Update(self)
 				if self:IsReloading() then
 					self.chargeFactorPresistant = 0
 					if self.reloadPhase == 0 then
+						if self.Locked == true then
+							self.reloadPhase = 2;
+							self.reloadTimer:Reset();
+						end
 						self.reloadDelay = self.baseChargePrepareDelay;
 						self.afterDelay = self.baseChargeAfterDelay;			
 						self.prepareSound = nil;
@@ -348,6 +352,10 @@ function Update(self)
 									if self.ammoLoaded == "Nothing" then
 										self.ammoLoaded = "Catapult Large Rock";
 									end
+									if self:StringValueExists("Switch Ammo") and self.ammoLoaded ~= self:GetStringValue("Switch Ammo") then
+										self.ammoLoaded = self:GetStringValue("Switch Ammo");
+										self:RemoveStringValue("Switch Ammo");
+									end
 									local payload = CreateAttachable(self.ammoLoaded, "Mordhau.rte");
 									
 									local parent = ToACrab(self:GetRootParent())
@@ -392,10 +400,9 @@ function Update(self)
 					end
 				else
 					
-					if self:StringValueExists("Switch Ammo") then
+					if self:StringValueExists("Switch Ammo") and self.ammoLoaded ~= self:GetStringValue("Switch Ammo") then
 						self.ammoLoaded = self:GetStringValue("Switch Ammo");
 						self:RemoveStringValue("Switch Ammo");
-						self.rockOnSound:Play(self.Pos);
 						
 						local parent = ToACrab(self:GetRootParent())
 						local spoon
@@ -409,6 +416,16 @@ function Update(self)
 						for payload in spoon.Attachables do
 							payload.ToDelete = true;
 						end
+						
+						if self.ammoLoaded ~= "Nothing" and self.Loaded == true and not self:IsReloading() then
+							self.Magazine.RoundCount = 0;
+							self:Reload();
+							self.Locked = true;
+							self.Loaded = false;
+						elseif self.ammoLoaded == "Nothing" then
+							self.rockOnSound:Play(self.Pos);
+						end
+						
 					end
 					
 					self.reloadTimer:Reset();
@@ -418,8 +435,9 @@ function Update(self)
 					if self.Loaded == true then
 						if reloadHeld then
 							if self.chargeFactor < 1 then
-								if not self.chargeSound:IsBeingPlayed() then
+								if not self.chargeSound:IsBeingPlayed() or self.chargeSoundFading == true then
 									self.chargeSoundPlaying = true;
+									self.chargeSoundFading = false;
 									self.chargeSound:Play(self.Pos);
 								end
 								local value = self.chargeFactor * TimerMan.DeltaTimeSecs * 0.3 + (0.05 * TimerMan.DeltaTimeSecs);
@@ -427,12 +445,14 @@ function Update(self)
 							elseif self.chargeFactor > 1 and self.fullyCharged ~= true then
 								self.chargeFullSound:Play(self.Pos);
 								self.chargeSound:FadeOut(100);
+								self.chargeSoundFading = true;
 								self.chargeFactor = 1;
 								self.fullyCharged = true;
 							end
 						elseif self.chargeSoundPlaying == true then
 							self.chargeSoundPlaying = false;
 							self.chargeSound:FadeOut(100);
+							self.chargeSoundFading = true;
 						end
 								
 															
@@ -489,6 +509,12 @@ function Update(self)
 						for payload in spoon.Attachables do
 							spoon:RemoveAttachable(payload, true, false)
 						end
+						
+						if shot == "Catapult FlameBarrel" then
+							self:RemoveNumberValue("Bought Flame Barrel");
+							self.ammoLoaded = "Catapult Large Rock";
+						end
+						
 					end
 					
 					if self.boarder then
