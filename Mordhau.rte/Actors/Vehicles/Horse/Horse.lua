@@ -86,7 +86,7 @@ function Create(self)
 		{-11, 11}
 	}
 	self.trotCycleOffsetPerLeg = 0.5
-	self.trotCycleOffsetPerSet = 0.75
+	self.trotCycleOffsetPerSet = 0.5
 	
 	self.canterCyclePathAnimation = {
 		{0, 7},
@@ -209,6 +209,20 @@ function Create(self)
 			[180] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
 			[181] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte"),
 			[182] = CreateSoundContainer("Horse HoofStep Stone", "Mordhau.rte")},
+	CanterMix = {[12] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[164] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[177] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[9] = CreateSoundContainer("Horse CanterMix Dirt", "Mordhau.rte"),
+			[10] = CreateSoundContainer("Horse CanterMix Dirt", "Mordhau.rte"),
+			[11] = CreateSoundContainer("Horse CanterMix Dirt", "Mordhau.rte"),
+			[128] = CreateSoundContainer("Horse CanterMix Dirt", "Mordhau.rte"),
+			[6] = CreateSoundContainer("Horse CanterMix Sand", "Mordhau.rte"),
+			[8] = CreateSoundContainer("Horse CanterMix Sand", "Mordhau.rte"),
+			[178] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[179] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[180] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[181] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte"),
+			[182] = CreateSoundContainer("Horse CanterMix Stone", "Mordhau.rte")}
 	};
 	
 	self.voiceSounds = {
@@ -305,7 +319,7 @@ function Update(self)
 	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -36), self.movementStates[self.movementState + 1].name, false, 1);
 	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -26), tostring(math.floor(math.abs(self.averageVel.X))), false, 1);
 	
-	
+	local lastAverageVel = self.averageVel
 	self.averageVel = Vector(0, 0)
 	for i, point in ipairs(self.torsoPoints) do
 		if point then
@@ -409,9 +423,21 @@ function Update(self)
 						
 						-- Animation system
 						--- !!!
-						local animationData = self.pathAnimations[self.movementState + 1]
+						local animationStateDataLast = self.movementStates[math.max(self.movementState, 1)]
+						local animationStateData = self.movementStates[self.movementState + 1]
+						local animationStateDataNext = self.movementStates[math.min(self.movementState + 2, #self.movementStates)]
 						
-						local animationOffset = (leg - 1) * animationData[2] + animationData[3] * (i - 1) --(leg - 1) * 0.5 + 0.25 * (i - 1)
+						local animationFadeFactor = (self.movementState == 0 and 0 or ((self.movementStateTimer.ElapsedSimTimeMS / animationStateData.timeMax) * math.max(math.abs(lastAverageVel.X) - animationStateDataLast.velocityMax, 0) / animationStateData.velocityMax))
+						animationFadeFactor = math.min(animationFadeFactor, 1)
+						animationFadeFactor = animationFadeFactor * animationFadeFactor * animationFadeFactor * animationFadeFactor
+						PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -75), tostring(math.floor(animationFadeFactor * 100) * 0.01), false, 1);
+						local animationData = self.pathAnimations[self.movementState + 1]
+						local animationDataNext = self.pathAnimations[math.min(self.movementState + 2, #self.movementStates)]
+						
+						local offsetPerLeg = animationData[2]-- * (1 - animationFadeFactor) + animationDataNext[2] * animationFadeFactor
+						local offsetPerSet = animationData[3]-- * (1 - animationFadeFactor) + animationDataNext[2] * animationFadeFactor
+						
+						local animationOffset = (leg - 1) * offsetPerLeg + offsetPerSet * (i - 1)
 						local animationFactor = (self.walkAnimationAcc + animationOffset) % 1
 						local animationVector = getPathAnimationVector(animationData[1], animationFactor)
 						--- !!!
@@ -444,17 +470,20 @@ function Update(self)
 						dif = math.abs(ret);
 						
 						local toPlay = false
-						if self.legStepData[index] == false and dif < 0.06 then
-							self.legStepData[index] = true
-							toPlay = true
-						elseif self.legStepData[index] == true and dif > 0.12 then
-							self.legStepData[index] = false
-						end
+						
+						--if self.movementState < 3 or (leg == 1 and i == 1) then
+							if self.legStepData[index] == false and dif < 0.06 then
+								self.legStepData[index] = true
+								toPlay = true
+							elseif self.legStepData[index] == true and dif > 0.12 then
+								self.legStepData[index] = false
+							end
+						--end
 						
 						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4 * self.FlipFactor, 0) or Vector(0, 1))
 						
 						local animationVectorFixed = Vector(animationVector.X * self.FlipFactor * 0.75, (animationVector.Y * 3 - 35) * 0.65) * math.min(math.abs(mo.Vel.X / 2), 1)
-						animationVectorFixed = Vector(animationVectorFixed.X * (1.0 + self.movementState * 0.1), animationVectorFixed.Y)
+						animationVectorFixed = Vector(animationVectorFixed.X * (1.0 + (self.movementState + animationFadeFactor) * 0.1), animationVectorFixed.Y)
 						
 						local rayOrigin = mo.Pos + Vector(2 * (leg - 1.5) * 2.0, 5)--:RadRotate(mo.RotAngle)
 						local rayVector = offset + Vector(0, self.legLength) + animationVectorFixed
@@ -484,10 +513,8 @@ function Update(self)
 							if self.movementInput == 0 then
 								mo.Vel = Vector(mo.Vel.X / (1 + TimerMan.DeltaTimeSecs * 2), mo.Vel.Y)
 							else
-								local stateData = self.movementStates[self.movementState + 1]
-								
-								local target = self.movementInput * stateData.target --self.movementTargetVel
-								local speed = stateData.accel --self.movementAcceleration
+								local target = self.movementInput * animationStateData.target --self.movementTargetVel
+								local speed = animationStateData.accel --self.movementAcceleration
 								mo.Vel = Vector((mo.Vel.X + target * TimerMan.DeltaTimeSecs * speed) / (1 + TimerMan.DeltaTimeSecs * speed), mo.Vel.Y)
 							end
 							
@@ -518,21 +545,37 @@ function Update(self)
 						if legHoof and toPlay == true then
 							local pos = Vector(0, 0);
 							SceneMan:CastObstacleRay(legHoof.Pos, Vector(0, 8), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
-							PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
+							--PrimitiveMan:DrawLinePrimitive(legHoof.Pos, legHoof.Pos + Vector(0, 8), 5);
 							local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 							
 							if terrPixel ~= 0 then -- 0 = air
-								if self.terrainSounds.HoofStep[terrPixel] ~= nil then
-									self.terrainSounds.HoofStep[terrPixel].Volume = 0.5;
-									self.terrainSounds.HoofStep[terrPixel]:Play(self.Pos);
-								else -- default to concrete
-									self.terrainSounds.HoofStep[177].Volume = 0.5;
-									self.terrainSounds.HoofStep[177]:Play(self.Pos);
+								
+								if self.movementState < 3 or not (leg == 1 and i == 1) then -- Regular
+									local volume = (self.movementState < 3 and 0.5 or (self.movementState < 4 and 0.35 or 0.2))
+									if self.terrainSounds.HoofStep[terrPixel] ~= nil then
+										self.terrainSounds.HoofStep[terrPixel].Volume = volume;
+										self.terrainSounds.HoofStep[terrPixel]:Play(self.Pos);
+									else -- default to concrete
+										self.terrainSounds.HoofStep[177].Volume = volume;
+										self.terrainSounds.HoofStep[177]:Play(self.Pos);
+									end
+								elseif (leg == 1 and i == 1) then -- PAWNIS YO HI :), PUT COOL STUFF HERE PLEASE
+									local volume = (self.movementState < 4 and 1 or 1.3)
+									if self.terrainSounds.CanterMix[terrPixel] ~= nil then
+										self.terrainSounds.CanterMix[terrPixel].Volume = volume;
+										self.terrainSounds.CanterMix[terrPixel]:Play(self.Pos);
+									else -- default to concrete
+										self.terrainSounds.CanterMix[177].Volume = volume;
+										self.terrainSounds.CanterMix[177]:Play(self.Pos);
+									end
 								end
 							end
 						end
 						
-						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07 * self.movementStates[self.movementState + 1].speed * self.FlipFactor
+						local speed = animationStateData.speed * (1 - animationFadeFactor) + animationStateDataNext.speed * animationFadeFactor
+						PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -90), tostring(math.floor(speed * 100) * 0.01), false, 1);
+						
+						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07 * speed * self.FlipFactor
 						if self.walkAnimationAcc > 1 then
 							self.walkAnimationAcc = self.walkAnimationAcc - 1
 						elseif self.walkAnimationAcc < -1 then
