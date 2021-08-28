@@ -2260,7 +2260,7 @@ function Update(self)
 						self.blockedSound:Play(self.Pos);
 					end					
 					
-					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 2)); -- TODO: MAKE SURE THAT DIVIDER NUMBER SYNCS UP WITH INTENDED HORSE SPEED 
+					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 18));
 					local woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
 					
 					-- Hurt the actor, add extra damage

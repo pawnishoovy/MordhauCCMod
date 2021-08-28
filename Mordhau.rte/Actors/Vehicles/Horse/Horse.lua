@@ -49,6 +49,7 @@ function AddTorsoPoint(self, pos)
 end
 
 function Create(self)
+
 	self.torsoPoints = {}
 	for i = 1, 2 do
 		local pos = self.Pos + Vector(11 * (i - 1.5) * 2, 0)
@@ -156,18 +157,22 @@ function Create(self)
 	self.movementState = 0
 	self.movementStates = {
 		{name = "Idle", velocityMax = 0, accel = 1.5, target = 4, timeMax = 0, speed = 1},
-		{name = "Walk", velocityMax = 3, accel = 1.5, target = 4, timeMax = 1500, speed = 1},
+		{name = "Walk", velocityMax = 2, accel = 1.5, target = 4, timeMax = 1500, speed = 1},
 		{name = "Trot", velocityMax = 7, accel = 0.75, target = 8, timeMax = 1000, speed = 0.85},
-		{name = "Canter", velocityMax = 12, accel = 0.5, target = 14, timeMax = 1250, speed = 0.65},
+		{name = "Canter", velocityMax = 14, accel = 0.27, target = 16, timeMax = 2500, speed = 0.65},
 		{name = "Gallop", velocityMax = math.huge, accel = 0.1, target = 30, timeMax = math.huge, speed = 0.575} -- Impossible to go any furhter, that's why maximum velocity and time spent in the state are infinite :D
 	}
 	
 	self.movementStateTimer = Timer() -- Fucking gear change deal, horsegine
-	
+
 	self.healthUpdateTimer = Timer();
 	self.oldHealth = self.Health;
 	
 	self.headWounds = 0;
+	
+	self.Stamina = 100;
+	self.currentBreath = 1; -- 0 == out 1 == in	
+	self.staminaUpdateTimer = Timer();
 	
 	self.Suppression = 0;
 	self.Suppressed = false;	
@@ -242,6 +247,8 @@ function Create(self)
 	};	
 	
 	self.voiceSound = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte");
+	self.breathOutSound = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte");
+	self.breathInSound = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte");
 	-- MEANINGLESS! this is just so we can do voiceSound.Pos without an if check first! it will be overwritten first actual VO play
 	
 end
@@ -297,6 +304,7 @@ function Update(self)
 			--self.hoofStep3Played = false;
 			--self.hoofStep4Played = false;
 			self.legStepData = {false, false, false, false}
+			self.currentBreath = 1;
 		end
 		self.movingRight = false;
 		self.movingLeft = false;
@@ -316,8 +324,8 @@ function Update(self)
 	
 	-- DEBUG
 	
-	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -36), self.movementStates[self.movementState + 1].name, false, 1);
-	PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -26), tostring(math.floor(math.abs(self.averageVel.X))), false, 1);
+	--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -36), self.movementStates[self.movementState + 1].name, false, 1);
+	--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -26), tostring(math.floor(math.abs(self.averageVel.X))), false, 1);
 	
 	local lastAverageVel = self.averageVel
 	self.averageVel = Vector(0, 0)
@@ -430,7 +438,7 @@ function Update(self)
 						local animationFadeFactor = (self.movementState == 0 and 0 or ((self.movementStateTimer.ElapsedSimTimeMS / animationStateData.timeMax) * math.max(math.abs(lastAverageVel.X) - animationStateDataLast.velocityMax, 0) / animationStateData.velocityMax))
 						animationFadeFactor = math.min(animationFadeFactor, 1)
 						animationFadeFactor = animationFadeFactor * animationFadeFactor * animationFadeFactor * animationFadeFactor
-						PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -75), tostring(math.floor(animationFadeFactor * 100) * 0.01), false, 1);
+						--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -75), tostring(math.floor(animationFadeFactor * 100) * 0.01), false, 1);
 						local animationData = self.pathAnimations[self.movementState + 1]
 						local animationDataNext = self.pathAnimations[math.min(self.movementState + 2, #self.movementStates)]
 						
@@ -468,17 +476,31 @@ function Update(self)
 						local ret = (value) % 1;
 						if ret < 0 then ret = ret + 1 end
 						dif = math.abs(ret);
-						
+										
+						local breath
 						local toPlay = false
 						
-						--if self.movementState < 3 or (leg == 1 and i == 1) then
+						if self.movementState < 3 or (leg == 1 and i == 1) then
 							if self.legStepData[index] == false and dif < 0.06 then
 								self.legStepData[index] = true
 								toPlay = true
 							elseif self.legStepData[index] == true and dif > 0.12 then
 								self.legStepData[index] = false
 							end
-						--end
+						elseif self.movementState > 2 then
+							if self.legStepData[index] == false and dif < 0.06 then
+								self.legStepData[index] = true
+								toPlay = true
+							elseif self.legStepData[index] == true and dif > 0.12 then
+								self.legStepData[index] = false
+							end
+							if self.legStepData[1] == true then
+								HorseAIBehaviours.createBreath(self, 1, 0)
+							elseif self.legStepData[4] == true then
+								HorseAIBehaviours.createBreath(self, 1, 1)
+							end
+							
+						end
 						
 						local offset = (((self.HFlipped and i == 2) or (not self.HFlipped and i == 1)) and Vector(-4 * self.FlipFactor, 0) or Vector(0, 1))
 						
@@ -550,8 +572,9 @@ function Update(self)
 							
 							if terrPixel ~= 0 then -- 0 = air
 								
-								if self.movementState < 3 or not (leg == 1 and i == 1) then -- Regular
-									local volume = (self.movementState < 3 and 0.5 or (self.movementState < 4 and 0.35 or 0.2))
+								if (self.movementState < 3 or self.movementState == 4) then -- Regular
+									local volume = self.movementState == 4 and 0.5 or (self.movementState < 3 and 0.5 or (self.movementState < 4 and 0.5 or 0.2))
+									volume = volume * (math.random(9, 10) / 10)
 									if self.terrainSounds.HoofStep[terrPixel] ~= nil then
 										self.terrainSounds.HoofStep[terrPixel].Volume = volume;
 										self.terrainSounds.HoofStep[terrPixel]:Play(self.Pos);
@@ -560,7 +583,12 @@ function Update(self)
 										self.terrainSounds.HoofStep[177]:Play(self.Pos);
 									end
 								elseif (leg == 1 and i == 1) then -- PAWNIS YO HI :), PUT COOL STUFF HERE PLEASE
-									local volume = (self.movementState < 4 and 1 or 1.3)
+									-- check directly below us
+									local pos = Vector(0, 0);
+									SceneMan:CastObstacleRay(self.Pos, Vector(0, 26), pos, Vector(0, 0), self.ID, self.Team, 0, 3);
+									--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + Vector(0, 26), 5);
+									local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
+									local volume = (self.movementState < 4 and 1 or 0.8)
 									if self.terrainSounds.CanterMix[terrPixel] ~= nil then
 										self.terrainSounds.CanterMix[terrPixel].Volume = volume;
 										self.terrainSounds.CanterMix[terrPixel]:Play(self.Pos);
@@ -573,7 +601,7 @@ function Update(self)
 						end
 						
 						local speed = animationStateData.speed * (1 - animationFadeFactor) + animationStateDataNext.speed * animationFadeFactor
-						PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -90), tostring(math.floor(speed * 100) * 0.01), false, 1);
+						--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -90), tostring(math.floor(speed * 100) * 0.01), false, 1);
 						
 						self.walkAnimationAcc = self.walkAnimationAcc + mo.Vel.X * TimerMan.DeltaTimeSecs * 0.07 * speed * self.FlipFactor
 						if self.walkAnimationAcc > 1 then
@@ -639,7 +667,21 @@ function Update(self)
 			self.movementState = math.min(self.movementState + 1, #self.movementStates - 1)
 			self.movementStateTimer:Reset()
 		end
+		if self.rider then
+			if self.movementState > 3 and self.riderAlertedAboutSpeed ~= true then
+				self.riderAlertedAboutSpeed = true
+				if math.random(0, 100) < 50 then
+					self.rider:SetNumberValue("Horse Response", 4)
+				end
+			end
+		end
 	else
+		if self.rider and self.riderAlertedAboutSpeed == true then
+			self.riderAlertedAboutSpeed = false;
+			if math.random(0, 100) < 50 then
+				self.rider:SetNumberValue("Horse Response", 3)
+			end
+		end
 		self.movementState = 0
 		self.movementStateTimer:Reset()
 	end
@@ -651,13 +693,22 @@ function Update(self)
 	local center = pointPositions[1] + SceneMan:ShortestDistance(pointPositions[1], pointPositions[2], SceneMan.SceneWrapsX) * 0.5
 	self.Pos = center
 	
+	--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -100), tostring(self.averageVel.Magnitude), false, 1);
+	
 	self.jingleSound.Pos = self.Pos;
 	self.creakSound.Pos = self.Pos;
 	if self.Moving then
-		if true then -- TODO!! different ranges and behaviour for the 4 gaits
-			if self.averageVel.Magnitude > 0 then
-				self.jingleSound.Volume = math.max(0, math.min(0.2, self.averageVel.Magnitude / 4 - 0.8))
-			end
+		local animationStateData = self.movementStates[self.movementState + 1]
+		if self.movementState == 4 then
+			self.jingleSound.Volume = 1;
+			self.creakSound.Volume = math.max(0, math.min(0.2, self.averageVel.Magnitude / 30 - 0.6)) -- 30 because actual velocity max is math.huge
+		elseif self.movementState == 3 then
+			self.jingleSound.Volume = math.max(0, math.min(0.4, self.averageVel.Magnitude / animationStateData.velocityMax))
+			self.creakSound.Volume = math.max(0, math.min(0, self.averageVel.Magnitude / animationStateData.velocityMax - 0.8))
+		elseif self.movementState == 2 then
+			self.jingleSound.Volume = math.max(0, math.min(0.2, self.averageVel.Magnitude / animationStateData.velocityMax - 0.6))
+		elseif self.movementState == 1 then
+			self.jingleSound.Volume = math.max(0, math.min(0, self.averageVel.Magnitude / animationStateData.velocityMax - 0.8))
 		end
 	else
 		if self.jingleSound.Volume > 0 then
@@ -851,6 +902,8 @@ function Update(self)
 	end
 	
 	self.voiceSound.Pos = self.Pos;
+	self.breathOutSound.Pos = self.Pos;
+	self.breathInSound.Pos = self.Pos;
 	
 	if self.Status < Actor.DYING then
 		
@@ -858,7 +911,7 @@ function Update(self)
 		
 		HorseAIBehaviours.handleHealth(self);
 		
-		HorseAIBehaviours.handleSuppression(self);
+		HorseAIBehaviours.handleStaminaAndSuppression(self);
 		
 		HorseAIBehaviours.handleVoicelines(self);
 		
@@ -903,7 +956,9 @@ function Destroy(self)
 	end
 	
 	if not self.ToSettle then -- we have been gibbed
-		self.voiceSound:Stop(-1);		
+		self.voiceSound:Stop(-1);
+		self.breathOutSound:Stop(-1);
+		self.breathInSound:Stop(-1);
 	end	
 	
 	self.jingleSound:Stop(-1);	

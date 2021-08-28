@@ -2066,7 +2066,7 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
@@ -2136,7 +2136,7 @@ function Update(self)
 					local minimumRange = damageRange* self.sweetSpotThreshold;
 					
 					local woundsToAdd;
-					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 2)); -- TODO: MAKE SURE THAT DIVIDER NUMBER SYNCS UP WITH INTENDED HORSE SPEED 
+					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 18));
 					
 					if hitRange.Magnitude > minimumRange then
 						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))

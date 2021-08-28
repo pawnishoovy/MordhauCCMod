@@ -14,6 +14,8 @@ function Update(self)
 		if actor and IsAHuman(actor) then
 			self.parent = ToAHuman(actor);
 			self.parentSet = true;
+			self.originalStableVel = self.parent:GetStableVelocityThreshold();
+			self.parent:SetStableVelocityThreshold(60, 60);
 			if self.parent.BGLeg then
 				self.parent.BGLeg.Scale = 0;
 				if self.parent.BGFoot then
@@ -29,6 +31,7 @@ function Update(self)
 
 		if not self.ToDelete then
 			if self.horseParent:IsDead() then
+				self.parent:SetStableVelocityThreshold(self.originalStableVel);
 				if self.parent.BGLeg then
 					self.parent.BGLeg.Scale = 1;
 					if self.parent.BGFoot then
@@ -38,6 +41,7 @@ function Update(self)
 				self.ToDelete = true;
 				self.parent:RemoveNumberValue("Mordhau Disable Movement");
 			elseif self.horseParent == nil then
+				self.parent:SetStableVelocityThreshold(self.originalStableVel);
 				if self.parent.BGLeg then
 					self.parent.BGLeg.Scale = 1;
 					if self.parent.BGFoot then
@@ -56,6 +60,7 @@ end
 function Destroy(self)
 
 	if self.parent then
+		self.parent:SetStableVelocityThreshold(self.originalStableVel);
 		if self.parent.BGLeg then
 			self.parent.BGLeg.Scale = 1;
 			if self.parent.BGFoot then

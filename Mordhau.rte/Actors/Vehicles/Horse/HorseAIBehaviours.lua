@@ -33,6 +33,9 @@ function HorseAIBehaviours.createEmotion(self, emotion, priority, duration, canO
 end
 
 function HorseAIBehaviours.createVoiceSoundEffect(self, soundContainer, priority, emotion, canOverridePriority)
+
+	self.lastVoiceBreath = false;
+
 	if canOverridePriority == nil then
 		canOverridePriority = false;
 	end
@@ -71,6 +74,61 @@ function HorseAIBehaviours.createVoiceSoundEffect(self, soundContainer, priority
 			self.voiceSound = soundContainer;
 			soundContainer:Play(self.Pos)
 			self.lastPriority = priority;
+			return true;
+		end
+	end
+end
+
+function HorseAIBehaviours.createBreath(self, fastSlow, inOut)
+	
+	if self.head and fastSlow then
+		if self.voiceSound then
+			if self.voiceSound:IsBeingPlayed() and self.lastVoiceBreath == false  then
+				return false;
+			else
+				self.lastVoiceBreath = true;
+				local soundContainer
+				if ((not inOut) and self.currentBreath == 1) or (inOut == 0 and self.currentBreath == 1) then
+					if math.random(0, 100) > 97 then
+						soundContainer = fastSlow == 1 and self.voiceSounds.snortFast or self.voiceSounds.snortSlow
+						self.lastVoiceBreath = true;
+					else
+						soundContainer = fastSlow == 1 and self.voiceSounds.breathOutFast or self.voiceSounds.breathOutSlow
+					end
+					self.breathInSound:FadeOut(50)
+					self.breathOutSound = soundContainer;
+					soundContainer:Play(self.Pos)
+					self.currentBreath = 0;
+				elseif ((not inOut) and self.currentBreath == 0) or (inOut == 1 and self.currentBreath == 0) then
+					soundContainer = fastSlow == 1 and self.voiceSounds.breathInFast or self.voiceSounds.breathInSlow
+					self.breathOutSound:FadeOut(50)
+					self.breathInSound = soundContainer;
+					soundContainer:Play(self.Pos)
+					self.currentBreath = 1;
+				end
+				return true;
+			end
+		else
+			self.lastVoiceBreath = true;
+			local soundContainer
+			if ((not inOut) and self.currentBreath == 1) or (inOut == 0 and self.currentBreath == 1) then
+				if math.random(0, 100) > 97 then
+					soundContainer = fastSlow == 1 and self.voiceSounds.snortFast or self.voiceSounds.snortFast
+					self.lastVoiceBreath = true;
+				else
+					soundContainer = fastSlow == 1 and self.voiceSounds.breathOutFast or self.voiceSounds.breathOutSlow
+				end
+				self.breathInSound:FadeOut(50)
+				self.breathOutSound = soundContainer;
+				soundContainer:Play(self.Pos)
+				self.currentBreath = 0;
+			elseif ((not inOut) and self.currentBreath == 0) or (inOut == 1 and self.currentBreath == 0) then
+				soundContainer = fastSlow == 1 and self.voiceSounds.breathInFast or self.voiceSounds.breathInSlow
+				self.breathOutSound:FadeOut(50)
+				self.breathInSound = soundContainer;
+				soundContainer:Play(self.Pos)
+				self.currentBreath = 1;
+			end
 			return true;
 		end
 	end
@@ -168,9 +226,10 @@ function HorseAIBehaviours.handleHealth(self)
 	
 end
 
-function HorseAIBehaviours.handleSuppression(self)
+function HorseAIBehaviours.handleStaminaAndSuppression(self)
 
 	-- local blinkTimerReady = self.blinkTimer:IsPastSimMS(self.blinkDelay);
+	local staminaTimerReady = self.staminaUpdateTimer:IsPastSimMS(1000);
 	local suppressionTimerReady = self.suppressionUpdateTimer:IsPastSimMS(1500);
 	
 	-- if (blinkTimerReady) and (not self.Suppressed) and self.head then
@@ -180,6 +239,44 @@ function HorseAIBehaviours.handleSuppression(self)
 			-- self.blinkDelay = math.random(5000, 11000);
 		-- end
 	-- end	
+	
+	local barValue = self.Stamina
+	local barValueMax = 100
+	local barOffset = Vector(0, 17)
+	local barLength = 10
+	-- Stamina
+	for i = 0, 1 do
+		-- Bar Background
+		PrimitiveMan:DrawLinePrimitive(self.Pos + barOffset + Vector(-barLength, i), self.Pos + barOffset + Vector(barLength, i), 26);
+		-- Bar Foreground
+		local fac = math.max(math.min(barValue / barValueMax, 1), 0)
+		PrimitiveMan:DrawLinePrimitive(self.Pos + barOffset + Vector(-barLength, i), self.Pos + barOffset + Vector(-barLength + (barLength * 2 * fac), i), 116);
+	end
+	
+	if (staminaTimerReady) then
+	
+		self.Stamina = math.max(self.Stamina, 0)
+		if self.movementState < 3 then
+			if self.Stamina < 20 then
+				if math.random(0, 100) < 20 then
+					HorseAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntAggressive, 5, 4);
+					if self.rider and math.random(0, 100) < 50 then
+						self.rider:SetNumberValue("Horse Response", 6)
+					end	
+				else
+					HorseAIBehaviours.createBreath(self, 0);
+				end
+				self.Stamina = self.Stamina + 5;
+			elseif self.Stamina < 100 then
+				HorseAIBehaviours.createBreath(self, 0);
+				self.Stamina = self.Stamina + 4;
+			end
+		else
+			self.Stamina = self.Stamina - 5;
+		end
+		self.Stamina = math.min(self.Stamina, 100)
+		self.staminaUpdateTimer:Reset();
+	end
 	
 	if (suppressionTimerReady) then
 		if self.Suppression > 25 then
