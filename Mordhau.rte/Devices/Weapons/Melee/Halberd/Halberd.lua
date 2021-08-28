@@ -2136,7 +2136,7 @@ function Update(self)
 					local minimumRange = damageRange* self.sweetSpotThreshold;
 					
 					local woundsToAdd;
-					local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 18));
+					local speedMult = math.max(1, self.Vel.Magnitude / 18);
 					
 					if hitRange.Magnitude > minimumRange then
 						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))

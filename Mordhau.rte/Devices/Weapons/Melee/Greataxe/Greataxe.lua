@@ -3383,7 +3383,7 @@ function Update(self)
 							self.blockedSound:Play(self.Pos);
 						end					
 						
-						local speedMult = math.max(1, math.min(self.Vel.Magnitude / 3, 18));
+						local speedMult = math.max(1, self.Vel.Magnitude / 18);
 						local woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
 						
 						-- Hurt the actor, add extra damage
