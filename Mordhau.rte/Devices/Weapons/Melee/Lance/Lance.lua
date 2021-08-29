@@ -58,7 +58,7 @@ function Create(self)
 	
 	self.stance = Vector(0, 0)
 	self.stanceInterpolation = 0 -- 0 instant, 1 smooth
-	self.stanceInterpolationSpeed = 25
+	self.stanceInterpolationSpeed = 50
 end
 
 function Update(self)
@@ -91,21 +91,22 @@ function Update(self)
 			if self.hitMOTableResetTimer:IsPastSimMS(1000) then
 				self.hitMOTableResetTimer:Reset();
 				self.hitMOTable = {};
+				self.stickMOTable = {};
 			end
-			stanceTarget = Vector(4, 4);			
+			stanceTarget = Vector(0, 8);			
 			rotationTarget = -90 / 180 * math.pi;
 		else
 			self.hitMOTable = {};
+			rotationTarget = 0;	
 			if self.Cooldown then
-				stanceTarget = Vector(-7, 4);
+				stanceTarget = Vector(-6, 6);
 				if self.cooldownTimer:IsPastSimMS(self.cooldownDelay) then
 					self.Cooldown = false;
 				end
 				rotationTarget = -75 / 180 * math.pi;
 			else
 				stanceTarget = Vector(0, 0);
-			end
-			rotationTarget = 0;				
+			end		
 		end
 		
 		self.stance = (self.stance + stanceTarget * TimerMan.DeltaTimeSecs * self.stanceInterpolationSpeed) / (1 + TimerMan.DeltaTimeSecs * self.stanceInterpolationSpeed);
@@ -118,8 +119,21 @@ function Update(self)
 		--self.InheritedRotAngleOffset = self.rotation
 		self.RotAngle = self.RotAngle + self.rotation
 		
+		
 		local jointOffset = Vector(self.JointOffset.X * self.FlipFactor, self.JointOffset.Y):RadRotate(self.RotAngle);
 		self.Pos = self.Pos - jointOffset + Vector(jointOffset.X, jointOffset.Y):RadRotate(-self.rotation);
+		
+		if self.stickMOTable then
+			for index, angle in pairs(self.stickMOTable) do
+			
+				local MO = MovableMan:FindObjectByUniqueID(index);
+				if MovableMan:ValidMO(MO) then
+					MO.Vel = self.Vel;
+					MO.Pos = Vector(self.Pos.X, self.Pos.Y) + Vector(0, -45):RadRotate(self.RotAngle)
+					MO.RotAngle = self.RotAngle + angle
+				end
+			end
+		end
 		
 		-- COLLISION DETECTION
 		
@@ -130,8 +144,8 @@ function Update(self)
 			local hitType = 0
 			local team = 0
 			if actor then team = actor.Team end
-			local rayVec = Vector(0, -25):RadRotate(self.RotAngle)
-			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(0, -25):RadRotate(self.RotAngle)
+			local rayVec = Vector(0, -10):RadRotate(self.RotAngle)
+			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(0, -29):RadRotate(self.RotAngle)
 			
 			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
@@ -145,14 +159,17 @@ function Update(self)
 				
 				local dist = SceneMan:ShortestDistance(self.Pos, rayHitPos, SceneMan.SceneWrapsX)
 				
-				local rightWay = true;
+				local eligible = true;
 				
-				if (self.Vel.X < 0 and dist.X > 0) or (self.Vel.X > 0 and dist.X < 0) then
-					rightWay = false;
+				if (self.Vel.X < 0 and dist.X > 0) or (self.Vel.X > 0 and dist.X < 0) then -- check that we're facing the right way
+					eligible = false;
+				elseif self.Vel.Magnitude - MO.Vel.Magnitude < 6 then -- check that we're going reasonably fast to stab them
+					eligible = false;
 				end
+					
 				
 				
-				if rightWay and ((IsMOSRotating(MO)) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
+				if eligible and ((IsMOSRotating(MO)) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
 				and ToMOSRotating(MO):GetStringValue("Parrying Type") == "Stab")))) then
 					local hitAllowed = true;
@@ -222,7 +239,7 @@ function Update(self)
 						local woundsToAdd;
 						local speedMult = math.max(1, self.Vel.Magnitude / 18);
 						
-						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
+						woundsToAdd = math.floor((damage*speedMult))
 						
 						-- Hurt the actor, add extra damage
 						local actorHit = MovableMan:GetMOFromID(MO.RootID)
@@ -255,45 +272,40 @@ function Update(self)
 							elseif math.random(0, 100) < 30 then
 								self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
 							end
-							if IsAHuman(actorHit) then
-								local actorHuman = ToAHuman(actorHit)
-								local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/1);
-								local torsoLessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/1);
-								if (actorHuman.Head and MO.UniqueID == actorHuman.Head.UniqueID)
-								or (actorHuman.FGArm and MO.UniqueID == actorHuman.FGArm.UniqueID)
-								or (actorHuman.BGArm and MO.UniqueID == actorHuman.BGArm.UniqueID)
-								or (actorHuman.FGLeg and MO.UniqueID == actorHuman.FGLeg.UniqueID)
-								or (actorHuman.BGLeg and MO.UniqueID == actorHuman.BGLeg.UniqueID) then
-									-- if wounds would gib the limb hit, dismember it instead... sometimes gib
-									if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
-										if math.random(0, 100) < 20 then
-											MO:GibThis();
-										else
-											ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
-											MO.Vel = MO.Vel + lessVel
-										end
-										addWounds = false;
+							
+							if IsAttachable(MO) then
+								-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
+								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit and math.random(0, 100) < 90 then
+									ToAttachable(MO):RemoveFromParent(true, true);
+									if math.random(0, 100) < 50 then -- stick
+										self.stickMOTable[MO.UniqueID] = MO.RotAngle - self.RotAngle;
+									else
+										MO.Vel = MO.Vel
 									end
-								elseif actorHuman.UniqueID == MO.UniqueID then -- if we hit torso
-									MO.Vel = MO.Vel + torsoLessVel
-									if MO.WoundCount + woundsToAdd > MO.GibWoundLimit and math.random(0, 100) < 50 then
-										addWounds = false;
-										actorHit.Health = 0;
+									addWounds = false;
+									print("yes")
+								end
+							elseif IsActor(MO) then -- if we hit torso
+								MO.Vel = MO.Vel
+								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit and math.random(0, 100) < 95 then
+									addWounds = false;
+									addSingleWound = true;
+									ToActor(MO).Health = 0;
+									if math.random(0, 100) < 90 then -- stick
+										self.stickMOTable[MO.UniqueID] = MO.RotAngle - self.RotAngle;
 									end
-								elseif (actorHuman.EquippedItem and MO.UniqueID == actorHuman.EquippedItem.UniqueID) then -- if we hit device
-									ToMOSRotating(MO:GetParent()):RemoveAttachable(ToAttachable(MO), true, true);
-									MO.Vel = MO.Vel + torsoLessVel
 								end
 							end
 							
 							if addWounds == true and woundName then
+								print("butadded")
 								MO:SetNumberValue("Mordhau Flinched", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								MO:AddAttachable(flincher)
 								for i = 1, woundsToAdd do
 									MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 								end
-							elseif addSingleWound and woundName then
+							elseif addSingleWound == true and woundName then
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 
