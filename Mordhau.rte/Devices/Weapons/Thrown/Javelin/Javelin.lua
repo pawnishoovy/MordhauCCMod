@@ -211,26 +211,24 @@ function Update(self)
 					
 					local actorHit = stickMO:GetRootParent()
 					if (actorHit and IsActor(actorHit)) then
-				
-						if IsAHuman(actorHit) then
-							local actorHuman = ToAHuman(actorHit)
-							if IsAttachable(stickMO) and actorHuman.Head and stickMO.UniqueID == actorHuman.Head.UniqueID or actorHuman.FGArm and stickMO.UniqueID == actorHuman.FGArm.UniqueID or actorHuman.BGArm and stickMO.UniqueID == actorHuman.BGArm.UniqueID or actorHuman.FGLeg and stickMO.UniqueID == actorHuman.FGLeg.UniqueID or actorHuman.BGLeg and stickMO.UniqueID == actorHuman.BGLeg.UniqueID then
-								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
-								if stickMO.WoundCount + 7 > stickMO.GibWoundLimit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(stickMO), true, true);
-									addWounds = false;
-									stickMO.Vel = self.Vel * 0.5
-									
-									self.flightLoopSound:Stop(-1);
-								elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(stickMO), true, true);
-									addWounds = false;
-									stickMO.Vel = self.Vel * 0.5
-									
-									self.flightLoopSound:Stop(-1);
-								end
+						
+						if IsAttachable(stickMO) then
+							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
+							if stickMO.WoundCount + 7 > stickMO.GibWoundLimit then
+								ToAttachable(stickMO):RemoveFromParent(true, true);
+								addWounds = false;
+								stickMO.Vel = self.Vel * 0.5
+								
+								self.flightLoopSound:Stop(-1);
+							elseif ToActor(actorHit).Health < 10 and math.random(0, 100) < 50 then
+								ToAttachable(stickMO):RemoveFromParent(true, true);
+								addWounds = false;
+								stickMO.Vel = self.Vel * 0.5
+								
+								self.flightLoopSound:Stop(-1);
 							end
-						end
+						end							
+						
 					end
 					
 					if addWounds == true then

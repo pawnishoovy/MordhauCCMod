@@ -2163,21 +2163,15 @@ function Update(self)
 								self.parent:SetNumberValue("Attack Killed", 1); -- celebration!!
 							end
 						end
-						if IsAHuman(actorHit) and self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" then
-							local actorHuman = ToAHuman(actorHit)
-							if (actorHuman.Head and MO.UniqueID == actorHuman.Head.UniqueID)
-							or (actorHuman.FGArm and MO.UniqueID == actorHuman.FGArm.UniqueID)
-							or (actorHuman.BGArm and MO.UniqueID == actorHuman.BGArm.UniqueID)
-							or (actorHuman.FGLeg and MO.UniqueID == actorHuman.FGLeg.UniqueID)
-							or (actorHuman.BGLeg and MO.UniqueID == actorHuman.BGLeg.UniqueID) then
-								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
-								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
-									addWounds = false;
-								elseif actorHuman.Health < 20 and crit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(MO), true, true);
-									addWounds = false;
-								end
+						
+						if self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" and IsAttachable(MO) then
+							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
+							if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
+								ToAttachable(MO):RemoveFromParent(true, true);
+								addWounds = false;
+							elseif ToActor(actorHit).Health < 20 and crit then
+								ToAttachable(MO):RemoveFromParent(true, true);
+								addWounds = false;
 							end
 						end
 						
