@@ -218,7 +218,7 @@ function Update(self)
 								
 					if IsAttachable(MO) then
 						-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
-						if self.stickMO.WoundCount + woundsToAdd > self.stickMO.GibWoundLimit then
+						if self.stickMO.WoundCount + woundsToAdd >= self.stickMO.GibWoundLimit then
 							if math.random(0, 100) < 20 then
 								self.stickMO:GibThis();
 							else

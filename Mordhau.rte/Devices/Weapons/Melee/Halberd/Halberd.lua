@@ -2166,7 +2166,7 @@ function Update(self)
 						
 						if self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" and IsAttachable(MO) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
-							if MO.WoundCount + woundsToAdd > MO.GibWoundLimit then
+							if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit then
 								ToAttachable(MO):RemoveFromParent(true, true);
 								addWounds = false;
 							elseif ToActor(actorHit).Health < 20 and crit then
@@ -2219,6 +2219,7 @@ function Update(self)
 							end
 						end
 					elseif woundName then -- generic wound adding for non-actors
+						print("generic");
 						for i = 1, woundsToAdd do
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end

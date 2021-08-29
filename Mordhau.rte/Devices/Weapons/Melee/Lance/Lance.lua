@@ -275,7 +275,7 @@ function Update(self)
 							
 							if IsAttachable(MO) then
 								-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
-								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit and math.random(0, 100) < 90 then
+								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit and math.random(0, 100) < 90 then
 									ToAttachable(MO):RemoveFromParent(true, true);
 									if math.random(0, 100) < 50 then -- stick
 										self.stickMOTable[MO.UniqueID] = MO.RotAngle - self.RotAngle;
@@ -283,11 +283,10 @@ function Update(self)
 										MO.Vel = MO.Vel
 									end
 									addWounds = false;
-									print("yes")
 								end
 							elseif IsActor(MO) then -- if we hit torso
 								MO.Vel = MO.Vel
-								if MO.WoundCount + woundsToAdd > MO.GibWoundLimit and math.random(0, 100) < 95 then
+								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit and math.random(0, 100) < 95 then
 									addWounds = false;
 									addSingleWound = true;
 									ToActor(MO).Health = 0;
@@ -298,7 +297,6 @@ function Update(self)
 							end
 							
 							if addWounds == true and woundName then
-								print("butadded")
 								MO:SetNumberValue("Mordhau Flinched", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								MO:AddAttachable(flincher)

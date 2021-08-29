@@ -210,11 +210,13 @@ function Update(self)
 					end
 					
 					local actorHit = stickMO:GetRootParent()
+					local damage = math.min(math.max((self.Vel.Magnitude - 6) / 30, 0), 2)
+					
 					if (actorHit and IsActor(actorHit)) then
 						
 						if IsAttachable(stickMO) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
-							if stickMO.WoundCount + 7 > stickMO.GibWoundLimit then
+							if stickMO.WoundCount + damage >= stickMO.GibWoundLimit then
 								ToAttachable(stickMO):RemoveFromParent(true, true);
 								addWounds = false;
 								stickMO.Vel = self.Vel * 0.5

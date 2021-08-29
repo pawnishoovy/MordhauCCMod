@@ -190,7 +190,7 @@ function Update(self)
 						if IsAttachable(self.stickMO) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
 							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
-							if self.stickMO.WoundCount + 4 > self.stickMO.GibWoundLimit then
+							if self.stickMO.WoundCount + 8 >= self.stickMO.GibWoundLimit then
 								ToAttachable(self.stickMO):RemoveFromParent(true, true);
 								addWounds = false;
 								self.stickMO.Vel = self.stickMO.Vel + lessVel
