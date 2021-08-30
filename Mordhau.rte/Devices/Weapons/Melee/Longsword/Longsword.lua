@@ -188,6 +188,8 @@ function Create(self)
 	regularAttackGFX.hitMetalGFX = "Melee Terrain Hard Effect Mordhau"
 	regularAttackGFX.hitDeflectGFX = "Melee Terrain Hard Effect Mordhau"
 	
+	self:SetNumberValue("Attack Types", 4)
+	
 	-- Regular Attack
 	attackPhase = {}
 	attackPhase.Type = "Slash";
@@ -199,10 +201,13 @@ function Create(self)
 	
 	attackPhase[i].canBeBlocked = false
 	attackPhase[i].canDamage = false
-	attackPhase[i].attackDamage = 0
-	attackPhase[i].attackStunChance = 0
-	attackPhase[i].attackRange = 0
-	attackPhase[i].attackPush = 0
+	attackPhase[i].attackDamage = 3.4
+	attackPhase[i].attackStunChance = 0.15
+	attackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	attackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 1 Range", attackPhase[i].furthestReach + attackPhase[i].attackRange)
+	self:SetStringValue("Attack 1 Name", "Swing");
+	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
@@ -448,10 +453,13 @@ function Create(self)
 	
 	horseAttackPhase[i].canBeBlocked = false
 	horseAttackPhase[i].canDamage = false
-	horseAttackPhase[i].attackDamage = 0
-	horseAttackPhase[i].attackStunChance = 0
-	horseAttackPhase[i].attackRange = 0
-	horseAttackPhase[i].attackPush = 0
+	horseAttackPhase[i].attackDamage = 3.4
+	horseAttackPhase[i].attackStunChance = 0.15
+	horseAttackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	horseAttackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 2 Range", horseAttackPhase[i].furthestReach + horseAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 2 Name", "Horse Swing");
+	horseAttackPhase[i].attackPush = 0.8
 	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 90;
 	
@@ -753,10 +761,13 @@ function Create(self)
 	
 	stabattackPhase[i].canBeBlocked = false
 	stabattackPhase[i].canDamage = false
-	stabattackPhase[i].attackDamage = 0
-	stabattackPhase[i].attackStunChance = 0
-	stabattackPhase[i].attackRange = 0
-	stabattackPhase[i].attackPush = 0
+	stabattackPhase[i].attackDamage = 4
+	stabattackPhase[i].attackStunChance = 0.15
+	stabattackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	stabattackPhase[i].attackRange = 22
+	self:SetNumberValue("Attack 3 Range", stabattackPhase[i].furthestReach + stabattackPhase[i].attackRange)
+	self:SetStringValue("Attack 3 Name", "Stab");
+	stabattackPhase[i].attackPush = 0.8
 	stabattackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	stabattackPhase[i].attackAngle = 90;
 	
@@ -949,10 +960,13 @@ function Create(self)
 	
 	overheadattackPhase[i].canBeBlocked = false
 	overheadattackPhase[i].canDamage = false
-	overheadattackPhase[i].attackDamage = 0
-	overheadattackPhase[i].attackStunChance = 0
-	overheadattackPhase[i].attackRange = 0
-	overheadattackPhase[i].attackPush = 0
+	overheadattackPhase[i].attackDamage = 4
+	overheadattackPhase[i].attackStunChance = 0.3
+	overheadattackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	overheadattackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 4 Range", overheadattackPhase[i].furthestReach + overheadattackPhase[i].attackRange)
+	self:SetStringValue("Attack 4 Name", "Overhead");
+	overheadattackPhase[i].attackPush = 1.0
 	overheadattackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
 	overheadattackPhase[i].frameStart = 6
@@ -1720,13 +1734,21 @@ function Update(self)
 			if not stab and not overhead and not flourish and not throw and not warcry then
 				if self.parent:NumberValueExists("Mordhau Disable Movement") then -- we're probably on a horse if this is set... probably...
 					playAttackAnimation(self, 15) -- regular attack
+					self:SetNumberValue("Current Attack Type", 2);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
 				else
 					playAttackAnimation(self, 1) -- regular attack
+					self:SetNumberValue("Current Attack Type", 1);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
 				end
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
+				self:SetNumberValue("Current Attack Type", 3);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
 			elseif overhead then
 				playAttackAnimation(self, 3) -- overhead
+				self:SetNumberValue("Current Attack Type", 4);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
 			elseif warcry then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 5)
@@ -1994,6 +2016,11 @@ function Update(self)
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
 			end		
+			
+			self:SetNumberValue("Blocked", 0);
+			self:SetNumberValue("Current Attack Type", 0);
+			self:SetNumberValue("Current Attack Range", 0);
+			
 			if self.baseRotation < self.originalBaseRotation then
 				self.baseRotation = self.baseRotation + 1;
 			elseif self.baseRotation > self.originalBaseRotation then
@@ -2279,6 +2306,7 @@ function Update(self)
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
+						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") then
 							self.attackBuffered = false;
