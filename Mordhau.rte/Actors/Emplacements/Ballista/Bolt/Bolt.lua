@@ -195,7 +195,7 @@ function Update(self)
 								-- ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
 								-- addWounds = false;
 								-- self.stickMO.Vel = self.stickMO.Vel + lessVel
-							-- elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
+							-- elseif ToActor(actorHit).Health < 10 and math.random(0, 100) < 50 then
 								-- ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
 								-- addWounds = false;
 								-- self.stickMO.Vel = self.stickMO.Vel + lessVel
@@ -215,33 +215,21 @@ function Update(self)
 				local woundsToAdd = 30 / (self.Vel.Magnitude / 120)
 				local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
 				if (actorHit and IsActor(actorHit)) then
-					
-					if IsAHuman(actorHit) then
-						local actorHuman = ToAHuman(actorHit)
-						local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
-						local torsoLessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/10);
-						if (actorHuman.Head and self.stickMO.UniqueID == actorHuman.Head.UniqueID)
-						or (actorHuman.FGArm and self.stickMO.UniqueID == actorHuman.FGArm.UniqueID)
-						or (actorHuman.BGArm and self.stickMO.UniqueID == actorHuman.BGArm.UniqueID)
-						or (actorHuman.FGLeg and self.stickMO.UniqueID == actorHuman.FGLeg.UniqueID)
-						or (actorHuman.BGLeg and self.stickMO.UniqueID == actorHuman.BGLeg.UniqueID) then
-							-- if wounds would gib the limb hit, dismember it instead... sometimes gib
-							if self.stickMO.WoundCount + woundsToAdd > self.stickMO.GibWoundLimit then
-								if math.random(0, 100) < 20 then
-									self.stickMO:GibThis();
-								else
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-									self.stickMO.Vel = self.stickMO.Vel + lessVel
-								end
-								addWounds = false;
+								
+					if IsAttachable(self.stickMO) and self.stickToAttachable(MO):IsAttached() and (IsArm(self.stickMO) or IsLeg(self.stickMO) or (IsAHuman(actorHit) and self.stickMO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
+						-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
+						if self.stickMO.WoundCount + woundsToAdd >= self.stickMO.GibWoundLimit then
+							if math.random(0, 100) < 20 then
+								self.stickMO:GibThis();
+							else
+								ToAttachable(self.stickMO):RemoveFromParent(true, true);
+								self.stickMO.Vel = self.stickMO.Vel + (self.Vel / 5)
 							end
-						elseif actorHuman.UniqueID == self.stickMO.UniqueID then -- if we hit torso
-							self.stickMO.Vel = self.stickMO.Vel + torsoLessVel
-						elseif (actorHuman.EquippedItem and self.stickMO.UniqueID == actorHuman.EquippedItem.UniqueID) then -- if we hit device
-							ToMOSRotating(self.stickMO:GetParent()):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-							self.stickMO.Vel = self.stickMO.Vel + torsoLessVel
 						end
-					end
+					elseif IsActor(MO) then -- if we hit torso
+						self.stickMO.Vel = self.stickMO.Vel + (self.Vel / 10)
+					end						
+						
 				end
 				
 				if addWounds == true then

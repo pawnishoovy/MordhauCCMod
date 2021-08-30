@@ -187,26 +187,20 @@ function Update(self)
 					local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
 					if (actorHit and IsActor(actorHit)) then
 				
-						if IsAHuman(actorHit) then
-							local actorHuman = ToAHuman(actorHit)
-													if (actorHuman.Head and self.stickMO.UniqueID == actorHuman.Head.UniqueID)
-							or (actorHuman.FGArm and self.stickMO.UniqueID == actorHuman.FGArm.UniqueID)
-							or (actorHuman.BGArm and self.stickMO.UniqueID == actorHuman.BGArm.UniqueID)
-							or (actorHuman.FGLeg and self.stickMO.UniqueID == actorHuman.FGLeg.UniqueID)
-							or (actorHuman.BGLeg and self.stickMO.UniqueID == actorHuman.BGLeg.UniqueID) then
-								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
-								local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
-								if self.stickMO.WoundCount + 8 > self.stickMO.GibWoundLimit then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-									addWounds = false;
-									self.stickMO.Vel = self.stickMO.Vel + lessVel
-								elseif actorHuman.Health < 10 and math.random(0, 100) < 50 then
-									ToMOSRotating(actorHuman):RemoveAttachable(ToAttachable(self.stickMO), true, true);
-									addWounds = false;
-									self.stickMO.Vel = self.stickMO.Vel + lessVel
-								end
+						if IsAttachable(self.stickMO) and self.stickToAttachable(MO):IsAttached() and (IsArm(self.stickMO) or IsLeg(self.stickMO) or (IsAHuman(actorHit) and self.stickMO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
+							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
+							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
+							if self.stickMO.WoundCount + 8 >= self.stickMO.GibWoundLimit then
+								ToAttachable(self.stickMO):RemoveFromParent(true, true);
+								addWounds = false;
+								self.stickMO.Vel = self.stickMO.Vel + lessVel
+							elseif ToActor(actorHit).Health < 10 and math.random(0, 100) < 50 then
+								ToAttachable(self.stickMO):RemoveFromParent(true, true);
+								addWounds = false;
+								self.stickMO.Vel = self.stickMO.Vel + lessVel
 							end
 						end
+						
 					end
 					
 					if addWounds == true then
