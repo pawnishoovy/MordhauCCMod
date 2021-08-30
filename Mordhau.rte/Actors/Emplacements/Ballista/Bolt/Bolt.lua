@@ -216,7 +216,7 @@ function Update(self)
 				local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
 				if (actorHit and IsActor(actorHit)) then
 								
-					if IsAttachable(MO) then
+					if IsAttachable(self.stickMO) and self.stickToAttachable(MO):IsAttached() and (IsArm(self.stickMO) or IsLeg(self.stickMO) or (IsAHuman(actorHit) and self.stickMO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 						-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
 						if self.stickMO.WoundCount + woundsToAdd >= self.stickMO.GibWoundLimit then
 							if math.random(0, 100) < 20 then

@@ -187,7 +187,7 @@ function Update(self)
 					local actorHit = MovableMan:GetMOFromID(self.stickMO.RootID)
 					if (actorHit and IsActor(actorHit)) then
 				
-						if IsAttachable(self.stickMO) then
+						if IsAttachable(self.stickMO) and self.stickToAttachable(MO):IsAttached() and (IsArm(self.stickMO) or IsLeg(self.stickMO) or (IsAHuman(actorHit) and self.stickMO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
 							local lessVel = Vector(self.Vel.X, self.Vel.Y):SetMagnitude(self.Vel.Magnitude/5);
 							if self.stickMO.WoundCount + 8 >= self.stickMO.GibWoundLimit then

@@ -3404,7 +3404,7 @@ function Update(self)
 								end
 							end
 							
-							if self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" and IsAttachable(MO) then
+							if self.attackAnimationsTypes[self.currentAttackAnimation] == "Slash" and IsAttachable(MO) and ToAttachable(MO):IsAttached() and (IsArm(MO) or IsLeg(MO) or (IsAHuman(actorHit) and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 								-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp and crit
 								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit then
 									ToAttachable(MO):RemoveFromParent(true, true);

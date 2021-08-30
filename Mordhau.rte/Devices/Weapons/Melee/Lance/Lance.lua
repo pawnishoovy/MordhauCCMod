@@ -89,6 +89,7 @@ function Update(self)
 		
 		if self.Vel.Magnitude > 10 and self.Cooldown == false then		
 			if self.hitMOTableResetTimer:IsPastSimMS(1000) then
+				--print("RESET 1")
 				self.hitMOTableResetTimer:Reset();
 				self.hitMOTable = {};
 				self.stickMOTable = {};
@@ -96,11 +97,15 @@ function Update(self)
 			stanceTarget = Vector(0, 8);			
 			rotationTarget = -90 / 180 * math.pi;
 		else
+			--print(self.Cooldown)
+			--print(self.Vel.Magnitude)
+			--print("RESET 2")
 			self.hitMOTable = {};
 			rotationTarget = 0;	
-			if self.Cooldown then
+			if self.Cooldown == true then
 				stanceTarget = Vector(-6, 6);
 				if self.cooldownTimer:IsPastSimMS(self.cooldownDelay) then
+					--print("TIMER PAST")
 					self.Cooldown = false;
 				end
 				rotationTarget = -75 / 180 * math.pi;
@@ -138,7 +143,7 @@ function Update(self)
 		-- COLLISION DETECTION
 		
 		--self.attackAnimationsSounds[1]
-		if math.abs(self.rotation) > 1.5 then -- Detect collision
+		if math.abs(self.rotation) > 1.5 and self.Cooldown == false then -- Detect collision
 			--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + attackOffset,  13);
 			local hit = false
 			local hitType = 0
@@ -172,19 +177,36 @@ function Update(self)
 				if eligible and ((IsMOSRotating(MO)) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
 				and ToMOSRotating(MO):GetStringValue("Parrying Type") == "Stab")))) then
+					--print("HIT BEGIN")
 					local hitAllowed = true;
 					if self.hitMOTable then -- this shouldn't be needed but it is
+						--print("CHECKING")
 						for index, root in pairs(self.hitMOTable) do
+							--print(MO)
+							--print(MO.UniqueID)
+							--print(MO:GetRootParent())
+							--print(MO:GetRootParent().UniqueID)
 							if root == MO:GetRootParent().UniqueID or index == MO.UniqueID then
 								hitAllowed = false;
 							end
 						end
+						--print("CHECK END")
 					end
 					if hitAllowed == true then
-						self.hitMOTable[MO.UniqueID] = MO:GetRootParent().UniqueID;
-						self.hitMOTableResetTimer:Reset();
 						hit = true
 						MO = ToMOSRotating(MO)
+						self.hitMOTable[MO.UniqueID] = MO:GetRootParent().UniqueID;
+						--print("HIT THE FOLLOWING")
+						--print(MO)
+						--print(MO.UniqueID)
+						--print(MO:GetRootParent())
+						--print(MO:GetRootParent().UniqueID)
+						--print("TABLE NOW CONTAINS")
+						for index, root in pairs(self.hitMOTable) do
+							--print(index)
+							--print(root)
+						end
+						self.hitMOTableResetTimer:Reset();
 						local woundName = MO:GetEntryWoundPresetName()
 						local woundNameExit = MO:GetExitWoundPresetName()
 						local woundOffset = (rayHitPos - MO.Pos):RadRotate(MO.RotAngle * -1.0)
@@ -220,6 +242,11 @@ function Update(self)
 						end
 						
 						if MO:IsDevice() and math.random(1,3) >= 2 then
+							if math.random(0, 100) > 50 then
+								self.Cooldown = true;
+								--print("RANDOM DEVICE SET")
+								self.cooldownTimer:Reset();
+							end
 							if self.attackAnimationsGFX.hitDeflectGFX then
 								local effect = CreateMOSRotating(self.attackAnimationsGFX.hitDeflectGFX);
 								if effect then
@@ -231,6 +258,9 @@ function Update(self)
 						end
 						
 						if MO:IsInGroup("Shields") then
+							--print("SHIELD")
+							self.Cooldown = true;
+							self.cooldownTimer:Reset();
 							self.blockedSound:Play(self.Pos);
 						end	
 						
@@ -249,17 +279,21 @@ function Update(self)
 							
 							if self.Vel.Magnitude < 18 then
 								if math.random(0, 100) > 10 then
+									--print("RANDOM ACTOR SET")
 									self.Cooldown = true;
+									--print(self.cooldownTimer.ElapsedSimTimeMS)
 									self.cooldownTimer:Reset();
+									--print(self.cooldownTimer.ElapsedSimTimeMS)
 								end
 							else
 								if math.random(0, 100) > 50 then
+									--print("RANDOM ACTOR SET FAST")
 									self.Cooldown = true;
 									self.cooldownTimer:Reset();
 								end
 							end
 							
-							--print(actorHit.Material.StructuralIntegrity)
+							----print(actorHit.Material.StructuralIntegrity)
 							--actor.Health = actor.Health - 8 * damageMulti;
 							
 							local addWounds = true;
@@ -273,7 +307,7 @@ function Update(self)
 								self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
 							end
 							
-							if IsAttachable(MO) then
+							if IsAttachable(MO) and ToAttachable(MO):IsAttached() and (IsArm(MO) or IsLeg(MO) or (IsAHuman(actorHit) and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 								-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
 								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit and math.random(0, 100) < 90 then
 									ToAttachable(MO):RemoveFromParent(true, true);
@@ -312,14 +346,17 @@ function Update(self)
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 						end
+						--print("HIT END")
+						--print(self.Cooldown)
 					end
 				elseif (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
-					self.Cooldown = true;
-					self.cooldownTimer:Reset();
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
 					and (MO:GetStringValue("Parrying Type") == "Stab" or MO:GetStringValue("Parrying Type") == "Flourish")) then
+						--print("MELEE BLOCKED SET")
+						self.Cooldown = true;
+						self.cooldownTimer:Reset();
 						if MO:StringValueExists("Parrying Type") then
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
 							if effect then
@@ -351,6 +388,7 @@ function Update(self)
 			else
 				local terrCheck = SceneMan:CastMaxStrengthRay(rayOrigin, rayOrigin + rayVec, 2); -- Raycast
 				if terrCheck > 5 then
+					--print("TERRCHECK SET")
 					self.Cooldown = true;
 					self.cooldownTimer:Reset();
 					if math.random(0, 100) < 20 then

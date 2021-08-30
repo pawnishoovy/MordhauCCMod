@@ -1,11 +1,11 @@
 function OnDetach(self)
 
-	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Axe/Axe.lua");
+	self:DisableScript("Mordhau.rte/Devices/Weapons/Melee/Lance/Lance.lua");
 	
 end
 
 function OnAttach(self)
 
-	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Axe/Axe.lua");
+	self:EnableScript("Mordhau.rte/Devices/Weapons/Melee/Lance/Lance.lua");
 	
 end

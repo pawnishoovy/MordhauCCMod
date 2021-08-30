@@ -214,7 +214,7 @@ function Update(self)
 					
 					if (actorHit and IsActor(actorHit)) then
 						
-						if IsAttachable(stickMO) then
+						if IsAttachable(stickMO) and stickToAttachable(MO):IsAttached() and (IsArm(stickMO) or IsLeg(stickMO) or (IsAHuman(actorHit) and stickMO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 							-- two different ways to dismember: 1. if wounds would gib the limb hit, dismember it instead 2. low hp
 							if stickMO.WoundCount + damage >= stickMO.GibWoundLimit then
 								ToAttachable(stickMO):RemoveFromParent(true, true);
