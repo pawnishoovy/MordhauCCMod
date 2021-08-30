@@ -1964,6 +1964,9 @@ function Update(self)
 					if not self.attackBuffered == true then
 						self.attackCooldown = true;
 					end
+					self:SetNumberValue("Blocked", 0);
+					self:SetNumberValue("Current Attack Type", 0);
+					self:SetNumberValue("Current Attack Range", 0);
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
@@ -2016,10 +2019,6 @@ function Update(self)
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
 			end		
-			
-			self:SetNumberValue("Blocked", 0);
-			self:SetNumberValue("Current Attack Type", 0);
-			self:SetNumberValue("Current Attack Range", 0);
 			
 			if self.baseRotation < self.originalBaseRotation then
 				self.baseRotation = self.baseRotation + 1;
