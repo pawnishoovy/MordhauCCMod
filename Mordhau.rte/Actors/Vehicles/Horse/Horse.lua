@@ -159,8 +159,8 @@ function Create(self)
 		{name = "Idle", velocityMax = 0, accel = 1.5, target = 4, timeMax = 0, speed = 1},
 		{name = "Walk", velocityMax = 2, accel = 1.5, target = 4, timeMax = 1500, speed = 1},
 		{name = "Trot", velocityMax = 7, accel = 0.75, target = 8, timeMax = 1000, speed = 0.85},
-		{name = "Canter", velocityMax = 14, accel = 0.27, target = 16, timeMax = 2500, speed = 0.65},
-		{name = "Gallop", velocityMax = math.huge, accel = 0.1, target = 30, timeMax = math.huge, speed = 0.575} -- Impossible to go any furhter, that's why maximum velocity and time spent in the state are infinite :D
+		{name = "Canter", velocityMax = 13, accel = 0.3, target = 16, timeMax = 2000, speed = 0.65},
+		{name = "Gallop", velocityMax = math.huge, accel = 0.15, target = 30, timeMax = math.huge, speed = 0.575} -- Impossible to go any furhter, that's why maximum velocity and time spent in the state are infinite :D
 	}
 	
 	self.movementStateTimer = Timer() -- Fucking gear change deal, horsegine
