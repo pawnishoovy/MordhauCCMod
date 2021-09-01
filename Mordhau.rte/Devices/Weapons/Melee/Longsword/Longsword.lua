@@ -1598,6 +1598,8 @@ function Update(self)
 	if UInputMan:KeyPressed(38) then
 		self:ReloadScripts();
 	end
+	
+	self:RemoveStringValue("Blocked Mordhau")
 
 	local act = self:GetRootParent();
 	local actor = IsAHuman(act) and ToAHuman(act) or nil;
@@ -1632,12 +1634,12 @@ function Update(self)
 	elseif controller then --          :-)
 	
 		-- INPUT
-		local throw
-		local flourish
+		local throw = self:NumberValueExists("AI Throw");
+		local flourish = self:NumberValueExists("AI Flourish");
 		local warcry = self:NumberValueExists("Warcried");
-		local stab
-		local overhead
-		local attack
+		local stab = self:NumberValueExists("AI Stab");
+		local overhead = self:NumberValueExists("AI Overhead");
+		local attack = self:NumberValueExists("AI Attack");
 		local activated
 		if self.parriedCooldown == false then
 			if player then
@@ -1772,6 +1774,11 @@ function Update(self)
 		end
 		
 		self:RemoveNumberValue("Warcried");
+		self:RemoveNumberValue("AI Flourish");
+		self:RemoveNumberValue("AI Throw");
+		self:RemoveNumberValue("AI Stab");
+		self:RemoveNumberValue("AI Overhead");
+		self:RemoveNumberValue("AI Attack");
 		
 		-- ANIMATION PLAYER
 		local stanceTarget = Vector(0, 0)
@@ -1831,25 +1838,32 @@ function Update(self)
 				self.Recovering = true;
 			elseif self.chargeDecided == false then
 				-- block cancelling
+				local keyPress
 				if player then
-					local keyPress = UInputMan:KeyPressed(18);
-					if keyPress then
-						self.Throwing = false;
-						self.wasCharged = false;
-						self.currentAttackAnimation = 0
-						self.currentAttackSequence = 0
-						self.attackAnimationIsPlaying = false			
-						self.parent:SetNumberValue("Block Foley", 1);
+					keyPress = UInputMan:KeyPressed(18);
+				else
+					keyPress = self:NumberValueExists("AI Block");
+				end
+				
+				
+				if keyPress then
+					self.Throwing = false;
+					self.wasCharged = false;
+					self.currentAttackAnimation = 0
+					self.currentAttackSequence = 0
+					self.attackAnimationIsPlaying = false			
+					self.parent:SetNumberValue("Block Foley", 1);
+				
+					self.Blocking = true;
 					
-						self.Blocking = true;
-						
-						self:SetNumberValue("Blocking", 1);
-						
-						stanceTarget = Vector(4, -10);
-						
-						self.originalBaseRotation = -160;
-						self.baseRotation = -145;
-					end
+					self:SetNumberValue("Blocking", 1);
+					
+					self:RemoveNumberValue("Current Attack Type")
+					
+					stanceTarget = Vector(4, -10);
+					
+					self.originalBaseRotation = -160;
+					self.baseRotation = -145;
 				end
 			end
 
@@ -2012,6 +2026,10 @@ function Update(self)
 				self.attackAnimationIsPlaying = false
 				self.Parrying = false;
 				self:RemoveStringValue("Parrying Type");
+				
+				self:SetNumberValue("Blocked", 0);
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
 			end
 			
 		else -- default behaviour, modify it if you wish
@@ -2028,48 +2046,68 @@ function Update(self)
 			
 			rotationTarget = self.baseRotation / 180 * math.pi;
 			
+			local keyPressed
+			local keyReleased
+			local keyHeld
 			if player then
-				local keyPress = UInputMan:KeyPressed(18) or (UInputMan:KeyHeld(18) and self.Blocking == false);
-				if keyPress and not (self.attackAnimationIsPlaying) then
+				local key = UInputMan:KeyHeld(18)
 				
-					self.parent:SetNumberValue("Block Foley", 1);
+				keyPressed = key and not self.Blocking
+				keyReleased = key and self.Blocking
+				keyHeld = key and self.Blocking
+			else
+				keyPressed = self:NumberValueExists("AI Block") and not self.Blocking
+				keyReleased = not self:NumberValueExists("AI Block") and self.Blocking
+				keyHeld = self:NumberValueExists("AI Block") and self.Blocking
+			end
+			
+			
+			if keyPressed and not (self.attackAnimationIsPlaying) then
+			
+				self.parent:SetNumberValue("Block Foley", 1);
+			
+				self.Blocking = true;
 				
-					self.Blocking = true;
-					
-					self:SetNumberValue("Blocking", 1);
-					
-					stanceTarget = Vector(4, -10);
-					
-					self.originalBaseRotation = -160;
-					self.baseRotation = -145;
+				self:SetNumberValue("Blocking", 1);
 				
-				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
+				stanceTarget = Vector(4, -10);
 				
-					self.originalBaseRotation = -160;
+				self.originalBaseRotation = -160;
+				self.baseRotation = -145;
+			
+			elseif keyHeld and not (self.attackAnimationIsPlaying) then
+			
+				self.originalBaseRotation = -160;
+			
+				stanceTarget = Vector(4, -10);
 				
-					stanceTarget = Vector(4, -10);
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
+			
+			elseif keyReleased then
+			
+				self.parent:SetNumberValue("Block Foley", 1);
+			
+				self.Blocking = false;
 				
-				elseif UInputMan:KeyReleased(18) then
+				self:RemoveNumberValue("Blocking");
 				
-					self.parent:SetNumberValue("Block Foley", 1);
+				self.originalBaseRotation = -35;
+				self.baseRotation = -45;
+			
+			else
+			
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
 				
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = -35;
-					self.baseRotation = -45;
+				self.Blocking = false;
 				
-				else
-					
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = -35;
-					self.baseRotation = -45;
-					
-				end
+				self:RemoveNumberValue("Blocking");
+				
+				self.originalBaseRotation = -35;
+				self.baseRotation = -45;
+				
+			end
 --[[			elseif not self.attackAnimationIsPlaying then
 			
 				self.Blocking = true;
@@ -2081,7 +2119,6 @@ function Update(self)
 				self.originalBaseRotation = -160;
 				self.baseRotation = -160;
 				]]
-			end
 				
 			
 			if self:IsAttached() then
@@ -2098,6 +2135,7 @@ function Update(self)
 				if self.parent then
 					self.parent:SetNumberValue("Blocked Mordhau", 1);
 				end
+				self:SetNumberValue("Blocked Mordhau", 1);
 			
 				self.rotationInterpolationSpeed = 50;
 				self.baseRotation = self.baseRotation - (math.random(15, 20) * -1)
@@ -2406,4 +2444,6 @@ function Update(self)
 			end
 		end
 	end
+	
+	self:RemoveNumberValue("AI Block");
 end

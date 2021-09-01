@@ -1,3 +1,7 @@
+function Create(self)
+	self:SetNumberValue("Mordhau Melee", 1)
+end
+
 function OnAttach(self)
 
 	if self.RootID == 255 then -- equipped from inv

@@ -480,11 +480,10 @@ function Update(self)
 
 end
 -- End modded code --
---[[
 function UpdateAI(self)
-	--self.AI:Update(self)
+	self.AI:Update(self)
 
-end]]
+end
 
 function Destroy(self)
 	--self.AI:Destroy(self)
