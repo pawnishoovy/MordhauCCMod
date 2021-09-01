@@ -2044,7 +2044,7 @@ function Update(self)
 					self.baseRotation = -45;
 					
 				end
-			elseif not self.attackAnimationIsPlaying then
+--[[			elseif not self.attackAnimationIsPlaying then
 			
 				self.Blocking = true;
 				
@@ -2054,7 +2054,7 @@ function Update(self)
 				
 				self.originalBaseRotation = -160;
 				self.baseRotation = -160;
-				
+				]]
 			end
 				
 			
