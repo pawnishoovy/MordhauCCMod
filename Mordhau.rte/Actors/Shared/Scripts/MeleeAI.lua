@@ -13,11 +13,10 @@ end
 function Create(self)
 	
 	self.MeleeAI = {}
-	self.MeleeAI.debug = true
+	self.MeleeAI.debug = false
 	
-	--"Mordhau.rte/Actors/Shared/Scripts/MeleeAI.lua"
 	
-	MovableMan:ChangeActorTeam(self, 2)
+	MovableMan:ChangeActorTeam(self, math.random(0,3))
 	
 	-- States:
 	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
@@ -25,9 +24,9 @@ function Create(self)
 	
 	local activity = ActivityMan:GetActivity()
 	if activity then
-		--self.MeleeAI.skill = activity:GetTeamAISkill(self.Team) * 0.01
-		print(self.MeleeAI.skill)
+		self.MeleeAI.skill = activity:GetTeamAISkill(self.Team) * 0.01
 	end
+	
 	
 	self.MeleeAI.movementInputPrevious = 0
 	self.MeleeAI.movementDirectionChangeTimer = Timer()
@@ -51,9 +50,16 @@ function Create(self)
 	
 	self.MeleeAI.lookOffset = 0
 	self.MeleeAI.blocking = false
-	self.MeleeAI.blockingFatigueLevel = 0
-	self.MeleeAI.blockingFatigueLevelRegeneration = (0.1 + 0.5 * self.MeleeAI.skill)
+	self.MeleeAI.blockingDelay = 400 * (0.15 + 0.85 * (1 - self.MeleeAI.skill))
+	self.MeleeAI.blockingDelayTimer = Timer()
+	self.MeleeAI.blockingFatigueLevel = 1
+	self.MeleeAI.blockingFatigueLevelRegeneration = (0.15 + 0.5 * self.MeleeAI.skill)
 	self.MeleeAI.blockingFatigueMode = 0 -- 0 - ready, 1 - blocking, 2 - regenerating
+	
+	self.MeleeAI.attackMissThereshold = 0
+	self.MeleeAI.attackMissTheresholdGain = 15 * (1 - self.MeleeAI.skill)
+	self.MeleeAI.attackMissDelay = 1000
+	self.MeleeAI.attackMissTimer = Timer()
 	
 	self.MeleeAI.tactics = {
 		["Offensive"] = function ()
@@ -126,7 +132,7 @@ function UpdateAI(self)
 			self.MeleeAI.blockingFatigueMode = 1
 		end
 	elseif self.MeleeAI.blockingFatigueMode == 1 then -- Blocking
-		self.MeleeAI.blockingFatigueLevel = math.max(self.MeleeAI.blockingFatigueLevel - TimerMan.DeltaTimeSecs * 1.5, 0)
+		self.MeleeAI.blockingFatigueLevel = math.max(self.MeleeAI.blockingFatigueLevel - TimerMan.DeltaTimeSecs * 1.0, 0)
 		if not self.MeleeAI.blocking or self.MeleeAI.attacking then
 			self.MeleeAI.blockingFatigueMode = 0
 		elseif self.MeleeAI.blockingFatigueLevel < 0.05 then
@@ -155,14 +161,25 @@ function UpdateAI(self)
 		local hudBarColorBG = 83
 		local hudBarColorOutline = 2
 		
+		local hudBarOffset = Vector(1, 1)
+		
 		local pos = hudUpperPos
 		
 		-- Fatigue
-		local hudBarWidth = 30 * self.MeleeAI.blockingFatigueLevel
-		local hudBarColor = ((self.MeleeAI.blockingFatigueMode == 0 and 87) or (self.MeleeAI.blockingFatigueMode == 1 and 99 or 47))
-		local hudBarColorBG = 83
+		hudBarWidth = 30 * self.MeleeAI.blockingFatigueLevel
+		hudBarColor = ((self.MeleeAI.blockingFatigueMode == 0 and 87) or (self.MeleeAI.blockingFatigueMode == 1 and 99 or 47))
+		hudBarColorBG = 83
 
-		local hudBarOffset = Vector(2, 2)
+		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5) + hudBarOffset, pos + Vector(hudBarWidthOutline * 0.5, hudBarHeight * 0.5) + hudBarOffset, hudBarColorBG)
+		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5), pos + Vector(hudBarWidthOutline * -0.5 + hudBarWidth, hudBarHeight * 0.5), hudBarColor)
+		PrimitiveMan:DrawBoxPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5), pos + Vector(hudBarWidthOutline * 0.5, hudBarHeight * 0.5), hudBarColorOutline)
+		
+		
+		pos = pos + Vector(0, 5)
+		
+		hudBarWidth = 30 * math.max(self.MeleeAI.attackMissThereshold / 100, 1 - math.min(self.MeleeAI.attackMissTimer.ElapsedSimTimeMS / self.MeleeAI.attackMissDelay, 1))
+		hudBarColor = 213
+		hudBarColorBG = 216
 		
 		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5) + hudBarOffset, pos + Vector(hudBarWidthOutline * 0.5, hudBarHeight * 0.5) + hudBarOffset, hudBarColorBG)
 		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5), pos + Vector(hudBarWidthOutline * -0.5 + hudBarWidth, hudBarHeight * 0.5), hudBarColor)
@@ -264,10 +281,12 @@ function UpdateAI(self)
 					if self.MeleeAI.blockingFatigueMode < 2 and not self.MeleeAI.parrySuccess and ((attacking and attackType and attackRange) and self.FlipFactor ~= target.FlipFactor and difMagnitude < (attackRange + 30)) then
 						-- Block
 						block = true
-						weapon:SetNumberValue("AI Block", 1)
+						if self.MeleeAI.blockingDelayTimer:IsPastSimMS(self.MeleeAI.blockingDelay) then
+							weapon:SetNumberValue("AI Block", 1)
+						end
 						
 						if not self.MeleeAI.blocking then
-							self.MeleeAI.lookOffset = math.rad(50) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
+							self.MeleeAI.lookOffset = math.rad(70) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
 							if attackType == 4 then
 								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(30)
 							end
@@ -285,7 +304,9 @@ function UpdateAI(self)
 							self.MeleeAI.parrySuccess = true
 							self.MeleeAI.parryReady = true
 						end
-					else
+					else -- End of block
+						self.MeleeAI.blockingDelayTimer:Reset()
+						
 						if weapon:NumberValueExists("Blocked Mordhau") and weapon:GetNumberValue("Blocked Mordhau") then
 							weapon:RemoveNumberValue("Blocked Mordhau")
 							self.MeleeAI.distanceOffset = self.MeleeAI.distanceOffset + 20
@@ -293,18 +314,21 @@ function UpdateAI(self)
 						self.MeleeAI.parryReady = true
 						--self.MeleeAI.parrySuccess = false
 						
-						self.MeleeAI.blocking = false
+						if self.MeleeAI.blocking then
+							self.MeleeAI.blocking = false
+							self.MeleeAI.attackMissThereshold = self.MeleeAI.attackMissThereshold + self.MeleeAI.attackMissTheresholdGain * 0.5
+						end
 					end
 					
 					if (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
 						self.MeleeAI.parrySuccess = false
-						
+						weapon:RemoveNumberValue("AI Parry")
 						self.MeleeAI.attacking = true
 					else
 						self.MeleeAI.attacking = false
 						
 						if self.MeleeAI.parryReady then
-							if math.random(0, 100) < self.MeleeAI.parryChance * (self.MeleeAI.skill * self.MeleeAI.skill) then
+							if math.random(0, 100) < (self.MeleeAI.parryChance * (self.MeleeAI.skill * self.MeleeAI.skill)) then
 								weapon:SetNumberValue("AI Parry", 1)
 							end
 							self.MeleeAI.parryReady = false
@@ -318,19 +342,28 @@ function UpdateAI(self)
 					--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -50 - 28), (block and "True" or "False"), false, 1);
 					--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -50 - 42), (not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) and "True" or "False"), false, 1);
 					
-					if weapon and (not block) and not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
-						if dif.Magnitude < (meleeRange + math.random(-5,5) + 10) then
+					if weapon and (not block) and self.MeleeAI.attackMissTimer:IsPastSimMS(self.MeleeAI.attackMissDelay) and not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
+						
+						if math.random(0, 100) < self.MeleeAI.attackMissThereshold then -- Attack miss thereshold handling
+							self.MeleeAI.attackMissThereshold = -self.MeleeAI.attackMissTheresholdGain
+							self.MeleeAI.attackMissTimer:Reset()
+						elseif dif.Magnitude < (meleeRange + math.random(-5,5) + 10) then
 							ctrl:SetState(Controller.WEAPON_FIRE, true)
 							
+							-- Initiate different attacks
 							local attackName = self.MeleeAI.weaponData[self.MeleeAI.weaponAttackData[self.MeleeAI.weaponNextAttackIndex].index].name
-							
 							if attackName and attackName ~= "Swing" then
 								weapon:SetNumberValue("AI "..attackName, 1)
 							end
+							-- Randomize next attack
 							self.MeleeAI.weaponNextAttackIndex = math.floor(RangeRand(1, #self.MeleeAI.weaponAttackData + 1))
-							
+							-- Disable parrying variables
 							self.MeleeAI.parrySuccess = false
 							
+							-- Increase miss thereshold
+							self.MeleeAI.attackMissThereshold = self.MeleeAI.attackMissThereshold + self.MeleeAI.attackMissTheresholdGain
+
+							-- Random chance to reset gimmick timer
 							if math.random() < 0.05 then
 								self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 								self.MeleeAI.randomGimmickTimer:Reset()
@@ -341,11 +374,12 @@ function UpdateAI(self)
 					
 					-- Misc
 					if not attack and not block then
+						-- Gimmick
 						if dif.Magnitude > 60 and self.MeleeAI.randomGimmickTimer:IsPastSimMS(self.MeleeAI.randomGimmickDelay) then
 							self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 							self.MeleeAI.randomGimmickTimer:Reset()
 							
-							if math.random() < 0.1 then
+							if math.random() < 0.2 then
 								weapon:SetNumberValue("AI Flourish", 1)
 							end
 						end
@@ -405,7 +439,7 @@ function UpdateAI(self)
 			
 			-- Look around
 			local sway = math.sin(self.Age * 0.01 + self.UniqueID) * 0.05 + math.sin(self.Age * 0.002 + 2) * 0.1 + math.sin(self.Age * 0.015 - 3 - self.UniqueID) * 0.05 + math.sin(self.Age * 0.005 + 6) * 0.075 * 0.05 + math.sin(self.Age * 0.001 + 15 + self.UniqueID) * 0.3
-			local factor = sway * (1 - self.MeleeAI.skill) + self.MeleeAI.lookOffset * self.FlipFactor
+			local factor = sway * (1 - (self.MeleeAI.skill * self.MeleeAI.skill)) + self.MeleeAI.lookOffset * self.FlipFactor
 			--self:SetAimAngle(math.pi * 0.5 * factor)
 			
 			if IsAHuman(target) and target.Head then
