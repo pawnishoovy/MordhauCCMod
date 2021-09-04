@@ -156,7 +156,7 @@ function Create(self)
 	
 	self.parriedCooldown = false;
 	self.parriedCooldownTimer = Timer();
-	self.parriedCooldownDelay = 1200;
+	self.parriedCooldownDelay = 600;
 	
 	-- Save the sounds inside a table, you can always reuse it for new attacks
 	--regularAttackSounds.hitDefaultSound
@@ -2025,7 +2025,9 @@ function Update(self)
 			if self:NumberValueExists("Mordhau Flinched") or self.parent:NumberValueExists("Mordhau Flinched") then
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
-				self.attackCooldown = true;
+				self.parriedCooldown = true;
+				self.parriedCooldownTimer:Reset();
+				self.parriedCooldownDelay = 300;
 				self.wasCharged = false;
 				self.currentAttackAnimation = 0
 				self.currentAttackSequence = 0
@@ -2392,6 +2394,7 @@ function Update(self)
 						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry Eligible")) then
 							self.parriedCooldown = true;
 							self.parriedCooldownTimer:Reset();
+							self.parriedCooldownDelay = 600;
 							self.attackBuffered = false;
 							self.stabBuffered = false;
 							self.overheadBuffered = false;
