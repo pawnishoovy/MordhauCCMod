@@ -1,5 +1,7 @@
 function OnDetach(self)
 
+	self:RemoveNumberValue("AI Parry")
+
 	if self.wasThrown == true then
 	
 		self.throwWounds = 8;

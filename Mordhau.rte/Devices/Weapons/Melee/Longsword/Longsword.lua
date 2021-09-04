@@ -2155,8 +2155,6 @@ function Update(self)
 				
 				if self.Parrying == true then
 					self.parrySound:Play(self.Pos);
-					
-					ToMOSRotating(MovableMan:FindObjectByUniqueID(self:GetNumberValue("Blocked UniqueID"))):SetNumberValue("Was Parried", 1);
 				end
 				
 			end
@@ -2345,7 +2343,8 @@ function Update(self)
 					MO = ToHeldDevice(MO);
 					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
-						MO:SetNumberValue("Blocked UniqueID", self.UniqueID);
+						self.parriedCooldown = true;
+						self.parriedCooldownTimer:Reset();
 						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") then
@@ -2443,10 +2442,6 @@ function Update(self)
 				end
 				self.attackAnimationCanHit = false
 			end
-		elseif self:NumberValueExists("Was Parried") then
-			self:RemoveNumberValue("Was Parried");
-			self.parriedCooldown = true;
-			self.parriedCooldownTimer:Reset();
 		end
 	end
 	
