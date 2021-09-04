@@ -1634,12 +1634,12 @@ function Update(self)
 	elseif controller then --          :-)
 	
 		-- INPUT
-		local throw = self:NumberValueExists("AI Throw");
-		local flourish = self:NumberValueExists("AI Flourish");
+		local throw
+		local flourish
 		local warcry = self:NumberValueExists("Warcried");
-		local stab = self:NumberValueExists("AI Stab");
-		local overhead = self:NumberValueExists("AI Overhead");
-		local attack = self:NumberValueExists("AI Attack");
+		local stab
+		local overhead
+		local attack
 		local activated
 		if self.parriedCooldown == false then
 			if player then
@@ -1658,6 +1658,11 @@ function Update(self)
 					self.attackCooldown = false;
 				end
 			else
+				throw = self:NumberValueExists("AI Throw");
+				flourish = self:NumberValueExists("AI Flourish");
+				stab = self:NumberValueExists("AI Stab");
+				overhead = self:NumberValueExists("AI Overhead");
+				attack = self:NumberValueExists("AI Attack");
 				if stab or overhead or flourish or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
@@ -1827,7 +1832,6 @@ function Update(self)
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
 				if activated then
-					self.attackCooldown = true;
 					self.wasCharged = true;
 					self.parent:SetNumberValue("Large Attack", 1);
 				else
@@ -1836,7 +1840,7 @@ function Update(self)
 				end
 			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
-			elseif self.chargeDecided == false then
+			elseif self.chargeDecided == false or self.blockedNullifier == false then
 				-- block cancelling
 				local keyPress
 				if player then
@@ -1886,12 +1890,12 @@ function Update(self)
 			
 			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
+			if canDamage == true then
+				self.Attacked = true;
+			end
 			if self.blockedNullifier == false then
 				canDamage = false;
 				canBeBlocked = false;
-			end
-			if canDamage == true then
-				self.Attacked = true;
 			end
 			damage = currentPhase.attackDamage or 0
 			damageVector = currentPhase.attackVector or Vector(0,0)
@@ -1982,6 +1986,7 @@ function Update(self)
 					self:SetNumberValue("Current Attack Type", 0);
 					self:SetNumberValue("Current Attack Range", 0);
 					self:RemoveNumberValue("AI Parry")
+					self:RemoveNumberValue("AI Parry Eligible")
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
@@ -2057,6 +2062,9 @@ function Update(self)
 				keyReleased = key and self.Blocking
 				keyHeld = key and self.Blocking
 			else
+				if self.Parrying then
+					self:RemoveNumberValue("AI Block");
+				end
 				keyPressed = self:NumberValueExists("AI Block") and not self.Blocking
 				keyReleased = not self:NumberValueExists("AI Block") and self.Blocking
 				keyHeld = self:NumberValueExists("AI Block") and self.Blocking
@@ -2129,7 +2137,13 @@ function Update(self)
 			end
 		end
 		
-		if self.Blocking == true or self.Parrying == true or (self:NumberValueExists("AI Parry") and not self.attackAnimationIsPlaying) then
+		if (self:NumberValueExists("AI Parry") and not (self.attackAnimationIsPlaying == true or self.parriedCooldown == true)) then
+			self:SetNumberValue("AI Parry Eligible", 1);
+		else
+			self:RemoveNumberValue("AI Parry Eligible");
+		end
+		
+		if self.Blocking == true or self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 			
 			if self:StringValueExists("Blocked Type") then
 			
@@ -2153,18 +2167,32 @@ function Update(self)
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
 				
-				if self.Parrying == true or self:NumberValueExists("AI Parry") then
+				if self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 					self.parrySound:Play(self.Pos);
 					
-					if self:NumberValueExists("AI Parry") then
-						self:RemoveNumberValue("AI Parry");			
+					if self:NumberValueExists("AI Parry Eligible") then
+						print("eligible triggered");
+						self:RemoveNumberValue("AI Parry Eligible");			
+						self:RemoveNumberValue("AI Parry");	
 						
-						if self:GetNumberValue("Blocked Type") == 1 then
+						self.Parrying = true;
+						
+						if self:GetStringValue("Blocked Type") == "Slash" then
+							print("aye");
 							local toPlay = math.random(0, 100) < 50 and 3 or (self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or 1)
 							playAttackAnimation(self, toPlay);
 						else
+							print("ayestab");
 							playAttackAnimation(self, 2);
 						end
+					
+						self.Blocking = false;
+						self:RemoveNumberValue("Blocking");
+						
+						stanceTarget = Vector(0, 0);
+						
+						self.originalBaseRotation = -35;
+						self.baseRotation = -35;
 						
 					end
 					
@@ -2358,12 +2386,12 @@ function Update(self)
 					MO = ToHeldDevice(MO);
 					if (MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")))
-					or (MO:NumberValueExists("AI Parry")) then
-						self.parriedCooldown = true;
-						self.parriedCooldownTimer:Reset();
+					or (MO:NumberValueExists("AI Parry Eligible")) then
 						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
-						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry")) then
+						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry Eligible")) then
+							self.parriedCooldown = true;
+							self.parriedCooldownTimer:Reset();
 							self.attackBuffered = false;
 							self.stabBuffered = false;
 							self.overheadBuffered = false;
