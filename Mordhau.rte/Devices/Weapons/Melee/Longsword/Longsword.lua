@@ -2128,7 +2128,7 @@ function Update(self)
 			end
 		end
 		
-		if self.Blocking == true or self.Parrying == true then
+		if self.Blocking == true or self.Parrying == true or (self:NumberValueExists("AI Parry") and not self.attackAnimationIsPlaying) then
 			
 			if self:StringValueExists("Blocked Type") then
 			
@@ -2141,7 +2141,6 @@ function Update(self)
 				self.baseRotation = self.baseRotation - (math.random(15, 20) * -1)
 				
 				self.blockSounds[self:GetStringValue("Blocked Type")]:Play(self.Pos);
-				self:RemoveStringValue("Blocked Type");
 				if self:NumberValueExists("Blocked Heavy") then
 				
 					if self.parent then
@@ -2153,9 +2152,24 @@ function Update(self)
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
 				
-				if self.Parrying == true then
+				if self.Parrying == true or self:NumberValueExists("AI Parry") then
 					self.parrySound:Play(self.Pos);
+					
+					if self:NumberValueExists("AI Parry") then
+						self:RemoveNumberValue("AI Parry");			
+						
+						if self:GetNumberValue("Blocked Type") == 1 then
+							local toPlay = math.random(0, 100) < 50 and 3 or (self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or 1)
+							playAttackAnimation(self, toPlay);
+						else
+							playAttackAnimation(self, 2);
+						end
+						
+					end
+					
 				end
+				
+				self:RemoveStringValue("Blocked Type");
 				
 			end
 		end
@@ -2341,13 +2355,14 @@ function Update(self)
 				elseif (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
-					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
-					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
+					if (MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
+					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")))
+					or (MO:NumberValueExists("AI Parry")) then
 						self.parriedCooldown = true;
 						self.parriedCooldownTimer:Reset();
 						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
-						if MO:StringValueExists("Parrying Type") then
+						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry")) then
 							self.attackBuffered = false;
 							self.stabBuffered = false;
 							self.overheadBuffered = false;
