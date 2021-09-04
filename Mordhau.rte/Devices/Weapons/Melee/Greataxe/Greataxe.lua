@@ -202,6 +202,8 @@ function Create(self)
 	regularAttackGFX.hitMetalGFX = "Melee Terrain Hard Effect Mordhau"
 	regularAttackGFX.hitDeflectGFX = "Melee Terrain Hard Effect Mordhau"
 	
+	self:SetNumberValue("Attack Types", 4)
+	
 	-- Double Slash
 	doubleSlashAttackPhase = {}
 	doubleSlashAttackPhase.Type = "Slash";
@@ -215,14 +217,17 @@ function Create(self)
 	doubleSlashAttackPhase[i].canDamage = false
 	doubleSlashAttackPhase[i].attackDamage = 0
 	doubleSlashAttackPhase[i].attackStunChance = 0
-	doubleSlashAttackPhase[i].attackRange = 0
+	doubleSlashAttackPhase[i].furthestReach = 15
+	doubleSlashAttackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 1 Range", doubleSlashAttackPhase[i].furthestReach + doubleSlashAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 1 Name", "Swing");
 	doubleSlashAttackPhase[i].attackPush = 0
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 6
-	doubleSlashAttackPhase[i].angleStart = 0
+	doubleSlashAttackPhase[i].frameStart = 0
+	doubleSlashAttackPhase[i].frameEnd = 0
+	doubleSlashAttackPhase[i].angleStart = 25
 	doubleSlashAttackPhase[i].angleEnd = 45
 	doubleSlashAttackPhase[i].offsetStart = Vector(0, 0)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(-6, -5)
@@ -248,8 +253,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 0;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameStart = 0
+	doubleSlashAttackPhase[i].frameEnd = 0
 	doubleSlashAttackPhase[i].angleStart = 45
 	doubleSlashAttackPhase[i].angleEnd = 45
 	doubleSlashAttackPhase[i].offsetStart = Vector(-6, -5)
@@ -264,7 +269,7 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 160
+	doubleSlashAttackPhase[i].durationMS = 80
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = false
@@ -275,10 +280,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 0;
 	
-	doubleSlashAttackPhase[i].frameStart = 7
-	doubleSlashAttackPhase[i].frameEnd = 11
+	doubleSlashAttackPhase[i].frameStart = 1
+	doubleSlashAttackPhase[i].frameEnd = 3
 	doubleSlashAttackPhase[i].angleStart = 30
-	doubleSlashAttackPhase[i].angleEnd = -50
+	doubleSlashAttackPhase[i].angleEnd = -45
 	doubleSlashAttackPhase[i].offsetStart = Vector(-6, -5)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(7, -2)
 	
@@ -289,7 +294,7 @@ function Create(self)
 	-- Early Attack
 	i = 4
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 50
+	doubleSlashAttackPhase[i].durationMS = 80
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = false
@@ -300,10 +305,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 70;
 	
-	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 11
-	doubleSlashAttackPhase[i].angleStart = -50
-	doubleSlashAttackPhase[i].angleEnd = -90
+	doubleSlashAttackPhase[i].frameStart = 3
+	doubleSlashAttackPhase[i].frameEnd = 5
+	doubleSlashAttackPhase[i].angleStart = -45
+	doubleSlashAttackPhase[i].angleEnd = -100
 	doubleSlashAttackPhase[i].offsetStart = Vector(7, -2)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(7, -2)
 	
@@ -314,7 +319,7 @@ function Create(self)
 	-- Attack
 	i = 5
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 160
+	doubleSlashAttackPhase[i].durationMS = 130
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = true
@@ -325,10 +330,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 16
-	doubleSlashAttackPhase[i].angleStart = -90
-	doubleSlashAttackPhase[i].angleEnd = -100
+	doubleSlashAttackPhase[i].frameStart = 5
+	doubleSlashAttackPhase[i].frameEnd = 11
+	doubleSlashAttackPhase[i].angleStart = -100
+	doubleSlashAttackPhase[i].angleEnd = -90
 	doubleSlashAttackPhase[i].offsetStart = Vector(7 , -2)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(15, -4)
 	
@@ -351,9 +356,9 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 16
-	doubleSlashAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
-	doubleSlashAttackPhase[i].angleStart = -100
+	doubleSlashAttackPhase[i].frameStart = 11
+	doubleSlashAttackPhase[i].frameEnd = (11 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
+	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -40
 	doubleSlashAttackPhase[i].offsetStart = Vector(15, -4)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(8, -4)
@@ -378,8 +383,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 10
+	doubleSlashAttackPhase[i].frameStart = 0
+	doubleSlashAttackPhase[i].frameEnd = 1
 	doubleSlashAttackPhase[i].angleStart = -40
 	doubleSlashAttackPhase[i].angleEnd = 0
 	doubleSlashAttackPhase[i].offsetStart = Vector(8, -4)
@@ -406,8 +411,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 9
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameStart = 1
+	doubleSlashAttackPhase[i].frameEnd = 1
 	doubleSlashAttackPhase[i].angleStart = 0
 	doubleSlashAttackPhase[i].angleEnd = 45
 	doubleSlashAttackPhase[i].offsetStart = Vector(0, 0)
@@ -434,10 +439,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 0;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameStart = 1
+	doubleSlashAttackPhase[i].frameEnd = 0
 	doubleSlashAttackPhase[i].angleStart = 45
-	doubleSlashAttackPhase[i].angleEnd = 45
+	doubleSlashAttackPhase[i].angleEnd = 0
 	doubleSlashAttackPhase[i].offsetStart = Vector(-6, -5)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(-6, -5)
 	
@@ -450,7 +455,7 @@ function Create(self)
 	-- Early Early Attack
 	i = 10
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 160
+	doubleSlashAttackPhase[i].durationMS = 80
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = false
@@ -461,10 +466,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 0;
 	
-	doubleSlashAttackPhase[i].frameStart = 7
-	doubleSlashAttackPhase[i].frameEnd = 11
-	doubleSlashAttackPhase[i].angleStart = 30
-	doubleSlashAttackPhase[i].angleEnd = -50
+	doubleSlashAttackPhase[i].frameStart = 1
+	doubleSlashAttackPhase[i].frameEnd = 3
+	doubleSlashAttackPhase[i].angleStart = 0
+	doubleSlashAttackPhase[i].angleEnd = -45
 	doubleSlashAttackPhase[i].offsetStart = Vector(-6, -5)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(7, -2)
 	
@@ -475,7 +480,7 @@ function Create(self)
 	-- Early Attack
 	i = 11
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 50
+	doubleSlashAttackPhase[i].durationMS = 80
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = false
@@ -486,9 +491,9 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 70;
 	
-	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 11
-	doubleSlashAttackPhase[i].angleStart = -50
+	doubleSlashAttackPhase[i].frameStart = 3
+	doubleSlashAttackPhase[i].frameEnd = 5
+	doubleSlashAttackPhase[i].angleStart = -45
 	doubleSlashAttackPhase[i].angleEnd = -90
 	doubleSlashAttackPhase[i].offsetStart = Vector(7, -2)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(7, -2)
@@ -500,7 +505,7 @@ function Create(self)
 	-- Attack
 	i = 12
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 160
+	doubleSlashAttackPhase[i].durationMS = 140
 	
 	doubleSlashAttackPhase[i].canBeBlocked = true
 	doubleSlashAttackPhase[i].canDamage = true
@@ -511,8 +516,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 11
-	doubleSlashAttackPhase[i].frameEnd = 16
+	doubleSlashAttackPhase[i].frameStart = 5
+	doubleSlashAttackPhase[i].frameEnd = 11
 	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -100
 	doubleSlashAttackPhase[i].offsetStart = Vector(7 , -2)
@@ -537,8 +542,8 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 16
-	doubleSlashAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
+	doubleSlashAttackPhase[i].frameStart = 11
+	doubleSlashAttackPhase[i].frameEnd = (11 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
 	doubleSlashAttackPhase[i].angleStart = -90
 	doubleSlashAttackPhase[i].angleEnd = -40
 	doubleSlashAttackPhase[i].offsetStart = Vector(15, -4)
@@ -564,10 +569,10 @@ function Create(self)
 	doubleSlashAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	doubleSlashAttackPhase[i].attackAngle = 90;
 	
-	doubleSlashAttackPhase[i].frameStart = 6
-	doubleSlashAttackPhase[i].frameEnd = 6
+	doubleSlashAttackPhase[i].frameStart = 0
+	doubleSlashAttackPhase[i].frameEnd = 0
 	doubleSlashAttackPhase[i].angleStart = -40
-	doubleSlashAttackPhase[i].angleEnd = 15
+	doubleSlashAttackPhase[i].angleEnd = 25
 	doubleSlashAttackPhase[i].offsetStart = Vector(3, 0)
 	doubleSlashAttackPhase[i].offsetEnd = Vector(3, 0)
 	
@@ -601,9 +606,9 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
-	slashOverheadAttackPhase[i].angleStart = 0
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
+	slashOverheadAttackPhase[i].angleStart = 25
 	slashOverheadAttackPhase[i].angleEnd = 45
 	slashOverheadAttackPhase[i].offsetStart = Vector(0, 0)
 	slashOverheadAttackPhase[i].offsetEnd = Vector(-6, -5)
@@ -629,8 +634,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 0;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = 45
 	slashOverheadAttackPhase[i].angleEnd = 45
 	slashOverheadAttackPhase[i].offsetStart = Vector(-6, -5)
@@ -645,7 +650,7 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	slashOverheadAttackPhase[i] = {}
-	slashOverheadAttackPhase[i].durationMS = 160
+	slashOverheadAttackPhase[i].durationMS = 80
 	
 	slashOverheadAttackPhase[i].canBeBlocked = true
 	slashOverheadAttackPhase[i].canDamage = false
@@ -656,10 +661,10 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 0;
 	
-	slashOverheadAttackPhase[i].frameStart = 7
-	slashOverheadAttackPhase[i].frameEnd = 11
+	slashOverheadAttackPhase[i].frameStart = 1
+	slashOverheadAttackPhase[i].frameEnd = 3
 	slashOverheadAttackPhase[i].angleStart = 30
-	slashOverheadAttackPhase[i].angleEnd = -50
+	slashOverheadAttackPhase[i].angleEnd = -120
 	slashOverheadAttackPhase[i].offsetStart = Vector(-6, -5)
 	slashOverheadAttackPhase[i].offsetEnd = Vector(7, -2)
 	
@@ -670,7 +675,7 @@ function Create(self)
 	-- Early Attack
 	i = 4
 	slashOverheadAttackPhase[i] = {}
-	slashOverheadAttackPhase[i].durationMS = 50
+	slashOverheadAttackPhase[i].durationMS = 80
 	
 	slashOverheadAttackPhase[i].canBeBlocked = true
 	slashOverheadAttackPhase[i].canDamage = false
@@ -681,9 +686,9 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 0;
 	
-	slashOverheadAttackPhase[i].frameStart = 11
-	slashOverheadAttackPhase[i].frameEnd = 11
-	slashOverheadAttackPhase[i].angleStart = -50
+	slashOverheadAttackPhase[i].frameStart = 3
+	slashOverheadAttackPhase[i].frameEnd = 5
+	slashOverheadAttackPhase[i].angleStart = -120
 	slashOverheadAttackPhase[i].angleEnd = -90
 	slashOverheadAttackPhase[i].offsetStart = Vector(7, -2)
 	slashOverheadAttackPhase[i].offsetEnd = Vector(7, -2)
@@ -706,8 +711,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 11
-	slashOverheadAttackPhase[i].frameEnd = 16
+	slashOverheadAttackPhase[i].frameStart = 5
+	slashOverheadAttackPhase[i].frameEnd = 11
 	slashOverheadAttackPhase[i].angleStart = -90
 	slashOverheadAttackPhase[i].angleEnd = -100
 	slashOverheadAttackPhase[i].offsetStart = Vector(7 , -2)
@@ -732,8 +737,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 16
-	slashOverheadAttackPhase[i].frameEnd = (16 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
+	slashOverheadAttackPhase[i].frameStart = 11
+	slashOverheadAttackPhase[i].frameEnd = (11 + 1 + self.swingRotationFrames); -- + 1 because the actual end frame is never reached, code just goes TOWARDS it
 	slashOverheadAttackPhase[i].angleStart = -90
 	slashOverheadAttackPhase[i].angleEnd = -40
 	slashOverheadAttackPhase[i].offsetStart = Vector(15, -4)
@@ -759,8 +764,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 90;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = -40
 	slashOverheadAttackPhase[i].angleEnd = 45
 	slashOverheadAttackPhase[i].offsetStart = Vector(8, -4)
@@ -786,8 +791,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackPush = 0
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = 45
 	slashOverheadAttackPhase[i].angleEnd = 70
 	slashOverheadAttackPhase[i].offsetStart = Vector(-4, -15)
@@ -807,8 +812,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackPush = 0
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = 70
 	slashOverheadAttackPhase[i].angleEnd = 76
 	slashOverheadAttackPhase[i].offsetStart = Vector(-4, -15)
@@ -829,13 +834,13 @@ function Create(self)
 	slashOverheadAttackPhase[i].canDamage = false
 	slashOverheadAttackPhase[i].attackDamage = 5
 	slashOverheadAttackPhase[i].attackStunChance = 0.3
-	slashOverheadAttackPhase[i].attackRange = 20
+	slashOverheadAttackPhase[i].attackRange = 25
 	slashOverheadAttackPhase[i].attackPush = 0.8
 	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 55;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = 76
 	slashOverheadAttackPhase[i].angleEnd = 20
 	slashOverheadAttackPhase[i].offsetStart = Vector(0, -15)
@@ -854,13 +859,13 @@ function Create(self)
 	slashOverheadAttackPhase[i].canDamage = true
 	slashOverheadAttackPhase[i].attackDamage = 12
 	slashOverheadAttackPhase[i].attackStunChance = 0.4
-	slashOverheadAttackPhase[i].attackRange = 20
+	slashOverheadAttackPhase[i].attackRange = 25
 	slashOverheadAttackPhase[i].attackPush = 1.05
 	slashOverheadAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	slashOverheadAttackPhase[i].attackAngle = 55;
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = 20
 	slashOverheadAttackPhase[i].angleEnd = -190
 	slashOverheadAttackPhase[i].offsetStart = Vector(3, -10)
@@ -880,8 +885,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackPush = 0
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = -120
 	slashOverheadAttackPhase[i].angleEnd = -125
 	slashOverheadAttackPhase[i].offsetStart = Vector(15, 15)
@@ -900,8 +905,8 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackPush = 0
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	slashOverheadAttackPhase[i].frameStart = 6
-	slashOverheadAttackPhase[i].frameEnd = 10
+	slashOverheadAttackPhase[i].frameStart = 0
+	slashOverheadAttackPhase[i].frameEnd = 4
 	slashOverheadAttackPhase[i].angleStart = -125
 	slashOverheadAttackPhase[i].angleEnd = -50
 	slashOverheadAttackPhase[i].offsetStart = Vector(10, 15)
@@ -920,10 +925,10 @@ function Create(self)
 	slashOverheadAttackPhase[i].attackPush = 0
 	slashOverheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	slashOverheadAttackPhase[i].frameStart = 10
-	slashOverheadAttackPhase[i].frameEnd = 6
+	slashOverheadAttackPhase[i].frameStart = 4
+	slashOverheadAttackPhase[i].frameEnd = 0
 	slashOverheadAttackPhase[i].angleStart = -50
-	slashOverheadAttackPhase[i].angleEnd = 10
+	slashOverheadAttackPhase[i].angleEnd = 25
 	slashOverheadAttackPhase[i].offsetStart = Vector(10, 15)
 	slashOverheadAttackPhase[i].offsetEnd = Vector(3, -5)
 	
@@ -946,13 +951,16 @@ function Create(self)
 	downwardShoveAttackPhase[i].canDamage = false
 	downwardShoveAttackPhase[i].attackDamage = 1
 	downwardShoveAttackPhase[i].attackStunChance = 0.6
-	downwardShoveAttackPhase[i].attackRange = 15
+	downwardShoveAttackPhase[i].furthestReach = 5
+	downwardShoveAttackPhase[i].attackRange = 10
+	self:SetNumberValue("Attack 3 Range", downwardShoveAttackPhase[i].furthestReach + downwardShoveAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 3 Name", "Stab");
 	downwardShoveAttackPhase[i].attackPush = 1.3
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 25
 	downwardShoveAttackPhase[i].angleEnd = 35
 	downwardShoveAttackPhase[i].offsetStart = Vector(0, 0)
@@ -979,8 +987,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 35
 	downwardShoveAttackPhase[i].offsetStart = Vector(-6, -15)
@@ -1006,8 +1014,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 35
 	downwardShoveAttackPhase[i].offsetStart = Vector(-6, -15)
@@ -1031,8 +1039,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 35
 	downwardShoveAttackPhase[i].offsetStart = Vector(0, -10)
@@ -1056,8 +1064,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 35
 	downwardShoveAttackPhase[i].offsetStart = Vector(4 , -1)
@@ -1082,8 +1090,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 6
-	downwardShoveAttackPhase[i].frameEnd = 7
+	downwardShoveAttackPhase[i].frameStart = 0
+	downwardShoveAttackPhase[i].frameEnd = 1
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 30
 	downwardShoveAttackPhase[i].offsetStart = Vector(15, -2)
@@ -1109,8 +1117,8 @@ function Create(self)
 	downwardShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	downwardShoveAttackPhase[i].attackAngle = -45;
 	
-	downwardShoveAttackPhase[i].frameStart = 7
-	downwardShoveAttackPhase[i].frameEnd = 6
+	downwardShoveAttackPhase[i].frameStart = 1
+	downwardShoveAttackPhase[i].frameEnd = 0
 	downwardShoveAttackPhase[i].angleStart = 35
 	downwardShoveAttackPhase[i].angleEnd = 25
 	downwardShoveAttackPhase[i].offsetStart = Vector(7, -3)
@@ -1146,8 +1154,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 90;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 25
 	massiveShoveAttackPhase[i].angleEnd = 0
 	massiveShoveAttackPhase[i].offsetStart = Vector(0, 0)
@@ -1174,8 +1182,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 90;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 0
 	massiveShoveAttackPhase[i].angleEnd = 0
 	massiveShoveAttackPhase[i].offsetStart = Vector(-6, 0)
@@ -1201,8 +1209,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 0;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 0
 	massiveShoveAttackPhase[i].angleEnd = 0
 	massiveShoveAttackPhase[i].offsetStart = Vector(-6, 0)
@@ -1226,8 +1234,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 0;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 0
 	massiveShoveAttackPhase[i].angleEnd = 0
 	massiveShoveAttackPhase[i].offsetStart = Vector(0, 0)
@@ -1251,8 +1259,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 0;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 0
 	massiveShoveAttackPhase[i].angleEnd = 15
 	massiveShoveAttackPhase[i].offsetStart = Vector(4 , -1)
@@ -1277,8 +1285,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 90;
 	
-	massiveShoveAttackPhase[i].frameStart = 6
-	massiveShoveAttackPhase[i].frameEnd = 7
+	massiveShoveAttackPhase[i].frameStart = 0
+	massiveShoveAttackPhase[i].frameEnd = 1
 	massiveShoveAttackPhase[i].angleStart = 15
 	massiveShoveAttackPhase[i].angleEnd = 25
 	massiveShoveAttackPhase[i].offsetStart = Vector(15, -2)
@@ -1304,8 +1312,8 @@ function Create(self)
 	massiveShoveAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	massiveShoveAttackPhase[i].attackAngle = 90;
 	
-	massiveShoveAttackPhase[i].frameStart = 7
-	massiveShoveAttackPhase[i].frameEnd = 6
+	massiveShoveAttackPhase[i].frameStart = 1
+	massiveShoveAttackPhase[i].frameEnd = 0
 	massiveShoveAttackPhase[i].angleStart = 25
 	massiveShoveAttackPhase[i].angleEnd = 25
 	massiveShoveAttackPhase[i].offsetStart = Vector(7, -3)
@@ -1338,13 +1346,16 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 1.0
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].furthestReach = 12
+	underhandComboAttackPhase[i].attackRange = 23
+	self:SetNumberValue("Attack 4 Range", underhandComboAttackPhase[i].furthestReach + underhandComboAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 4 Name", "Overhead");
 	underhandComboAttackPhase[i].attackPush = 0.6
 	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 8
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 2
 	underhandComboAttackPhase[i].angleStart = 25
 	underhandComboAttackPhase[i].angleEnd = 85
 	underhandComboAttackPhase[i].offsetStart = Vector(0, 0)
@@ -1361,13 +1372,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 1.0
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 0.6
 	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 8
-	underhandComboAttackPhase[i].frameEnd = 7
+	underhandComboAttackPhase[i].frameStart = 2
+	underhandComboAttackPhase[i].frameEnd = 1
 	underhandComboAttackPhase[i].angleStart = 85
 	underhandComboAttackPhase[i].angleEnd = 90
 	underhandComboAttackPhase[i].offsetStart = Vector(-10, -15)
@@ -1383,13 +1394,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 1.0
-	underhandComboAttackPhase[i].attackRange = 20
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 0.6
 	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 7
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 1
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 90
 	underhandComboAttackPhase[i].angleEnd = -125
 	underhandComboAttackPhase[i].offsetStart = Vector(-11, -15)
@@ -1410,13 +1421,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 1.0
-	underhandComboAttackPhase[i].attackRange = 14
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 0.6
 	underhandComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = -125
 	underhandComboAttackPhase[i].angleEnd = -130
 	underhandComboAttackPhase[i].offsetStart = Vector(2, 11)
@@ -1434,13 +1445,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 5
 	underhandComboAttackPhase[i].attackStunChance = 0.3
-	underhandComboAttackPhase[i].attackRange = 20
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 0.8
 	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 125;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = -130
 	underhandComboAttackPhase[i].angleEnd = -125
 	underhandComboAttackPhase[i].offsetStart = Vector(2, 15)
@@ -1461,13 +1472,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 8
 	underhandComboAttackPhase[i].attackStunChance = 0.8
-	underhandComboAttackPhase[i].attackRange = 20
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 1.2
 	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 125;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = -125
 	underhandComboAttackPhase[i].angleEnd = 25
 	underhandComboAttackPhase[i].offsetStart = Vector(3, 10)
@@ -1487,8 +1498,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 25
 	underhandComboAttackPhase[i].angleEnd = 70
 	underhandComboAttackPhase[i].offsetStart = Vector(10, -15)
@@ -1507,8 +1518,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 70
 	underhandComboAttackPhase[i].angleEnd = 70
 	underhandComboAttackPhase[i].offsetStart = Vector(11, -15)
@@ -1528,8 +1539,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 70
 	underhandComboAttackPhase[i].angleEnd = 80
 	underhandComboAttackPhase[i].offsetStart = Vector(2, -13)
@@ -1549,8 +1560,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 80
 	underhandComboAttackPhase[i].angleEnd = 80
 	underhandComboAttackPhase[i].offsetStart = Vector(-4, -15)
@@ -1571,13 +1582,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = false
 	underhandComboAttackPhase[i].attackDamage = 5
 	underhandComboAttackPhase[i].attackStunChance = 0.3
-	underhandComboAttackPhase[i].attackRange = 20
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 0.8
 	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 80
 	underhandComboAttackPhase[i].angleEnd = 20
 	underhandComboAttackPhase[i].offsetStart = Vector(0, -15)
@@ -1596,13 +1607,13 @@ function Create(self)
 	underhandComboAttackPhase[i].canDamage = true
 	underhandComboAttackPhase[i].attackDamage = 16
 	underhandComboAttackPhase[i].attackStunChance = 0.5
-	underhandComboAttackPhase[i].attackRange = 20
+	underhandComboAttackPhase[i].attackRange = 23
 	underhandComboAttackPhase[i].attackPush = 1.1
 	underhandComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	underhandComboAttackPhase[i].attackAngle = 55;
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = 20
 	underhandComboAttackPhase[i].angleEnd = -190
 	underhandComboAttackPhase[i].offsetStart = Vector(3, -10)
@@ -1622,8 +1633,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = -120
 	underhandComboAttackPhase[i].angleEnd = -125
 	underhandComboAttackPhase[i].offsetStart = Vector(15, 15)
@@ -1642,8 +1653,8 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 6
-	underhandComboAttackPhase[i].frameEnd = 10
+	underhandComboAttackPhase[i].frameStart = 0
+	underhandComboAttackPhase[i].frameEnd = 4
 	underhandComboAttackPhase[i].angleStart = -125
 	underhandComboAttackPhase[i].angleEnd = -50
 	underhandComboAttackPhase[i].offsetStart = Vector(10, 15)
@@ -1662,10 +1673,10 @@ function Create(self)
 	underhandComboAttackPhase[i].attackPush = 0
 	underhandComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	underhandComboAttackPhase[i].frameStart = 10
-	underhandComboAttackPhase[i].frameEnd = 6
+	underhandComboAttackPhase[i].frameStart = 4
+	underhandComboAttackPhase[i].frameEnd = 0
 	underhandComboAttackPhase[i].angleStart = -50
-	underhandComboAttackPhase[i].angleEnd = 10
+	underhandComboAttackPhase[i].angleEnd = 25
 	underhandComboAttackPhase[i].offsetStart = Vector(10, 15)
 	underhandComboAttackPhase[i].offsetEnd = Vector(3, -5)
 	
@@ -1695,14 +1706,17 @@ function Create(self)
 	horseComboAttackPhase[i].canDamage = false
 	horseComboAttackPhase[i].attackDamage = 8
 	horseComboAttackPhase[i].attackStunChance = 1.0
-	horseComboAttackPhase[i].attackRange = 14
+	horseComboAttackPhase[i].furthestReach = 10
+	horseComboAttackPhase[i].attackRange = 23
+	self:SetNumberValue("Attack 2 Range", horseComboAttackPhase[i].furthestReach + horseComboAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 2 Name", "Horse Swing");
 	horseComboAttackPhase[i].attackPush = 0.6
 	horseComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 55;
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 8
-	horseComboAttackPhase[i].angleStart = 35
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 2
+	horseComboAttackPhase[i].angleStart = 25
 	horseComboAttackPhase[i].angleEnd = 25
 	horseComboAttackPhase[i].offsetStart = Vector(0, 0)
 	horseComboAttackPhase[i].offsetEnd = Vector(2, -6)
@@ -1723,8 +1737,8 @@ function Create(self)
 	horseComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 55;
 	
-	horseComboAttackPhase[i].frameStart = 8
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 2
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = 25
 	horseComboAttackPhase[i].angleEnd = 15
 	horseComboAttackPhase[i].offsetStart = Vector(2, -6)
@@ -1740,13 +1754,13 @@ function Create(self)
 	horseComboAttackPhase[i].canDamage = true
 	horseComboAttackPhase[i].attackDamage = 8
 	horseComboAttackPhase[i].attackStunChance = 1.0
-	horseComboAttackPhase[i].attackRange = 20
+	horseComboAttackPhase[i].attackRange = 23
 	horseComboAttackPhase[i].attackPush = 0.6
 	horseComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 55;
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = 15
 	horseComboAttackPhase[i].angleEnd = -240
 	horseComboAttackPhase[i].offsetStart = Vector(6, -8)
@@ -1767,13 +1781,13 @@ function Create(self)
 	horseComboAttackPhase[i].canDamage = false
 	horseComboAttackPhase[i].attackDamage = 8
 	horseComboAttackPhase[i].attackStunChance = 1.0
-	horseComboAttackPhase[i].attackRange = 14
+	horseComboAttackPhase[i].attackRange = 23
 	horseComboAttackPhase[i].attackPush = 0.6
 	horseComboAttackPhase[i].attackVector = Vector(0, 0) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 55;
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = -240
 	horseComboAttackPhase[i].angleEnd = -280
 	horseComboAttackPhase[i].offsetStart = Vector(-15, 11)
@@ -1791,13 +1805,13 @@ function Create(self)
 	horseComboAttackPhase[i].canDamage = false
 	horseComboAttackPhase[i].attackDamage = 5
 	horseComboAttackPhase[i].attackStunChance = 0.3
-	horseComboAttackPhase[i].attackRange = 20
+	horseComboAttackPhase[i].attackRange = 23
 	horseComboAttackPhase[i].attackPush = 0.8
 	horseComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 125;
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = -280
 	horseComboAttackPhase[i].angleEnd = -240
 	horseComboAttackPhase[i].offsetStart = Vector(-15, 15)
@@ -1818,13 +1832,13 @@ function Create(self)
 	horseComboAttackPhase[i].canDamage = true
 	horseComboAttackPhase[i].attackDamage = 8
 	horseComboAttackPhase[i].attackStunChance = 0.8
-	horseComboAttackPhase[i].attackRange = 20
+	horseComboAttackPhase[i].attackRange = 23
 	horseComboAttackPhase[i].attackPush = 1.2
 	horseComboAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	horseComboAttackPhase[i].attackAngle = 125;
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = -240
 	horseComboAttackPhase[i].angleEnd = -90
 	horseComboAttackPhase[i].offsetStart = Vector(-12, 14)
@@ -1844,8 +1858,8 @@ function Create(self)
 	horseComboAttackPhase[i].attackPush = 0
 	horseComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = -90
 	horseComboAttackPhase[i].angleEnd = -45
 	horseComboAttackPhase[i].offsetStart = Vector(0, 12)
@@ -1864,8 +1878,8 @@ function Create(self)
 	horseComboAttackPhase[i].attackPush = 0
 	horseComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = -45
 	horseComboAttackPhase[i].angleEnd = 40
 	horseComboAttackPhase[i].offsetStart = Vector(15, 0)
@@ -1884,8 +1898,8 @@ function Create(self)
 	horseComboAttackPhase[i].attackPush = 0
 	horseComboAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	horseComboAttackPhase[i].frameStart = 6
-	horseComboAttackPhase[i].frameEnd = 6
+	horseComboAttackPhase[i].frameStart = 0
+	horseComboAttackPhase[i].frameEnd = 0
 	horseComboAttackPhase[i].angleStart = 40
 	horseComboAttackPhase[i].angleEnd = 25
 	horseComboAttackPhase[i].offsetStart = Vector(13, -7)
@@ -1915,8 +1929,8 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 10
+	overheadAttackPhase[i].frameStart = 0
+	overheadAttackPhase[i].frameEnd = 4
 	overheadAttackPhase[i].angleStart = 25
 	overheadAttackPhase[i].angleEnd = -10
 	overheadAttackPhase[i].offsetStart = Vector(0, 0)
@@ -1936,8 +1950,8 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 10
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameStart = 4
+	overheadAttackPhase[i].frameEnd = 0
 	overheadAttackPhase[i].angleStart = -10
 	overheadAttackPhase[i].angleEnd = 90
 	overheadAttackPhase[i].offsetStart = Vector(-4, -15)
@@ -1963,8 +1977,8 @@ function Create(self)
 	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
-	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameStart = 0
+	overheadAttackPhase[i].frameEnd = 0
 	overheadAttackPhase[i].angleStart = 80
 	overheadAttackPhase[i].angleEnd = 20
 	overheadAttackPhase[i].offsetStart = Vector(0, -15)
@@ -1988,8 +2002,8 @@ function Create(self)
 	overheadAttackPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	overheadAttackPhase[i].attackAngle = 55;
 	
-	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameStart = 0
+	overheadAttackPhase[i].frameEnd = 0
 	overheadAttackPhase[i].angleStart = 20
 	overheadAttackPhase[i].angleEnd = -190
 	overheadAttackPhase[i].offsetStart = Vector(3, -10)
@@ -2009,8 +2023,8 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameStart = 0
+	overheadAttackPhase[i].frameEnd = 0
 	overheadAttackPhase[i].angleStart = -120
 	overheadAttackPhase[i].angleEnd = -125
 	overheadAttackPhase[i].offsetStart = Vector(15, 15)
@@ -2029,8 +2043,8 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 11
+	overheadAttackPhase[i].frameStart = 0
+	overheadAttackPhase[i].frameEnd = 5
 	overheadAttackPhase[i].angleStart = -125
 	overheadAttackPhase[i].angleEnd = -10
 	overheadAttackPhase[i].offsetStart = Vector(10, 15)
@@ -2049,8 +2063,8 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 10
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameStart = 4
+	overheadAttackPhase[i].frameEnd = 0
 	overheadAttackPhase[i].angleStart = -10
 	overheadAttackPhase[i].angleEnd = 25
 	overheadAttackPhase[i].offsetStart = Vector(10, 15)
@@ -2079,8 +2093,8 @@ function Create(self)
 	flourishPhase[i].attackPush = 0
 	flourishPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	flourishPhase[i].frameStart = 6
-	flourishPhase[i].frameEnd = 9
+	flourishPhase[i].frameStart = 0
+	flourishPhase[i].frameEnd = 5
 	flourishPhase[i].angleStart = 25
 	flourishPhase[i].angleEnd = 0
 	flourishPhase[i].offsetStart = Vector(0, 0)
@@ -2102,8 +2116,8 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 9
-	flourishPhase[i].frameEnd = 11
+	flourishPhase[i].frameStart = 5
+	flourishPhase[i].frameEnd = 5
 	flourishPhase[i].angleStart = 0
 	flourishPhase[i].angleEnd = -45
 	flourishPhase[i].offsetStart = Vector(-4, -15)
@@ -2130,8 +2144,8 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 11
-	flourishPhase[i].frameEnd = 8
+	flourishPhase[i].frameStart = 5
+	flourishPhase[i].frameEnd = 3
 	flourishPhase[i].angleStart = -45
 	flourishPhase[i].angleEnd = -90
 	flourishPhase[i].offsetStart = Vector(-6, -5)
@@ -2154,8 +2168,8 @@ function Create(self)
 	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	flourishPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 8
-	flourishPhase[i].frameEnd = 6
+	flourishPhase[i].frameStart = 3
+	flourishPhase[i].frameEnd = 0
 	flourishPhase[i].angleStart = -90
 	flourishPhase[i].angleEnd = 25
 	flourishPhase[i].offsetStart = Vector(7, -2)
@@ -2189,8 +2203,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 8
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 2
 	warcryPhase[i].angleStart = 25
 	warcryPhase[i].angleEnd = 45
 	warcryPhase[i].offsetStart = Vector(0, 0)
@@ -2211,8 +2225,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 8
-	warcryPhase[i].frameEnd = 8
+	warcryPhase[i].frameStart = 2
+	warcryPhase[i].frameEnd = 2
 	warcryPhase[i].angleStart = 45
 	warcryPhase[i].angleEnd = 45
 	warcryPhase[i].offsetStart = Vector(-3, -2)
@@ -2232,8 +2246,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 0;
 	
-	warcryPhase[i].frameStart = 8
-	warcryPhase[i].frameEnd = 11
+	warcryPhase[i].frameStart = 2
+	warcryPhase[i].frameEnd = 6
 	warcryPhase[i].angleStart = 45
 	warcryPhase[i].angleEnd = -50
 	warcryPhase[i].offsetStart = Vector(-6, -5)
@@ -2257,8 +2271,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 70;
 	
-	warcryPhase[i].frameStart = 11
-	warcryPhase[i].frameEnd = 11
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 6
 	warcryPhase[i].angleStart = -50
 	warcryPhase[i].angleEnd = -90
 	warcryPhase[i].offsetStart = Vector(7, -2)
@@ -2282,8 +2296,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 11
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -90
 	warcryPhase[i].angleEnd = -100
 	warcryPhase[i].offsetStart = Vector(7 , -2)
@@ -2307,8 +2321,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 0;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -90
 	warcryPhase[i].angleEnd = -90
 	warcryPhase[i].offsetStart = Vector(5, -5)
@@ -2332,8 +2346,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 10
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -90
 	warcryPhase[i].angleEnd = -75
 	warcryPhase[i].offsetStart = Vector(7, -2)
@@ -2353,8 +2367,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 10
-	warcryPhase[i].frameEnd = 10
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -75
 	warcryPhase[i].angleEnd = 25
 	warcryPhase[i].offsetStart = Vector(9, -2)
@@ -2374,8 +2388,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 90;
 	
-	warcryPhase[i].frameStart = 10
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 5
 	warcryPhase[i].angleStart = 25
 	warcryPhase[i].angleEnd = 25
 	warcryPhase[i].offsetStart = Vector(4, 0)
@@ -2397,8 +2411,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 0;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 5
+	warcryPhase[i].frameEnd = 5
 	warcryPhase[i].angleStart = 25
 	warcryPhase[i].angleEnd = 25
 	warcryPhase[i].offsetStart = Vector(0, -15)
@@ -2408,8 +2422,6 @@ function Create(self)
 	i = 11
 	warcryPhase[i] = {}
 	warcryPhase[i].durationMS = 330
-	
-	warcryPhase[i].attackReset = true
 	warcryPhase[i].canBeBlocked = false
 	warcryPhase[i].canDamage = false
 	warcryPhase[i].attackDamage = 0
@@ -2418,7 +2430,7 @@ function Create(self)
 	warcryPhase[i].attackPush = 0
 	warcryPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameStart = 5
 	warcryPhase[i].frameEnd = 6
 	warcryPhase[i].angleStart = 25
 	warcryPhase[i].angleEnd = 25
@@ -2439,7 +2451,7 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
 	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameEnd = 2
 	warcryPhase[i].angleStart = 25
 	warcryPhase[i].angleEnd = 90
 	warcryPhase[i].offsetStart = Vector(-4, -15)
@@ -2465,8 +2477,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 55;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 2
+	warcryPhase[i].frameEnd = 2
 	warcryPhase[i].angleStart = 80
 	warcryPhase[i].angleEnd = 20
 	warcryPhase[i].offsetStart = Vector(0, -15)
@@ -2490,8 +2502,8 @@ function Create(self)
 	warcryPhase[i].attackVector = Vector(0, 3) -- local space vector relative to position and rotation
 	warcryPhase[i].attackAngle = 55;
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 2
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = 20
 	warcryPhase[i].angleEnd = -190
 	warcryPhase[i].offsetStart = Vector(3, -10)
@@ -2511,8 +2523,8 @@ function Create(self)
 	warcryPhase[i].attackPush = 0
 	warcryPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -120
 	warcryPhase[i].angleEnd = -125
 	warcryPhase[i].offsetStart = Vector(15, 15)
@@ -2531,8 +2543,8 @@ function Create(self)
 	warcryPhase[i].attackPush = 0
 	warcryPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	warcryPhase[i].frameStart = 6
-	warcryPhase[i].frameEnd = 11
+	warcryPhase[i].frameStart = 0
+	warcryPhase[i].frameEnd = 6
 	warcryPhase[i].angleStart = -125
 	warcryPhase[i].angleEnd = -10
 	warcryPhase[i].offsetStart = Vector(10, 15)
@@ -2551,8 +2563,8 @@ function Create(self)
 	warcryPhase[i].attackPush = 0
 	warcryPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	warcryPhase[i].frameStart = 10
-	warcryPhase[i].frameEnd = 6
+	warcryPhase[i].frameStart = 6
+	warcryPhase[i].frameEnd = 0
 	warcryPhase[i].angleStart = -10
 	warcryPhase[i].angleEnd = 25
 	warcryPhase[i].offsetStart = Vector(10, 15)
@@ -2582,8 +2594,8 @@ function Create(self)
 	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	throwPhase[i].attackAngle = 90;
 	
-	throwPhase[i].frameStart = 6
-	throwPhase[i].frameEnd = 6
+	throwPhase[i].frameStart = 0
+	throwPhase[i].frameEnd = 0
 	throwPhase[i].angleStart = 0
 	throwPhase[i].angleEnd = 120
 	throwPhase[i].offsetStart = Vector(0, 0)
@@ -2605,8 +2617,8 @@ function Create(self)
 	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	throwPhase[i].attackAngle = 90;
 	
-	throwPhase[i].frameStart = 6
-	throwPhase[i].frameEnd = 6
+	throwPhase[i].frameStart = 0
+	throwPhase[i].frameEnd = 0
 	throwPhase[i].angleStart = 120
 	throwPhase[i].angleEnd = 120
 	throwPhase[i].offsetStart = Vector(-15, -15)
@@ -2627,8 +2639,8 @@ function Create(self)
 	throwPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	throwPhase[i].attackAngle = 90;
 	
-	throwPhase[i].frameStart = 6
-	throwPhase[i].frameEnd = 6
+	throwPhase[i].frameStart = 0
+	throwPhase[i].frameEnd = 0
 	throwPhase[i].angleStart = 120
 	throwPhase[i].angleEnd = -90
 	throwPhase[i].offsetStart = Vector(-15, -15)
@@ -2664,8 +2676,8 @@ function Create(self)
 	equipPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	equipPhase[i].attackAngle = 90;
 	
-	equipPhase[i].frameStart = 6
-	equipPhase[i].frameEnd = 6
+	equipPhase[i].frameStart = 0
+	equipPhase[i].frameEnd = 0
 	equipPhase[i].angleStart = 170
 	equipPhase[i].angleEnd = 150
 	equipPhase[i].offsetStart = Vector(-15, -25)
@@ -2685,8 +2697,8 @@ function Create(self)
 	equipPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
 	equipPhase[i].attackAngle = 0;
 	
-	equipPhase[i].frameStart = 6
-	equipPhase[i].frameEnd = 8
+	equipPhase[i].frameStart = 0
+	equipPhase[i].frameEnd = 2
 	equipPhase[i].angleStart = 150
 	equipPhase[i].angleEnd = 15
 	equipPhase[i].offsetStart = Vector(-12, -15)
@@ -2712,8 +2724,8 @@ function Create(self)
 	equipPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	equipPhase[i].attackAngle = 0;
 	
-	equipPhase[i].frameStart = 8
-	equipPhase[i].frameEnd = 6
+	equipPhase[i].frameStart = 2
+	equipPhase[i].frameEnd = 0
 	equipPhase[i].angleStart = 15
 	equipPhase[i].angleEnd = 15
 	equipPhase[i].offsetStart = Vector(-5, -5)
@@ -2741,6 +2753,8 @@ function Update(self)
 	if UInputMan:KeyPressed(38) then
 		self:ReloadScripts();
 	end
+	
+	self:RemoveStringValue("Blocked Mordhau")
 
 	local act = self:GetRootParent();
 	local actor = IsAHuman(act) and ToAHuman(act) or nil;
@@ -2786,22 +2800,24 @@ function Update(self)
 			if player then
 				throw = (player and UInputMan:KeyPressed(10));
 				flourish = (player and UInputMan:KeyPressed(8));
-				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
-				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
-				if stab or overhead or flourish or throw or warcry or self.attackBuffered == true then
+				stab = (player and UInputMan:KeyPressed(2))
+				overhead = (player and UInputMan:KeyPressed(22))
+				if stab or overhead or flourish or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
-				attack = controller:IsState(Controller.PRESS_PRIMARY);
+				attack = controller:IsState(Controller.PRESS_PRIMARY) and not self.attackCooldown;
 				if self:IsActivated() and self.attackCooldown == true then
 					self:Deactivate();
 				else
-					self.attackBuffered = false;
-					self.stabBuffered = false;
-					self.overheadBuffered = false;
 					self.attackCooldown = false;
 				end
 			else
+				throw = self:NumberValueExists("AI Throw");
+				flourish = self:NumberValueExists("AI Flourish");
+				stab = self:NumberValueExists("AI Stab");
+				overhead = self:NumberValueExists("AI Overhead");
+				attack = self:NumberValueExists("AI Attack");
 				if stab or overhead or flourish or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
@@ -2811,6 +2827,7 @@ function Update(self)
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
 			self.parriedCooldown = false;
 		end
+		
 		local attacked = false
 		
 		-- if player then -- PLAYER INPUT
@@ -2879,13 +2896,21 @@ function Update(self)
 			if not stab and not overhead and not flourish and not throw and not warcry then
 				if self.parent:NumberValueExists("Mordhau Disable Movement") then -- we're probably on a horse if this is set... probably...
 					playAttackAnimation(self, 15) -- regular attack
+					self:SetNumberValue("Current Attack Type", 2);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
 				else
 					playAttackAnimation(self, math.random(1, 2)) -- regular attack
+					self:SetNumberValue("Current Attack Type", 1);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
 				end
 			elseif stab then
 				playAttackAnimation(self, math.random(3, 4)) -- stab
+				self:SetNumberValue("Current Attack Type", 3);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
 			elseif overhead then
-				playAttackAnimation(self, math.random(5, 6)) -- overhead
+				playAttackAnimation(self, math.random(5, 6)) -- overhead				
+				self:SetNumberValue("Current Attack Type", 4);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
 			elseif warcry then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 8)
@@ -2909,6 +2934,11 @@ function Update(self)
 		end
 		
 		self:RemoveNumberValue("Warcried");
+		self:RemoveNumberValue("AI Flourish");
+		self:RemoveNumberValue("AI Throw");
+		self:RemoveNumberValue("AI Stab");
+		self:RemoveNumberValue("AI Overhead");
+		self:RemoveNumberValue("AI Attack");
 		
 		-- ANIMATION PLAYER
 		local stanceTarget = Vector(0, 0)
@@ -2958,7 +2988,6 @@ function Update(self)
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
 				if activated then
-					self.attackCooldown = true;
 					self.wasCharged = true;
 					self.hitMax = 4;
 					self.parent:SetNumberValue("Extreme Attack", 1);
@@ -2969,27 +2998,34 @@ function Update(self)
 				end
 			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
-			elseif self.chargeDecided == false then
+			elseif self.chargeDecided == false or self.blockedNullifier == false then
 				-- block, getting parried cancelling
+				local keyPress
 				if player then
-					local keyPress = UInputMan:KeyPressed(18);
-					if keyPress then
-						self.Throwing = false;
-						self.wasCharged = false;
-						self.currentAttackAnimation = 0
-						self.currentAttackSequence = 0
-						self.attackAnimationIsPlaying = false			
-						self.parent:SetNumberValue("Block Foley", 1);
+					keyPress = UInputMan:KeyPressed(18);
+				else
+					keyPress = self:NumberValueExists("AI Block");
+				end
+				
+				
+				if keyPress then
+					self.Throwing = false;
+					self.wasCharged = false;
+					self.currentAttackAnimation = 0
+					self.currentAttackSequence = 0
+					self.attackAnimationIsPlaying = false			
+					self.parent:SetNumberValue("Block Foley", 1);
+				
+					self.Blocking = true;
 					
-						self.Blocking = true;
-						
-						self:SetNumberValue("Blocking", 1);
-						
-						stanceTarget = Vector(4, -10);
-						
-						self.originalBaseRotation = -160;
-						self.baseRotation = -145;
-					end
+					self:SetNumberValue("Blocking", 1);
+					
+					self:RemoveNumberValue("Current Attack Type")
+					
+					stanceTarget = Vector(4, -10);
+					
+					self.originalBaseRotation = -160;
+					self.baseRotation = -145;
 				end
 				if self.wasParried then
 					self.wasParried = false;
@@ -3020,12 +3056,12 @@ function Update(self)
 			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
 			ignoreTerrain = currentPhase.ignoreTerrain or false
+			if canDamage == true then
+				self.Attacked = true;
+			end
 			if self.blockedNullifier == false then
 				canDamage = false;
 				canBeBlocked = false;
-			end
-			if canDamage == true then
-				self.Attacked = true;
 			end
 			damage = currentPhase.attackDamage or 0
 			damageVector = currentPhase.attackVector or Vector(0,0)
@@ -3120,6 +3156,11 @@ function Update(self)
 					if not self.attackBuffered == true then
 						self.attackCooldown = true;
 					end
+					self:SetNumberValue("Blocked", 0);
+					self:SetNumberValue("Current Attack Type", 0);
+					self:SetNumberValue("Current Attack Range", 0);
+					self:RemoveNumberValue("AI Parry")
+					self:RemoveNumberValue("AI Parry Eligible")
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
@@ -3158,12 +3199,19 @@ function Update(self)
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
 				self.attackCooldown = true;
+				self.parriedCooldown = true;
+				self.parriedCooldownTimer:Reset();
+				self.parriedCooldownDelay = 300;
 				self.wasCharged = false;
 				self.currentAttackAnimation = 0
 				self.currentAttackSequence = 0
 				self.attackAnimationIsPlaying = false
 				self.Parrying = false;
 				self:RemoveStringValue("Parrying Type");
+				
+				self:SetNumberValue("Blocked", 0);
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
 			end
 			
 		else -- default behaviour, modify it if you wish
@@ -3179,49 +3227,30 @@ function Update(self)
 			
 			rotationTarget = self.baseRotation / 180 * math.pi;
 			
+			local keyPressed
+			local keyReleased
+			local keyHeld
 			if player then
-				local keyPress = UInputMan:KeyPressed(18) or (UInputMan:KeyHeld(18) and self.Blocking == false);
-				if keyPress and not (self.attackAnimationIsPlaying) then
+				local key = UInputMan:KeyHeld(18)
 				
-					self.parent:SetNumberValue("Block Foley", 1);
-				
-					self.Blocking = true;
-					
-					self:SetNumberValue("Blocking", 1);
-					
-					stanceTarget = Vector(4, -10);
-					
-					self.originalBaseRotation = -160;
-					self.baseRotation = -145;
-				
-				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
-				
-					self.originalBaseRotation = -160;
-				
-					stanceTarget = Vector(4, -10);
-				
-				elseif UInputMan:KeyReleased(18) then
-				
-					self.parent:SetNumberValue("Block Foley", 1);
-				
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = 25;
-					self.baseRotation = 15;
-				
-				else
-					
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = 25;
-					self.baseRotation = 15;
-					
+				keyPressed = key and not self.Blocking
+				keyReleased = key and self.Blocking
+				keyHeld = key and self.Blocking
+			else
+				if self.Parrying then
+					self:RemoveNumberValue("AI Block");
 				end
-			elseif not self.attackAnimationIsPlaying then
+				keyPressed = self:NumberValueExists("AI Block") and not self.Blocking
+				keyReleased = not self:NumberValueExists("AI Block") and self.Blocking
+				keyHeld = self:NumberValueExists("AI Block") and self.Blocking
+			end
+			
+			
+			if keyPressed and not (self.attackAnimationIsPlaying) then
+			
+				self.rotationInterpolationSpeed = 5;
+			
+				self.parent:SetNumberValue("Block Foley", 1);
 			
 				self.Blocking = true;
 				
@@ -3231,30 +3260,75 @@ function Update(self)
 				
 				self.originalBaseRotation = -160;
 				self.baseRotation = -145;
+			
+			elseif keyHeld and not (self.attackAnimationIsPlaying) then
+			
+				self.originalBaseRotation = -160;
+			
+				stanceTarget = Vector(4, -10);
+				
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
+			
+			elseif keyReleased then
+			
+				self.parent:SetNumberValue("Block Foley", 1);
+			
+				self.Blocking = false;
+				
+				self:RemoveNumberValue("Blocking");
+				
+				self.originalBaseRotation = 25;
+				self.baseRotation = 15;
+			
+			else
+			
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
+				
+				self.Blocking = false;
+				
+				self:RemoveNumberValue("Blocking");
+				
+				self.originalBaseRotation = 25;
+				self.baseRotation = 15;
 				
 			end
+--[[			elseif not self.attackAnimationIsPlaying then
+			
+				self.Blocking = true;
+				
+				self:SetNumberValue("Blocking", 1);
+				
+				stanceTarget = Vector(4, -10);
+				
+				self.originalBaseRotation = -160;
+				self.baseRotation = -160;
+				]]
 				
 			
-			if self:IsAttached() then
-				self.Frame = 6;
-			else
-				self.Frame = 1;
-			end
+				
 		end
 		
-		if self.Blocking == true or self.Parrying == true then
+		if (self:NumberValueExists("AI Parry") and not (self.attackAnimationIsPlaying == true or self.parriedCooldown == true)) then
+			self:SetNumberValue("AI Parry Eligible", 1);
+		else
+			self:RemoveNumberValue("AI Parry Eligible");
+		end
+		
+		if self.Blocking == true or self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 			
 			if self:StringValueExists("Blocked Type") then
 			
 				if self.parent then
 					self.parent:SetNumberValue("Blocked Mordhau", 1);
 				end
+				self:SetNumberValue("Blocked Mordhau", 1);
 			
 				self.rotationInterpolationSpeed = 50;
 				self.baseRotation = self.baseRotation - (math.random(15, 20) * -1)
 				
 				self.blockSounds[self:GetStringValue("Blocked Type")]:Play(self.Pos);
-				self:RemoveStringValue("Blocked Type");
 				if self:NumberValueExists("Blocked Heavy") then
 				
 					if self.parent then
@@ -3266,9 +3340,48 @@ function Update(self)
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
 				
-				if self.Parrying == true then
+				if self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 					self.parrySound:Play(self.Pos);
+					
+					if self:NumberValueExists("AI Parry Eligible") then
+						self:RemoveNumberValue("AI Parry Eligible");			
+						self:RemoveNumberValue("AI Parry");	
+						
+						self.Parrying = true;
+						
+						if self:GetStringValue("Blocked Type") == "Slash" then
+							if math.random(0, 100) < 50 then
+								playAttackAnimation(self, math.random(5, 6));
+								self:SetNumberValue("Current Attack Type", 4);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
+							elseif self.parent:NumberValueExists("Mordhau Disable Movement") then
+								playAttackAnimation(self, 15);
+								self:SetNumberValue("Current Attack Type", 2);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
+							else
+								playAttackAnimation(self, math.random(1, 2));
+								self:SetNumberValue("Current Attack Type", 1);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
+							end
+						else
+							playAttackAnimation(self, math.random(3, 4));
+							self:SetNumberValue("Current Attack Type", 3);
+							self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
+						end
+					
+						self.Blocking = false;
+						self:RemoveNumberValue("Blocking");
+						
+						stanceTarget = Vector(0, 0);
+						
+						self.originalBaseRotation = 25;
+						self.baseRotation = 15;
+						
+					end
+					
 				end
+				
+				self:RemoveStringValue("Blocked Type");
 				
 			end
 		end
@@ -3307,7 +3420,7 @@ function Update(self)
 			local rayVec = Vector(damageRange * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)--damageVector:RadRotate(self.RotAngle) * Vector(self.FlipFactor, 1)
 			local rayOrigin = Vector(self.Pos.X, self.Pos.Y) + Vector(damageVector.X * self.FlipFactor, damageVector.Y):RadRotate(self.RotAngle)
 			
-			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
@@ -3467,16 +3580,19 @@ function Update(self)
 				elseif (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
-					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
-					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
+					if (MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
+					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")))
+					or (MO:NumberValueExists("AI Parry Eligible")) then
+						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
-						if MO:StringValueExists("Parrying Type") then
+						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry Eligible")) then
+							self.parriedCooldown = true;
+							self.parriedCooldownTimer:Reset();
+							self.parriedCooldownDelay = 600;
 							self.attackBuffered = false;
 							self.stabBuffered = false;
 							self.overheadBuffered = false;
 							self.wasParried = true;
-							self.parriedCooldown = true;
-							self.parriedCooldownTimer:Reset();
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
 							if effect then
 								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
