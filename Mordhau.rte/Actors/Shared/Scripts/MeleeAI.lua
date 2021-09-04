@@ -20,7 +20,7 @@ function Create(self)
 	MovableMan:ChangeActorTeam(self, 2)
 	
 	-- States:
-	self.MeleeAI.skill = 1
+	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
 	self.MeleeAI.active = false
 	
 	self.MeleeAI.movementInputPrevious = 0
