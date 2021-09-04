@@ -51,6 +51,9 @@ function Create(self)
 	
 	self.MeleeAI.lookOffset = 0
 	self.MeleeAI.blocking = false
+	self.MeleeAI.blockingFatigueLevel = 0
+	self.MeleeAI.blockingFatigueLevelRegeneration = (0.1 + 0.5 * self.MeleeAI.skill)
+	self.MeleeAI.blockingFatigueMode = 0 -- 0 - ready, 1 - blocking, 2 - regenerating
 	
 	self.MeleeAI.tactics = {
 		["Offensive"] = function ()
@@ -67,6 +70,8 @@ function Create(self)
 	self.MeleeAI.parrySuccess = false
 	self.MeleeAI.parryChance = 80--%
 	
+	self.MeleeAI.attacking = false
+	
 	self.MeleeAI.weaponAttackData = {
 	{name = "Swing", index = 1},
 	{name = "Stab", index = 3},
@@ -80,6 +85,7 @@ function UpdateAI(self)
 	if self.Status >= Actor.DYING or not self.Head then
 		return
 	end
+	self.MeleeAI.attacking = false
 	
 	local ctrl = (self.controller and self.controller or self:GetController())
 	
@@ -113,6 +119,55 @@ function UpdateAI(self)
 		weapon = nil
 	end
 	
+	-- Fatigue "state" machine
+	if self.MeleeAI.blockingFatigueMode == 0 then -- Read
+		self.MeleeAI.blockingFatigueLevel = math.min(self.MeleeAI.blockingFatigueLevel + TimerMan.DeltaTimeSecs * self.MeleeAI.blockingFatigueLevelRegeneration * 0.25, 1)
+		if self.MeleeAI.blocking and not self.MeleeAI.attacking then
+			self.MeleeAI.blockingFatigueMode = 1
+		end
+	elseif self.MeleeAI.blockingFatigueMode == 1 then -- Blocking
+		self.MeleeAI.blockingFatigueLevel = math.max(self.MeleeAI.blockingFatigueLevel - TimerMan.DeltaTimeSecs * 1.5, 0)
+		if not self.MeleeAI.blocking or self.MeleeAI.attacking then
+			self.MeleeAI.blockingFatigueMode = 0
+		elseif self.MeleeAI.blockingFatigueLevel < 0.05 then
+			self.MeleeAI.blockingFatigueMode = 2
+		end
+	elseif self.MeleeAI.blockingFatigueMode == 2 then -- Regeneration (cooldown)
+		self.MeleeAI.blockingFatigueLevel = math.min(self.MeleeAI.blockingFatigueLevel + TimerMan.DeltaTimeSecs * self.MeleeAI.blockingFatigueLevelRegeneration, 1)
+		if self.MeleeAI.blockingFatigueLevel > 0.95 then
+			self.MeleeAI.blockingFatigueMode = 0
+		end
+	end
+	
+	-- Extra graphical debug
+	if self.MeleeAI.debug then
+		--self.MeleeAI.blockingFatigueLevel = 0
+		--self.MeleeAI.blockingFatigueLevelRegeneration = 1
+		--self.MeleeAI.blockingFatigueMode = 0 -- 0 - ready, 1 - blocking, 2 - regenerating
+		
+		local hudOrigin = self.Pos
+		local hudUpperPos = hudOrigin + Vector(0, -30)
+		
+		local hudBarWidthOutline = 30
+		local hudBarWidth = 30
+		local hudBarHeight = 3
+		local hudBarColor = 87
+		local hudBarColorBG = 83
+		local hudBarColorOutline = 2
+		
+		local pos = hudUpperPos
+		
+		-- Fatigue
+		local hudBarWidth = 30 * self.MeleeAI.blockingFatigueLevel
+		local hudBarColor = ((self.MeleeAI.blockingFatigueMode == 0 and 87) or (self.MeleeAI.blockingFatigueMode == 1 and 99 or 47))
+		local hudBarColorBG = 83
+
+		local hudBarOffset = Vector(2, 2)
+		
+		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5) + hudBarOffset, pos + Vector(hudBarWidthOutline * 0.5, hudBarHeight * 0.5) + hudBarOffset, hudBarColorBG)
+		PrimitiveMan:DrawBoxFillPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5), pos + Vector(hudBarWidthOutline * -0.5 + hudBarWidth, hudBarHeight * 0.5), hudBarColor)
+		PrimitiveMan:DrawBoxPrimitive(pos + Vector(hudBarWidthOutline * -0.5, hudBarHeight * -0.5), pos + Vector(hudBarWidthOutline * 0.5, hudBarHeight * 0.5), hudBarColorOutline)
+	end
 	
 	local target = self.AI.Target
 	if target and self.MeleeAI.weapon then
@@ -138,6 +193,12 @@ function UpdateAI(self)
 				self.MeleeAI.distanceOffset = RangeRand(self.MeleeAI.distanceOffsetMin, self.MeleeAI.distanceOffsetMax)
 				self.MeleeAI.distanceOffsetDelay = RangeRand(self.MeleeAI.distanceOffsetDelayMin, self.MeleeAI.distanceOffsetDelayMax)
 				self.MeleeAI.distanceOffsetDelayTimer:Reset()
+				
+				local tacticList = {}
+				for key, tactic in pairs(self.MeleeAI.tactics) do
+					table.insert(tacticList, key)
+				end
+				self.MeleeAI.tactic = tacticList[math.random(1, #tacticList)]
 			end
 			
 			self.MeleeAI.tactics[self.MeleeAI.tactic]()
@@ -200,7 +261,7 @@ function UpdateAI(self)
 					self.MeleeAI.parrySuccess = false
 					
 					-- Defend
-					if not self.MeleeAI.parrySuccess and ((attacking and attackType and attackRange) and self.FlipFactor ~= target.FlipFactor and difMagnitude < (attackRange + 30)) then
+					if self.MeleeAI.blockingFatigueMode < 2 and not self.MeleeAI.parrySuccess and ((attacking and attackType and attackRange) and self.FlipFactor ~= target.FlipFactor and difMagnitude < (attackRange + 30)) then
 						-- Block
 						block = true
 						weapon:SetNumberValue("AI Block", 1)
@@ -237,7 +298,10 @@ function UpdateAI(self)
 					
 					if (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
 						self.MeleeAI.parrySuccess = false
+						
+						self.MeleeAI.attacking = true
 					else
+						self.MeleeAI.attacking = false
 						
 						if self.MeleeAI.parryReady then
 							if math.random(0, 100) < self.MeleeAI.parryChance * (self.MeleeAI.skill * self.MeleeAI.skill) then
@@ -255,7 +319,7 @@ function UpdateAI(self)
 					--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -50 - 42), (not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) and "True" or "False"), false, 1);
 					
 					if weapon and (not block) and not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
-						if dif.Magnitude < meleeRange + math.random(-5,5) then
+						if dif.Magnitude < (meleeRange + math.random(-5,5) + 10) then
 							ctrl:SetState(Controller.WEAPON_FIRE, true)
 							
 							local attackName = self.MeleeAI.weaponData[self.MeleeAI.weaponAttackData[self.MeleeAI.weaponNextAttackIndex].index].name
@@ -290,6 +354,7 @@ function UpdateAI(self)
 				elseif targetWeaponRanged then
 					
 					-- Defend if far
+					--if self.MeleeAI.blockingFatigueMode < 2
 					
 					-- Attack if close
 				end
@@ -354,6 +419,8 @@ function UpdateAI(self)
 		elseif self.MeleeAI.active then
 			self.MeleeAI.active = false
 			self.AI.Target = nil
+		else
+			weapon:SetNumberValue("AI Block", 1)
 		end
 	elseif self.MeleeAI.active then
 		self.MeleeAI.active = false
