@@ -23,6 +23,12 @@ function Create(self)
 	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
 	self.MeleeAI.active = false
 	
+	local activity = ActivityMan:GetActivity()
+	if activity then
+		--self.MeleeAI.skill = activity:GetTeamAISkill(self.Team) * 0.01
+		print(self.MeleeAI.skill)
+	end
+	
 	self.MeleeAI.movementInputPrevious = 0
 	self.MeleeAI.movementDirectionChangeTimer = Timer()
 	self.MeleeAI.movementDirectionChangeDuration = 100
@@ -42,6 +48,24 @@ function Create(self)
 	self.MeleeAI.randomGimmickDelayMin = 800
 	self.MeleeAI.randomGimmickDelayMax = 2500
 	self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
+	
+	self.MeleeAI.lookOffset = 0
+	self.MeleeAI.blocking = false
+	
+	self.MeleeAI.tactics = {
+		["Offensive"] = function ()
+			-- Invert distance offset
+			self.MeleeAI.distanceOffset = math.max(-math.abs(self.MeleeAI.distanceOffset), -10)
+		end,
+		["Defensive"] = function ()
+			-- Basic behaviour
+		end
+	}
+	self.MeleeAI.tactic = "Offensive"
+	
+	self.MeleeAI.parryReady = false
+	self.MeleeAI.parrySuccess = false
+	self.MeleeAI.parryChance = 80--%
 	
 	self.MeleeAI.weaponAttackData = {
 	{name = "Swing", index = 1},
@@ -72,7 +96,7 @@ function UpdateAI(self)
 				self.MeleeAI.weapon = weapon.UniqueID
 				--self.MeleeAI.weaponData
 				for i = 0, 4 do
-					print(weapon:GetNumberValue("Attack "..tostring(i+1).." Range"))
+					--print(weapon:GetNumberValue("Attack "..tostring(i+1).." Range"))
 					table.insert(self.MeleeAI.weaponData, {name = weapon:GetStringValue("Attack "..tostring(i+1).." Name"), range = weapon:GetNumberValue("Attack "..tostring(i+1).." Range")})
 				end
 			else
@@ -115,6 +139,8 @@ function UpdateAI(self)
 				self.MeleeAI.distanceOffsetDelay = RangeRand(self.MeleeAI.distanceOffsetDelayMin, self.MeleeAI.distanceOffsetDelayMax)
 				self.MeleeAI.distanceOffsetDelayTimer:Reset()
 			end
+			
+			self.MeleeAI.tactics[self.MeleeAI.tactic]()
 			
 			--- Actual target behaviour
 			if IsAHuman(target) then
@@ -167,25 +193,57 @@ function UpdateAI(self)
 					local block = false
 					local attack = false
 					
-					if self.MeleeAI.weapon then -- Melee response:
+					--if self.MeleeAI.weapon then -- Melee response:
 						-- Get close but not too close
-						
-					end
+					--end
+					
+					self.MeleeAI.parrySuccess = false
 					
 					-- Defend
-					if (attacking and attackType and attackRange) and self.FlipFactor ~= target.FlipFactor and difMagnitude < (attackRange + 30) then
+					if not self.MeleeAI.parrySuccess and ((attacking and attackType and attackRange) and self.FlipFactor ~= target.FlipFactor and difMagnitude < (attackRange + 30)) then
 						-- Block
 						block = true
 						weapon:SetNumberValue("AI Block", 1)
+						
+						if not self.MeleeAI.blocking then
+							self.MeleeAI.lookOffset = math.rad(50) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
+							if attackType == 4 then
+								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(30)
+							end
+							
+							self.MeleeAI.blocking = true
+						end
+						
 						
 						if math.random() < 0.01 then
 							self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 							self.MeleeAI.randomGimmickTimer:Reset()
 						end
+						
+						if weapon:NumberValueExists("Blocked Mordhau") and weapon:GetNumberValue("Blocked Mordhau") then
+							self.MeleeAI.parrySuccess = true
+							self.MeleeAI.parryReady = true
+						end
 					else
 						if weapon:NumberValueExists("Blocked Mordhau") and weapon:GetNumberValue("Blocked Mordhau") then
 							weapon:RemoveNumberValue("Blocked Mordhau")
 							self.MeleeAI.distanceOffset = self.MeleeAI.distanceOffset + 20
+						end
+						self.MeleeAI.parryReady = true
+						--self.MeleeAI.parrySuccess = false
+						
+						self.MeleeAI.blocking = false
+					end
+					
+					if (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
+						self.MeleeAI.parrySuccess = false
+					else
+						
+						if self.MeleeAI.parryReady then
+							if math.random(0, 100) < self.MeleeAI.parryChance * (self.MeleeAI.skill * self.MeleeAI.skill) then
+								weapon:SetNumberValue("AI Parry", 1)
+							end
+							self.MeleeAI.parryReady = false
 						end
 					end
 					
@@ -196,7 +254,7 @@ function UpdateAI(self)
 					--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -50 - 28), (block and "True" or "False"), false, 1);
 					--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -50 - 42), (not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) and "True" or "False"), false, 1);
 					
-					if weapon and (not block) and (weapon:NumberValueExists("Current Attack Type") or weapon:GetNumberValue("Current Attack Type") > 0) then
+					if weapon and (not block) and not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
 						if dif.Magnitude < meleeRange + math.random(-5,5) then
 							ctrl:SetState(Controller.WEAPON_FIRE, true)
 							
@@ -206,6 +264,8 @@ function UpdateAI(self)
 								weapon:SetNumberValue("AI "..attackName, 1)
 							end
 							self.MeleeAI.weaponNextAttackIndex = math.floor(RangeRand(1, #self.MeleeAI.weaponAttackData + 1))
+							
+							self.MeleeAI.parrySuccess = false
 							
 							if math.random() < 0.05 then
 								self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
@@ -280,7 +340,7 @@ function UpdateAI(self)
 			
 			-- Look around
 			local sway = math.sin(self.Age * 0.01 + self.UniqueID) * 0.05 + math.sin(self.Age * 0.002 + 2) * 0.1 + math.sin(self.Age * 0.015 - 3 - self.UniqueID) * 0.05 + math.sin(self.Age * 0.005 + 6) * 0.075 * 0.05 + math.sin(self.Age * 0.001 + 15 + self.UniqueID) * 0.3
-			local factor = sway * (1 - self.MeleeAI.skill)
+			local factor = sway * (1 - self.MeleeAI.skill) + self.MeleeAI.lookOffset * self.FlipFactor
 			--self:SetAimAngle(math.pi * 0.5 * factor)
 			
 			if IsAHuman(target) and target.Head then
@@ -288,6 +348,8 @@ function UpdateAI(self)
 			else
 				ctrl.AnalogAim = (dif.Normalized):RadRotate(factor)
 			end
+			
+			self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 15 * (0.3 + self.MeleeAI.skill))
 			
 		elseif self.MeleeAI.active then
 			self.MeleeAI.active = false

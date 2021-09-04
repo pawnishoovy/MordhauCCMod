@@ -1981,6 +1981,7 @@ function Update(self)
 					self:SetNumberValue("Blocked", 0);
 					self:SetNumberValue("Current Attack Type", 0);
 					self:SetNumberValue("Current Attack Range", 0);
+					self:RemoveNumberValue("AI Parry")
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
