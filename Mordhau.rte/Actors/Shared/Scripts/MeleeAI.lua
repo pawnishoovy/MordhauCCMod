@@ -16,7 +16,7 @@ function Create(self)
 	self.MeleeAI.debug = false
 	
 	
-	MovableMan:ChangeActorTeam(self, math.random(0,3))
+	MovableMan:ChangeActorTeam(self, 3)
 	
 	-- States:
 	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
@@ -215,7 +215,7 @@ function UpdateAI(self)
 				for key, tactic in pairs(self.MeleeAI.tactics) do
 					table.insert(tacticList, key)
 				end
-				self.MeleeAI.tactic = tacticList[math.random(1, #tacticList)]
+			--	self.MeleeAI.tactic = tacticList[math.random(1, #tacticList)]
 			end
 			
 			self.MeleeAI.tactics[self.MeleeAI.tactic]()

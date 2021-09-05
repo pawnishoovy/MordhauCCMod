@@ -19,10 +19,14 @@ function Create(self)
 	
 	-- IDENTITY AND VOICE
 	
-	if math.random(0, 100) < 50 then
+	if math.random(0, 100) < 25 then
 		self.IdentityPrimary = "George";
-	else
+	elseif math.random(0, 100) < 50 then
 		self.IdentityPrimary = "Dave";
+	elseif math.random(0, 100) < 75 then
+		self.IdentityPrimary = "Bastard";
+	else
+		self.IdentityPrimary = "Bastard";
 	end
 	self:SetStringValue("IdentityPrimary", self.IdentityPrimary);
 	

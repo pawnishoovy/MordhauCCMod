@@ -2035,6 +2035,9 @@ function Update(self)
 				self.Parrying = false;
 				self:RemoveStringValue("Parrying Type");
 				
+				self:RemoveNumberValue("AI Parry");
+				self:RemoveNumberValue("AI Eligible");
+				
 				self:SetNumberValue("Blocked", 0);
 				self:SetNumberValue("Current Attack Type", 0);
 				self:SetNumberValue("Current Attack Range", 0);
@@ -2173,19 +2176,29 @@ function Update(self)
 					self.parrySound:Play(self.Pos);
 					
 					if self:NumberValueExists("AI Parry Eligible") then
-						print("eligible triggered");
 						self:RemoveNumberValue("AI Parry Eligible");			
 						self:RemoveNumberValue("AI Parry");	
 						
 						self.Parrying = true;
 						
 						if self:GetStringValue("Blocked Type") == "Slash" then
-							print("aye");
-							local toPlay = math.random(0, 100) < 50 and 3 or (self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or 1)
-							playAttackAnimation(self, toPlay);
+							if math.random(0, 100) < 50 then
+								playAttackAnimation(self, 4);
+								self:SetNumberValue("Current Attack Type", 4);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
+							elseif self.parent:NumberValueExists("Mordhau Disable Movement") then
+								playAttackAnimation(self, 15);
+								self:SetNumberValue("Current Attack Type", 2);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
+							else
+								playAttackAnimation(self, 1);
+								self:SetNumberValue("Current Attack Type", 1);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
+							end
 						else
-							print("ayestab");
 							playAttackAnimation(self, 2);
+							self:SetNumberValue("Current Attack Type", 3);
+							self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
 						end
 					
 						self.Blocking = false;
