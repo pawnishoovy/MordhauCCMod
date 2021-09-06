@@ -77,10 +77,10 @@ function CrusaderAIBehaviours.createVoiceSoundEffect(self, soundContainer, prior
 end
 
 function CrusaderAIBehaviours.handleMovement(self)
-	
+
 	if self:NumberValueExists("Mordhau Disable Movement") then
 		return;
-	end	
+	end
 	
 	local crouching = self.controller:IsState(Controller.BODY_CROUCH)
 	local moving = self.controller:IsState(Controller.MOVE_LEFT) or self.controller:IsState(Controller.MOVE_RIGHT);
@@ -164,7 +164,7 @@ function CrusaderAIBehaviours.handleMovement(self)
 	-- Custom Jump
 	if self.controller:IsState(Controller.BODY_JUMPSTART) == true and self.controller:IsState(Controller.BODY_CROUCH) == false and self.jumpTimer:IsPastSimMS(self.jumpDelay) and not self.isJumping then
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) or self.wasInAir == false then
-			local jumpVec = Vector(0,-1.5)
+			local jumpVec = Vector(0, self.jumpStrength)
 			local jumpWalkX = 3
 			if self.controller:IsState(Controller.MOVE_LEFT) == true then
 				jumpVec.X = -jumpWalkX
@@ -172,6 +172,7 @@ function CrusaderAIBehaviours.handleMovement(self)
 				jumpVec.X = jumpWalkX
 			end
 			self.movementSounds.Jump:Play(self.Pos);
+			self.jumpBoostTimer:Reset();
 			
 			if self.Health < 10 then
 				CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.effortSerious, 2, 0);
@@ -201,6 +202,11 @@ function CrusaderAIBehaviours.handleMovement(self)
 			self.jumpStop:Reset()
 		end
 	elseif self.isJumping or self.wasInAir then
+		if self.isJumping then
+			if self.controller:IsState(Controller.BODY_JUMP) == true and not self.jumpBoostTimer:IsPastSimMS(200) then
+				self.Vel = self.Vel - SceneMan.GlobalAcc * TimerMan.DeltaTimeSecs * 2.8 -- Stop the gravity
+			end
+		end
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) and self.jumpStop:IsPastSimMS(100) then
 			self.isJumping = false
 			self.wasInAir = false;
@@ -220,6 +226,48 @@ function CrusaderAIBehaviours.handleMovement(self)
 				
 			end
 		end
+	end
+	
+	-- Sprint
+	local input = ((self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true) and not (self.controller:IsState(Controller.MOVE_LEFT) == true and self.controller:IsState(Controller.MOVE_RIGHT) == true))
+	
+	-- Double Tap
+	if self.doubleTapState == 0 then
+		if input == true then
+			self.doubleTapTimer:Reset()
+		else
+			self.doubleTapState = 1
+		end
+	elseif self.doubleTapState == 1 then
+		if self.doubleTapTimer:IsPastSimMS(100) then
+			self.doubleTapState = 0
+		elseif input == true then
+			self.isSprinting = true
+			self.doubleTapState = 0
+		end
+	end
+	
+	--isSprinting
+	aiSprint = (not self:IsPlayerControlled() and self.MeleeAI.active == false) and (self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true)
+	
+	--local movementMultiplier = 1
+	local movementMultiplier = 1
+	local walkMultiplier = 0.8
+	--local sprintMultiplier = 0.5 * movementMultiplier
+	local sprintMultiplier = 1.0	 
+	if self.isSprinting or aiSprint then
+		if input == false then
+			self.isSprinting = false
+		end
+		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.sprintMultiplier * sprintMultiplier);
+		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * self.sprintMultiplier * sprintMultiplier);
+		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * self.sprintMultiplier * sprintMultiplier);
+		self.LimbPathPushForce = self.limbPathDefaultPushForce * self.sprintPushForceDenominator * sprintMultiplier
+	else
+		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * walkMultiplier);
+		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * walkMultiplier);
+		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * walkMultiplier);
+		self.LimbPathPushForce = self.limbPathDefaultPushForce * walkMultiplier
 	end
 
 	if (crouching) then

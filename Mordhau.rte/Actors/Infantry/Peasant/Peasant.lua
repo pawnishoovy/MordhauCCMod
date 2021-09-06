@@ -150,6 +150,20 @@ function Create(self)
 			[180] = CreateSoundContainer("Footstep Walk SolidMetal", "Mordhau.rte"),
 			[181] = CreateSoundContainer("Footstep Walk SolidMetal", "Mordhau.rte"),
 			[182] = CreateSoundContainer("Footstep Walk SolidMetal", "Mordhau.rte")},
+	FootstepSprint = {[12] = CreateSoundContainer("Footstep Sprint Concrete", "Mordhau.rte"),
+			[164] = CreateSoundContainer("Footstep Sprint Concrete", "Mordhau.rte"),
+			[177] = CreateSoundContainer("Footstep Sprint Concrete", "Mordhau.rte"),
+			[9] = CreateSoundContainer("Footstep Sprint Dirt", "Mordhau.rte"),
+			[10] = CreateSoundContainer("Footstep Sprint Dirt", "Mordhau.rte"),
+			[11] = CreateSoundContainer("Footstep Sprint Dirt", "Mordhau.rte"),
+			[128] = CreateSoundContainer("Footstep Sprint Dirt", "Mordhau.rte"),
+			[6] = CreateSoundContainer("Footstep Sprint Sand", "Mordhau.rte"),
+			[8] = CreateSoundContainer("Footstep Sprint Sand", "Mordhau.rte"),
+			[178] = CreateSoundContainer("Footstep Sprint SolidMetal", "Mordhau.rte"),
+			[179] = CreateSoundContainer("Footstep Sprint SolidMetal", "Mordhau.rte"),
+			[180] = CreateSoundContainer("Footstep Sprint SolidMetal", "Mordhau.rte"),
+			[181] = CreateSoundContainer("Footstep Sprint SolidMetal", "Mordhau.rte"),
+			[182] = CreateSoundContainer("Footstep Sprint SolidMetal", "Mordhau.rte")}
 	};
 	
 	-- EVERYTHING ELSE
@@ -244,9 +258,25 @@ function Create(self)
 	
 	-- custom Jumping
 	self.isJumping = false
+	self.jumpStrength = -2.0;
 	self.jumpTimer = Timer();
 	self.jumpDelay = 500;
 	self.jumpStop = Timer();
+	self.jumpBoostTimer = Timer();
+	
+	-- Sprint
+	self.isSprinting = false
+	self.doubleTapTimer = Timer();
+	self.doubleTapState = 0
+
+	self.sprintMultiplier = 1.3;
+
+	self.sprintPushForceDenominator = 1.2 / 0.8
+	
+	self.limbPathDefaultSpeed0 = self:GetLimbPathSpeed(0)
+	self.limbPathDefaultSpeed1 = self:GetLimbPathSpeed(1)
+	self.limbPathDefaultSpeed2 = self:GetLimbPathSpeed(2)
+	self.limbPathDefaultPushForce = self.LimbPathPushForce
 	
 	self.lastVel = Vector(0, 0)
 	
@@ -283,6 +313,8 @@ end
 
 function OnStride(self)
 
+	local sound = self.isSprinting and self.terrainSounds.FootstepSprint or self.terrainSounds.FootstepWalk
+
 	if self.BGFoot and self.FGFoot then
 	
 		-- if math.random(0, 100) < 30 then
@@ -304,10 +336,10 @@ function OnStride(self)
 		local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 		
 		if terrPixel ~= 0 then -- 0 = air
-			if self.terrainSounds.FootstepWalk[terrPixel] ~= nil then
-				self.terrainSounds.FootstepWalk[terrPixel]:Play(self.Pos);
+			if sound[terrPixel] ~= nil then
+				sound[terrPixel]:Play(self.Pos);
 			else -- default to concrete
-				self.terrainSounds.FootstepWalk[177]:Play(self.Pos);
+				sound[177]:Play(self.Pos);
 			end
 		end
 		
@@ -331,10 +363,10 @@ function OnStride(self)
 		local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 		
 		if terrPixel ~= 0 then -- 0 = air
-			if self.terrainSounds.FootstepWalk[terrPixel] ~= nil then
-				self.terrainSounds.FootstepWalk[terrPixel]:Play(self.Pos);
+			if sound[terrPixel] ~= nil then
+				sound[terrPixel]:Play(self.Pos);
 			else -- default to concrete
-				self.terrainSounds.FootstepWalk[177]:Play(self.Pos);
+				sound[177]:Play(self.Pos);
 			end
 		end
 		
@@ -358,10 +390,10 @@ function OnStride(self)
 		local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
 		
 		if terrPixel ~= 0 then -- 0 = air
-			if self.terrainSounds.FootstepWalk[terrPixel] ~= nil then
-				self.terrainSounds.FootstepWalk[terrPixel]:Play(self.Pos);
+			if sound[terrPixel] ~= nil then
+				sound[terrPixel]:Play(self.Pos);
 			else -- default to concrete
-				self.terrainSounds.FootstepWalk[177]:Play(self.Pos);
+				sound[177]:Play(self.Pos);
 			end
 		end
 		
