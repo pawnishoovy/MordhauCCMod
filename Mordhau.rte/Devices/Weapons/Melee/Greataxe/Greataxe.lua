@@ -241,7 +241,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	doubleSlashAttackPhase[i] = {}
-	doubleSlashAttackPhase[i].durationMS = 300
+	doubleSlashAttackPhase[i].durationMS = 200
 	
 	doubleSlashAttackPhase[i].lastPrepare = true
 	doubleSlashAttackPhase[i].canBeBlocked = false
@@ -622,7 +622,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	slashOverheadAttackPhase[i] = {}
-	slashOverheadAttackPhase[i].durationMS = 300
+	slashOverheadAttackPhase[i].durationMS = 200
 	
 	slashOverheadAttackPhase[i].lastPrepare = true
 	slashOverheadAttackPhase[i].canBeBlocked = false
@@ -975,7 +975,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	stabLaunchAttackPhase[i] = {}
-	stabLaunchAttackPhase[i].durationMS = 600
+	stabLaunchAttackPhase[i].durationMS = 200
 	
 	stabLaunchAttackPhase[i].lastPrepare = true
 	stabLaunchAttackPhase[i].canBeBlocked = false
@@ -1170,7 +1170,7 @@ function Create(self)
 	-- Late Prepare
 	i = 2
 	getOverHereAttackPhase[i] = {}
-	getOverHereAttackPhase[i].durationMS = 450
+	getOverHereAttackPhase[i].durationMS = 200
 	
 	getOverHereAttackPhase[i].lastPrepare = true
 	getOverHereAttackPhase[i].canBeBlocked = false
@@ -3110,11 +3110,11 @@ function Update(self)
 				end
 			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
-			elseif self.chargeDecided == false or self.blockedNullifier == false then
+			elseif self.chargeDecided == false or self.blockedNullifier == false or self.allowBlockCancelling == true then
 				-- block, getting parried cancelling
 				local keyPress
 				if player then
-					keyPress = UInputMan:KeyPressed(18);
+					keyPress = UInputMan:KeyPressed(18) or (self.blockedNullifier == false and UInputMan:KeyHeld(18));
 				else
 					keyPress = self:NumberValueExists("AI Block");
 				end
@@ -3223,7 +3223,7 @@ function Update(self)
 				local currentPhase = attackPhases[1]
 				
 				self.pseudoPhase = {}
-				self.pseudoPhase.durationMS = (currentPhase.durationMS * 1.8) or 0
+				self.pseudoPhase.durationMS = ((currentPhase.durationMS * 1.8) + (self.blockedNullifier == false and 300 or 0)) or 0
 				
 				self.pseudoPhase.canBeBlocked = currentPhase.canBeBlocked or false
 				self.pseudoPhase.canDamage = currentPhase.canDamage or false
@@ -3313,7 +3313,7 @@ function Update(self)
 				self.attackCooldown = true;
 				self.parriedCooldown = true;
 				self.parriedCooldownTimer:Reset();
-				self.parriedCooldownDelay = 300;
+				self.parriedCooldownDelay = 600;
 				self.wasCharged = false;
 				self.currentAttackAnimation = 0
 				self.currentAttackSequence = 0
@@ -3788,14 +3788,17 @@ function Update(self)
 			
 			if hit then
 				if hitType == 0 then -- Default
+					self.allowBlockCancelling = true;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound:Play(self.Pos);
 					end
 				elseif hitType == 1 then -- Flesh
+					self.allowBlockCancelling = true;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitFleshSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitFleshSound:Play(self.Pos);
 					end
 				elseif hitType == 2 then -- Metal
+					self.allowBlockCancelling = true;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound:Play(self.Pos);
 					end
