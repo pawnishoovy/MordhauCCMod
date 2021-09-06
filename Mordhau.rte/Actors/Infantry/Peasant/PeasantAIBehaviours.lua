@@ -206,6 +206,11 @@ function PeasantAIBehaviours.handleMovement(self)
 			if self.controller:IsState(Controller.BODY_JUMP) == true and not self.jumpBoostTimer:IsPastSimMS(200) then
 				self.Vel = self.Vel - SceneMan.GlobalAcc * TimerMan.DeltaTimeSecs * 2.8 -- Stop the gravity
 			end
+			if self.controller:IsState(Controller.MOVE_LEFT) == true and not self.jumpBoostTimer:IsPastSimMS(1000) and self.Vel.X > -5 then
+				self.Vel = self.Vel + Vector(-14, 0) * TimerMan.DeltaTimeSecs * 1.0
+			elseif self.controller:IsState(Controller.MOVE_RIGHT) == true and not self.jumpBoostTimer:IsPastSimMS(1000) and self.Vel.X < 5 then
+				self.Vel = self.Vel + Vector(14, 0) * TimerMan.DeltaTimeSecs * 1.0
+			end
 		end
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) and self.jumpStop:IsPastSimMS(100) then
 			self.isJumping = false
@@ -229,7 +234,7 @@ function PeasantAIBehaviours.handleMovement(self)
 	end
 	
 	-- Sprint
-	local input = ((self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true) and not (self.controller:IsState(Controller.MOVE_LEFT) == true and self.controller:IsState(Controller.MOVE_RIGHT) == true))
+	local input = not self.isJumping and ((self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true) and not (self.controller:IsState(Controller.MOVE_LEFT) == true and self.controller:IsState(Controller.MOVE_RIGHT) == true))
 	
 	-- Double Tap
 	if self.doubleTapState == 0 then
@@ -257,7 +262,8 @@ function PeasantAIBehaviours.handleMovement(self)
 	--local sprintMultiplier = 0.5 * movementMultiplier
 	local sprintMultiplier = 1.0 
 	if self.isSprinting or aiSprint then
-		if input == false then
+		if input == false
+		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true then
 			self.isSprinting = false
 		end
 		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.sprintMultiplier * sprintMultiplier);
