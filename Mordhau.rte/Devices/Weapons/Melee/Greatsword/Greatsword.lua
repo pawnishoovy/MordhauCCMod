@@ -21,6 +21,8 @@ function playAttackAnimation(self, animation)
 		
 	end
 	
+	self.IDToIgnore = nil;
+	
 	self.attackBuffered = false;
 	self.stabBuffered = false;
 	self.overheadBuffered = false;
@@ -1896,7 +1898,6 @@ function Update(self)
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
 				if activated then
-					self.attackCooldown = true;
 					self.wasCharged = true;
 					self.parent:SetNumberValue("Large Attack", 1);
 				else
@@ -2319,13 +2320,13 @@ function Update(self)
 			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
-			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
+			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
 				if (IsMOSRotating(MO) and canDamage) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
-				and ToMOSRotating(MO):GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]))) then
+				and ToMOSRotating(MO):GetStringValue("Parrying Type") == "Flourish"))) then
 					hit = true
 					MO = ToMOSRotating(MO)
 					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
@@ -2504,6 +2505,7 @@ function Update(self)
 						end
 						
 					else
+						self.IDToIgnore = MO.ID;
 						hit = false; -- keep going and looking
 					end
 				end

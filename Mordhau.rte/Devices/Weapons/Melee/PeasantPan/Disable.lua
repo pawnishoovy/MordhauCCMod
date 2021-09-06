@@ -1,5 +1,11 @@
 function OnDetach(self)
 
+	self:RemoveNumberValue("AI Parry")
+	self:RemoveNumberValue("AI Parry Eligible")
+
+	self:RemoveNumberValue("AI Parry")
+	self:RemoveNumberValue("AI Parry Eligible")
+
 	if self.wasThrown == true then
 	
 		self.throwWounds = 4;

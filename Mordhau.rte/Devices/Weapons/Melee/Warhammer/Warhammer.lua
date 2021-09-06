@@ -21,6 +21,8 @@ function playAttackAnimation(self, animation)
 		
 	end
 	
+	self.IDToIgnore = nil;
+	
 	self.attackBuffered = false;
 	self.stabBuffered = false;
 	self.overheadBuffered = false;
@@ -197,6 +199,8 @@ function Create(self)
 	regularAttackGFX.hitMetalGFX = "Melee Terrain Hard Effect Mordhau"
 	regularAttackGFX.hitDeflectGFX = "Melee Terrain Hard Effect Mordhau"
 	
+	self:SetNumberValue("Attack Types", 4)
+	
 	-- Regular Attack
 	attackPhase = {}
 	attackPhase.Type = "Slash";
@@ -210,7 +214,10 @@ function Create(self)
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
-	attackPhase[i].attackRange = 0
+	attackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	attackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 1 Range", attackPhase[i].furthestReach + attackPhase[i].attackRange)
+	self:SetStringValue("Attack 1 Name", "Swing");
 	attackPhase[i].attackPush = 0
 	attackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
@@ -459,7 +466,10 @@ function Create(self)
 	horseAttackPhase[i].canDamage = false
 	horseAttackPhase[i].attackDamage = 0
 	horseAttackPhase[i].attackStunChance = 0
-	horseAttackPhase[i].attackRange = 0
+	horseAttackPhase[i].furthestReach = 10 -- for AI calculation number value setting later
+	horseAttackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 2 Range", horseAttackPhase[i].furthestReach + horseAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 2 Name", "Horse Swing");
 	horseAttackPhase[i].attackPush = 0
 	horseAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 90;
@@ -764,7 +774,10 @@ function Create(self)
 	stabAttackPhase[i].canDamage = false
 	stabAttackPhase[i].attackDamage = 0
 	stabAttackPhase[i].attackStunChance = 0
-	stabAttackPhase[i].attackRange = 0
+	stabAttackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	stabAttackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 3 Range", stabAttackPhase[i].furthestReach + stabAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 3 Name", "Stab");
 	stabAttackPhase[i].attackPush = 0
 	stabAttackPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
 	stabAttackPhase[i].attackAngle = 90;
@@ -960,7 +973,10 @@ function Create(self)
 	overheadAttackPhase[i].canDamage = false
 	overheadAttackPhase[i].attackDamage = 0
 	overheadAttackPhase[i].attackStunChance = 0
-	overheadAttackPhase[i].attackRange = 0
+	overheadAttackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
+	overheadAttackPhase[i].attackRange = 20
+	self:SetNumberValue("Attack 4 Range", overheadAttackPhase[i].furthestReach + overheadAttackPhase[i].attackRange)
+	self:SetStringValue("Attack 4 Name", "Overhead");
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
@@ -1637,6 +1653,8 @@ function Update(self)
 	if UInputMan:KeyPressed(38) then
 		self:ReloadScripts();
 	end
+	
+	self:RemoveStringValue("Blocked Mordhau")
 
 	local act = self:GetRootParent();
 	local actor = IsAHuman(act) and ToAHuman(act) or nil;
@@ -1682,34 +1700,34 @@ function Update(self)
 			if player then
 				throw = (player and UInputMan:KeyPressed(10));
 				flourish = (player and UInputMan:KeyPressed(8));
-				stab = (player and UInputMan:KeyPressed(2)) or self.stabBuffered;
-				overhead = (player and UInputMan:KeyPressed(22)) or self.overheadBuffered;
+				stab = (player and UInputMan:KeyPressed(2))
+				overhead = (player and UInputMan:KeyPressed(22))
 				if stab or overhead or flourish or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
-				attack = controller:IsState(Controller.PRESS_PRIMARY);
+				attack = controller:IsState(Controller.PRESS_PRIMARY) and not self.attackCooldown;
 				if self:IsActivated() and self.attackCooldown == true then
 					self:Deactivate();
 				else
 					self.attackCooldown = false;
 				end
 			else
-				-- stab = (math.random(0, 100) < 50) and true;
-				-- overhead = true;
-				-- if stab or overhead or flourish or throw or warcry then
-					-- controller:SetState(Controller.PRESS_PRIMARY, true)
-					-- self:Activate();
-				-- end
-			end
-			if stab or overhead or warcry or flourish or throw then
-				controller:SetState(Controller.PRESS_PRIMARY, true)
-				self:Activate();
+				throw = self:NumberValueExists("AI Throw");
+				flourish = self:NumberValueExists("AI Flourish");
+				stab = self:NumberValueExists("AI Stab");
+				overhead = self:NumberValueExists("AI Overhead");
+				attack = self:NumberValueExists("AI Attack");
+				if stab or overhead or flourish or throw or warcry then
+					controller:SetState(Controller.PRESS_PRIMARY, true)
+					self:Activate();
+				end
 			end
 			activated = self:IsActivated();
 		elseif self.parriedCooldownTimer:IsPastSimMS(self.parriedCooldownDelay) then
 			self.parriedCooldown = false;
 		end
+		
 		local attacked = false
 		
 		-- if player then -- PLAYER INPUT
@@ -1778,28 +1796,31 @@ function Update(self)
 			if not stab and not overhead and not flourish and not throw and not warcry then
 				if self.parent:NumberValueExists("Mordhau Disable Movement") then -- we're probably on a horse if this is set... probably...
 					playAttackAnimation(self, 15) -- regular attack
+					self:SetNumberValue("Current Attack Type", 2);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
 				else
 					playAttackAnimation(self, 1) -- regular attack
+					self:SetNumberValue("Current Attack Type", 1);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
 				end
 			elseif stab then
 				playAttackAnimation(self, 2) -- stab
+				self:SetNumberValue("Current Attack Type", 3);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
 			elseif overhead then
 				playAttackAnimation(self, 3) -- overhead
+				self:SetNumberValue("Current Attack Type", 4);
+				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
 			elseif warcry then
 				self.parent:SetNumberValue("Block Foley", 1);
-				local BGItem = self.parent.EquippedBGItem;				
-				if BGItem and BGItem:IsInGroup("Shields") then
-					playAttackAnimation(self, 6)
-				else
-					playAttackAnimation(self, 5)
-				end
+				playAttackAnimation(self, 5)
 			elseif flourish then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 4) -- fancypants shit
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
-				playAttackAnimation(self, 7) -- throw
+				playAttackAnimation(self, 6) -- throw
 			end
 			
 			-- if self.isCharged then
@@ -1813,6 +1834,11 @@ function Update(self)
 		end
 		
 		self:RemoveNumberValue("Warcried");
+		self:RemoveNumberValue("AI Flourish");
+		self:RemoveNumberValue("AI Throw");
+		self:RemoveNumberValue("AI Stab");
+		self:RemoveNumberValue("AI Overhead");
+		self:RemoveNumberValue("AI Attack");
 		
 		-- ANIMATION PLAYER
 		local stanceTarget = Vector(0, 0)
@@ -1861,7 +1887,6 @@ function Update(self)
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
 				if activated then
-					self.attackCooldown = true;
 					self.wasCharged = true;
 					self.parent:SetNumberValue("Large Attack", 1);
 				else
@@ -1870,27 +1895,36 @@ function Update(self)
 				end
 			elseif currentPhase.firstRecovery == true then
 				self.Recovering = true;
-			elseif self.chargeDecided == false then
+			elseif self.chargeDecided == false or self.blockedNullifier == false then
 				-- block cancelling
+				local keyPress
 				if player then
-					local keyPress = UInputMan:KeyPressed(18);
-					if keyPress then
-						self.Throwing = false;
-						self.wasCharged = false;
-						self.currentAttackAnimation = 0
-						self.currentAttackSequence = 0
-						self.attackAnimationIsPlaying = false			
-						self.parent:SetNumberValue("Block Foley", 1);
+					keyPress = UInputMan:KeyPressed(18) or (self.blockedNullifier == false and UInputMan:KeyHeld(18));
+				else
+					keyPress = self:NumberValueExists("AI Block");
+				end
+				
+				
+				if keyPress then
+					self.Throwing = false;
+					self.wasCharged = false;
+					self.currentAttackAnimation = 0
+					self.currentAttackSequence = 0
+					self.attackAnimationIsPlaying = false			
+					self.parent:SetNumberValue("Block Foley", 1);
+				
+					self.Blocking = true;
+					self:RemoveStringValue("Parrying Type");
+					self.Parrying = false;
 					
-						self.Blocking = true;
-						
-						self:SetNumberValue("Blocking", 1);
-						
-						stanceTarget = Vector(4, -3);
-						
-						self.originalBaseRotation = -50;
-						self.baseRotation = -45;
-					end
+					self:SetNumberValue("Blocking", 1);
+					
+					self:RemoveNumberValue("Current Attack Type")
+					
+					stanceTarget = Vector(4, -7);
+					
+					self.originalBaseRotation = -160;
+					self.baseRotation = -145;
 				end
 			end
 			
@@ -2007,6 +2041,11 @@ function Update(self)
 					if not self.attackBuffered == true then
 						self.attackCooldown = true;
 					end
+					self:SetNumberValue("Blocked", 0);
+					self:SetNumberValue("Current Attack Type", 0);
+					self:SetNumberValue("Current Attack Range", 0);
+					self:RemoveNumberValue("AI Parry")
+					self:RemoveNumberValue("AI Parry Eligible")
 					self.wasCharged = false;
 					self.currentAttackAnimation = 0
 					self.currentAttackSequence = 0
@@ -2053,13 +2092,22 @@ function Update(self)
 			if self:NumberValueExists("Mordhau Flinched") or self.parent:NumberValueExists("Mordhau Flinched") then
 				self:RemoveNumberValue("Mordhau Flinched")
 				self.parent:RemoveNumberValue("Mordhau Flinched");
-				self.attackCooldown = true;
+				self.parriedCooldown = true;
+				self.parriedCooldownTimer:Reset();
+				self.parriedCooldownDelay = 600;
 				self.wasCharged = false;
 				self.currentAttackAnimation = 0
 				self.currentAttackSequence = 0
 				self.attackAnimationIsPlaying = false
 				self.Parrying = false;
 				self:RemoveStringValue("Parrying Type");
+				
+				self:RemoveNumberValue("AI Parry");
+				self:RemoveNumberValue("AI Eligible");
+				
+				self:SetNumberValue("Blocked", 0);
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
 			end
 			
 		else -- default behaviour, modify it if you wish
@@ -2075,60 +2123,84 @@ function Update(self)
 			
 			rotationTarget = self.baseRotation / 180 * math.pi;
 			
+			local keyPressed
+			local keyReleased
+			local keyHeld
 			if player then
-				local keyPress = UInputMan:KeyPressed(18) or (UInputMan:KeyHeld(18) and self.Blocking == false);
-				if keyPress and not (self.attackAnimationIsPlaying) then
+				local key = UInputMan:KeyHeld(18)
 				
-					self.parent:SetNumberValue("Block Foley", 1);
-				
-					self.Blocking = true;
-					
-					self:SetNumberValue("Blocking", 1);
-					
-					stanceTarget = Vector(4, -3);
-					
-					self.originalBaseRotation = -50;
-					self.baseRotation = -45;
-				
-				elseif self.Blocking == true and UInputMan:KeyHeld(18) and not (self.attackAnimationIsPlaying) then
-				
-					self.originalBaseRotation = -50;
-				
-					stanceTarget = Vector(4, -3);
-				
-				elseif UInputMan:KeyReleased(18) then
-				
-					self.parent:SetNumberValue("Block Foley", 1);
-				
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = -15;
-					self.baseRotation = -15;
-				
-				else
-					
-					self.Blocking = false;
-					
-					self:RemoveNumberValue("Blocking");
-					
-					self.originalBaseRotation = -15;
-					self.baseRotation = -15;
-					
+				keyPressed = key and not self.Blocking
+				keyReleased = key and self.Blocking
+				keyHeld = key and self.Blocking
+			else
+				if self.Parrying then
+					self:RemoveNumberValue("AI Block");
 				end
-			elseif not self.attackAnimationIsPlaying then
+				keyPressed = self:NumberValueExists("AI Block") and not self.Blocking
+				keyReleased = not self:NumberValueExists("AI Block") and self.Blocking
+				keyHeld = self:NumberValueExists("AI Block") and self.Blocking
+			end
+			
+			
+			if keyPressed and not (self.attackAnimationIsPlaying) then
+				
+				self.rotationInterpolationSpeed = 15
+			
+				self.parent:SetNumberValue("Block Foley", 1);
 			
 				self.Blocking = true;
 				
 				self:SetNumberValue("Blocking", 1);
 				
-				stanceTarget = Vector(4, -3);
+				stanceTarget = Vector(4, -7);
 				
-				self.originalBaseRotation = -50;
-				self.baseRotation = -45;
+				self.originalBaseRotation = -160;
+				self.baseRotation = -145;
+			
+			elseif keyHeld and not (self.attackAnimationIsPlaying) then
+			
+				self.originalBaseRotation = -160;
+			
+				stanceTarget = Vector(4, -7);
+				
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
+			
+			elseif keyReleased then
+			
+				self.parent:SetNumberValue("Block Foley", 1);
+			
+				self.Blocking = false;
+				
+				self:RemoveNumberValue("Blocking");
+				
+				self.originalBaseRotation = -15;
+				self.baseRotation = -25;
+			
+			else
+			
+				self:SetNumberValue("Current Attack Type", 0);
+				self:SetNumberValue("Current Attack Range", 0);
+				
+				self.Blocking = false;
+				
+				self:RemoveNumberValue("Blocking");
+				
+				self.originalBaseRotation = -15;
+				self.baseRotation = -25;
 				
 			end
+--[[			elseif not self.attackAnimationIsPlaying then
+			
+				self.Blocking = true;
+				
+				self:SetNumberValue("Blocking", 1);
+				
+				stanceTarget = Vector(4, -10);
+				
+				self.originalBaseRotation = -160;
+				self.baseRotation = -160;
+				]]
 				
 			
 			if self:IsAttached() then
@@ -2138,19 +2210,25 @@ function Update(self)
 			end
 		end
 		
-		if self.Blocking == true or self.Parrying == true then
+		if (self:NumberValueExists("AI Parry") and not (self.attackAnimationIsPlaying == true or self.parriedCooldown == true)) then
+			self:SetNumberValue("AI Parry Eligible", 1);
+		else
+			self:RemoveNumberValue("AI Parry Eligible");
+		end
+		
+		if self.Blocking == true or self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 			
 			if self:StringValueExists("Blocked Type") then
 			
 				if self.parent then
 					self.parent:SetNumberValue("Blocked Mordhau", 1);
 				end
+				self:SetNumberValue("Blocked Mordhau", 1);
 			
 				self.rotationInterpolationSpeed = 50;
 				self.baseRotation = self.baseRotation - (math.random(15, 20) * -1)
 				
 				self.blockSounds[self:GetStringValue("Blocked Type")]:Play(self.Pos);
-				self:RemoveStringValue("Blocked Type");
 				if self:NumberValueExists("Blocked Heavy") then
 				
 					if self.parent then
@@ -2162,9 +2240,48 @@ function Update(self)
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
 				
-				if self.Parrying == true then
+				if self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
 					self.parrySound:Play(self.Pos);
+					
+					if self:NumberValueExists("AI Parry Eligible") then
+						self:RemoveNumberValue("AI Parry Eligible");			
+						self:RemoveNumberValue("AI Parry");	
+						
+						self.Parrying = true;
+						
+						if self:GetStringValue("Blocked Type") == "Slash" then
+							if math.random(0, 100) < 50 then
+								playAttackAnimation(self, 4);
+								self:SetNumberValue("Current Attack Type", 4);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
+							elseif self.parent:NumberValueExists("Mordhau Disable Movement") then
+								playAttackAnimation(self, 15);
+								self:SetNumberValue("Current Attack Type", 2);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
+							else
+								playAttackAnimation(self, 1);
+								self:SetNumberValue("Current Attack Type", 1);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
+							end
+						else
+							playAttackAnimation(self, 2);
+							self:SetNumberValue("Current Attack Type", 3);
+							self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
+						end
+					
+						self.Blocking = false;
+						self:RemoveNumberValue("Blocking");
+						
+						stanceTarget = Vector(0, 0);
+						
+						self.originalBaseRotation = -15;
+						self.baseRotation = -15;
+						
+					end
+					
 				end
+				
+				self:RemoveStringValue("Blocked Type");
 				
 			end
 		end
@@ -2205,13 +2322,13 @@ function Update(self)
 			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
-			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
+			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
 				local MO = MovableMan:GetMOFromID(moCheck)
 				if (IsMOSRotating(MO) and canDamage) and not ((MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee"))
 				or (MO:IsInGroup("Mordhau Counter Shields") and (ToMOSRotating(MO):StringValueExists("Parrying Type")
-				and ToMOSRotating(MO):GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation]))) then
+				and ToMOSRotating(MO):GetStringValue("Parrying Type") == "Flourish"))) then
 					hit = true
 					MO = ToMOSRotating(MO)
 					MO.Vel = MO.Vel + (self.Vel + pushVector) / MO.Mass * 15 * (damagePush)
@@ -2350,15 +2467,18 @@ function Update(self)
 				elseif (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) or MO:IsInGroup("Mordhau Counter Shields") then
 					hit = true;
 					MO = ToHeldDevice(MO);
-					if MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
-					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")) then
+					if (MO:NumberValueExists("Blocking") or (MO:StringValueExists("Parrying Type")
+					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")))
+					or (MO:NumberValueExists("AI Parry Eligible")) then
+						self:SetNumberValue("Blocked", 1)
 						self.attackCooldown = true;
-						if MO:StringValueExists("Parrying Type") then
+						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry Eligible")) then
+							self.parriedCooldown = true;
+							self.parriedCooldownTimer:Reset();
+							self.parriedCooldownDelay = 600;
 							self.attackBuffered = false;
 							self.stabBuffered = false;
 							self.overheadBuffered = false;
-							self.parriedCooldown = true;
-							self.parriedCooldownTimer:Reset();
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
 							if effect then
 								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
@@ -2387,6 +2507,7 @@ function Update(self)
 						end
 						
 					else
+						self.IDToIgnore = MO.ID;
 						hit = false; -- keep going and looking
 					end
 				end
@@ -2436,14 +2557,17 @@ function Update(self)
 			
 			if hit then
 				if hitType == 0 then -- Default
+					self.blockedNullifier = false;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitDefaultSound:Play(self.Pos);
 					end
 				elseif hitType == 1 then -- Flesh
+					self.blockedNullifier = false;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitFleshSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitFleshSound:Play(self.Pos);
 					end
 				elseif hitType == 2 then -- Metal
+					self.blockedNullifier = false;
 					if self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound then
 						self.attackAnimationsSounds[self.currentAttackAnimation].hitMetalSound:Play(self.Pos);
 					end
@@ -2452,4 +2576,6 @@ function Update(self)
 			end
 		end
 	end
+	
+	self:RemoveNumberValue("AI Block");
 end

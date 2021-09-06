@@ -155,7 +155,7 @@ function Update(self)
 			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 			
-			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, 4, 0, false, 2); -- Raycast		
+			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, 4, 0, false, 2); -- Raycast		
 			
 			if moCheck and moCheck ~= rte.NoMOID then
 				local rayHitPos = SceneMan:GetLastRayHitPos()
@@ -382,6 +382,7 @@ function Update(self)
 						MO:SetNumberValue("Blocked Heavy", 1);
 						
 					else
+						self.IDToIgnore = MO.ID;
 						hit = false; -- keep going and looking
 					end
 				end
@@ -461,6 +462,8 @@ function Update(self)
 				end
 				self.attackAnimationCanHit = false
 			end
+		else
+			self.IDToIgnore = nil;
 		end
 	end
 end
