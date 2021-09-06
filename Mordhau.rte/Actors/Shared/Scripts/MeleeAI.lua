@@ -16,7 +16,7 @@ function Create(self)
 	self.MeleeAI.debug = false
 	
 	
-	MovableMan:ChangeActorTeam(self, 3)
+	--MovableMan:ChangeActorTeam(self, 3)
 	
 	-- States:
 	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
