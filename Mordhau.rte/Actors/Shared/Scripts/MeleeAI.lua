@@ -24,7 +24,7 @@ function Create(self)
 	
 	local activity = ActivityMan:GetActivity()
 	if activity then
-		self.MeleeAI.skill = activity:GetTeamAISkill(self.Team) * 0.01
+		self.MeleeAI.skill = (self.MeleeAI.skill / 2) + ((self.MeleeAI.skill / 2) * (activity:GetTeamAISkill(self.Team)/100))
 	end
 	
 	

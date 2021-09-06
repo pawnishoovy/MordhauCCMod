@@ -1890,6 +1890,8 @@ function Update(self)
 					self.parent:SetNumberValue("Block Foley", 1);
 				
 					self.Blocking = true;
+					self:RemoveStringValue("Parrying Type");
+					self.Parrying = false;
 					
 					self:SetNumberValue("Blocking", 1);
 					

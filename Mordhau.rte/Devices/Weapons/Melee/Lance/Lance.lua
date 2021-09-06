@@ -307,7 +307,7 @@ function Update(self)
 								self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
 							end
 							
-							if IsAttachable(MO) and ToAttachable(MO):IsAttached() and (IsArm(MO) or IsLeg(MO) or (IsAHuman(actorHit) and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
+							if IsAttachable(MO) and ToAttachable(MO):IsAttached() and (IsArm(MO) or IsLeg(MO) or (IsAHuman(actorHit) and ToAHuman(actorHit).Head and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID)) then
 								-- if wounds would gib the limb hit, dismember it instead... sometimes gib though
 								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit and math.random(0, 100) < 90 then
 									ToAttachable(MO):RemoveFromParent(true, true);
