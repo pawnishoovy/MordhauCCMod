@@ -164,7 +164,7 @@ function KnightAIBehaviours.handleMovement(self)
 	-- Custom Jump
 	if self.controller:IsState(Controller.BODY_JUMPSTART) == true and self.controller:IsState(Controller.BODY_CROUCH) == false and self.jumpTimer:IsPastSimMS(self.jumpDelay) and not self.isJumping then
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) or self.wasInAir == false then
-			local jumpVec = Vector(0, self.jumpStrength)
+			local jumpVec = Vector(0, self.noSprint and self.jumpStrength * 0.01 or self.jumpStrength)
 			local jumpWalkX = 3
 			if self.controller:IsState(Controller.MOVE_LEFT) == true then
 				jumpVec.X = -jumpWalkX
@@ -262,7 +262,8 @@ function KnightAIBehaviours.handleMovement(self)
 	local sprintMultiplier = 1.0	 
 	if self.isSprinting or aiSprint then
 		if input == false
-		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true then
+		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true
+		or self.noSprint then
 			self.isSprinting = false
 		end
 		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.sprintMultiplier * sprintMultiplier);
@@ -850,9 +851,18 @@ function KnightAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
-					
 				end
 				
+			elseif ToHeldDevice(self.EquippedItem):NumberValueExists("Tackle Sprint Cooldown") then
+				self.noSprint = true;
+			else
+				self.noSprint = false;
+			end
+			
+			if self.EquippedBGItem and ToHeldDevice(self.EquippedBGItem):NumberValueExists("Tackle Sprint Cooldown") then
+				self.noSprint = true;
+			else
+				self.noSprint = false;
 			end
 			
 			

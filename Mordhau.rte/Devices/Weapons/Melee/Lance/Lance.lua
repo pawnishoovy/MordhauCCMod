@@ -314,12 +314,12 @@ function Update(self)
 									if math.random(0, 100) < 50 then -- stick
 										self.stickMOTable[MO.UniqueID] = MO.RotAngle - self.RotAngle;
 									else
-										MO.Vel = MO.Vel
+										MO.Vel = MO.Vel + self.Vel;
 									end
 									addWounds = false;
 								end
 							elseif IsActor(MO) then -- if we hit torso
-								MO.Vel = MO.Vel
+								MO.Vel = MO.Vel + self.Vel;
 								if MO.WoundCount + woundsToAdd >= MO.GibWoundLimit and math.random(0, 100) < 95 then
 									addWounds = false;
 									addSingleWound = true;
