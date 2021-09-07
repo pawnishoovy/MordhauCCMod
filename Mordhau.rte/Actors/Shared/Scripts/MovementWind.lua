@@ -10,6 +10,10 @@ function Create(self)
 end
 
 function Update(self)
+
+	if not self.movementWindSound:IsBeingPlayed() then
+		self.movementWindSound:Play(self.Pos);
+	end
 	
 	self.movementWindSound.Pos = self.Pos;
 	if self.Vel.Magnitude > 3 and self:IsPlayerControlled() then
