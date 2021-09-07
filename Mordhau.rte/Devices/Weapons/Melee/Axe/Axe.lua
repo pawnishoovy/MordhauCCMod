@@ -1723,7 +1723,12 @@ function Update(self)
 				self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
 			elseif warcry then
 				self.parent:SetNumberValue("Block Foley", 1);
-				playAttackAnimation(self, 5)
+				local BGItem = self.parent.EquippedBGItem;				
+				if BGItem and BGItem:IsInGroup("Shields") then
+					playAttackAnimation(self, 6)
+				else
+					playAttackAnimation(self, 5)
+				end
 			elseif flourish then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 4) -- fancypants shit

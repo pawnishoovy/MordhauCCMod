@@ -164,7 +164,7 @@ function MusketeerAIBehaviours.handleMovement(self)
 	-- Custom Jump
 	if self.controller:IsState(Controller.BODY_JUMPSTART) == true and self.controller:IsState(Controller.BODY_CROUCH) == false and self.jumpTimer:IsPastSimMS(self.jumpDelay) and not self.isJumping then
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) or self.wasInAir == false then
-			local jumpVec = Vector(0, self.jumpStrength)
+			local jumpVec = Vector(0, self.noSprint and self.jumpStrength * 0.01 or self.jumpStrength)
 			local jumpWalkX = 3
 			if self.controller:IsState(Controller.MOVE_LEFT) == true then
 				jumpVec.X = -jumpWalkX
@@ -206,6 +206,11 @@ function MusketeerAIBehaviours.handleMovement(self)
 			if self.controller:IsState(Controller.BODY_JUMP) == true and not self.jumpBoostTimer:IsPastSimMS(200) then
 				self.Vel = self.Vel - SceneMan.GlobalAcc * TimerMan.DeltaTimeSecs * 2.8 -- Stop the gravity
 			end
+			if self.controller:IsState(Controller.MOVE_LEFT) == true and not self.jumpBoostTimer:IsPastSimMS(1000) and self.Vel.X > -5 then
+				self.Vel = self.Vel + Vector(-14, 0) * TimerMan.DeltaTimeSecs * 1.0
+			elseif self.controller:IsState(Controller.MOVE_RIGHT) == true and not self.jumpBoostTimer:IsPastSimMS(1000) and self.Vel.X < 5 then
+				self.Vel = self.Vel + Vector(14, 0) * TimerMan.DeltaTimeSecs * 1.0
+			end
 		end
 		if (self:IsPlayerControlled() and self.feetContact[1] == true or self.feetContact[2] == true) and self.jumpStop:IsPastSimMS(100) then
 			self.isJumping = false
@@ -229,7 +234,7 @@ function MusketeerAIBehaviours.handleMovement(self)
 	end
 	
 	-- Sprint
-	local input = ((self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true) and not (self.controller:IsState(Controller.MOVE_LEFT) == true and self.controller:IsState(Controller.MOVE_RIGHT) == true))
+	local input = not self.isJumping and ((self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true) and not (self.controller:IsState(Controller.MOVE_LEFT) == true and self.controller:IsState(Controller.MOVE_RIGHT) == true))
 	
 	-- Double Tap
 	if self.doubleTapState == 0 then
@@ -256,7 +261,9 @@ function MusketeerAIBehaviours.handleMovement(self)
 	--local sprintMultiplier = 0.5 * movementMultiplier
 	local sprintMultiplier = 1.0 
 	if self.isSprinting or aiSprint then
-		if input == false then
+		if input == false
+		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true
+		or self.noSprint then
 			self.isSprinting = false
 		end
 		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.sprintMultiplier * sprintMultiplier);
@@ -829,8 +836,18 @@ function MusketeerAIBehaviours.handleVoicelines(self)
 					self.attackKilled = true;
 					self:RemoveNumberValue("Attack Killed");
 					self.attackKilledTimer:Reset();
-
 				end
+
+			elseif ToHeldDevice(self.EquippedItem):NumberValueExists("Tackle Sprint Cooldown") then
+				self.noSprint = true;
+			else
+				self.noSprint = false;
+			end
+			
+			if self.EquippedBGItem and ToHeldDevice(self.EquippedBGItem):NumberValueExists("Tackle Sprint Cooldown") then
+				self.noSprint = true;
+			else
+				self.noSprint = false;
 				
 			end
 		end
