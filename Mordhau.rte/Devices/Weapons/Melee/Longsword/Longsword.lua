@@ -2353,6 +2353,11 @@ function Update(self)
 						end
 						
 						if addWounds == true and woundName then
+							local MOParent = MO:GetRootParent()
+							if MOParent and IsAHuman(MOParent) then
+								MOParent = ToAHuman(MOParent)
+								MOParent:SetNumberValue("Mordhau Flinched", 1);
+							end
 							MO:SetNumberValue("Mordhau Flinched", 1);
 							local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 							MO:AddAttachable(flincher)

@@ -13,10 +13,10 @@ end
 function Create(self)
 	
 	self.MeleeAI = {}
-	self.MeleeAI.debug = false
+	self.MeleeAI.debug = true
 	
 	
-	--MovableMan:ChangeActorTeam(self, 3)
+	MovableMan:ChangeActorTeam(self, 3)
 	
 	-- States:
 	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
@@ -123,6 +123,11 @@ function UpdateAI(self)
 		self.MeleeAI.weaponData = {}
 		
 		weapon = nil
+	end
+	
+	if self:NumberValueExists("Mordhau Flinched") then
+		self:RemoveNumberValue("Mordhau Flinched")
+		self.MeleeAI.blockingFatigueLevel = 1.0
 	end
 	
 	-- Fatigue "state" machine
@@ -235,7 +240,7 @@ function UpdateAI(self)
 				if targetWeapon and (IsHeldDevice(targetWeapon) or IsHDFirearm(targetWeapon)) then
 					targetWeapon = ToHeldDevice(targetWeapon)
 					
-					if targetWeapon:NumberValueExists("Mordhau Melee") then
+					if targetWeapon:IsInGroup("Weapons - Mordhau Melee") then
 						 targetWeaponMelee = true
 						 targetWeaponRanged = false
 					end
@@ -288,7 +293,7 @@ function UpdateAI(self)
 						if not self.MeleeAI.blocking then
 							self.MeleeAI.lookOffset = math.rad(70) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
 							if attackType == 4 then
-								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(30)
+								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(40)
 							end
 							
 							self.MeleeAI.blocking = true
@@ -448,7 +453,9 @@ function UpdateAI(self)
 				ctrl.AnalogAim = (dif.Normalized):RadRotate(factor)
 			end
 			
-			self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 15 * (0.3 + self.MeleeAI.skill))
+			if not self.MeleeAI.blocking then
+				self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 15 * (0.3 + self.MeleeAI.skill))
+			end
 			
 		elseif self.MeleeAI.active then
 			self.MeleeAI.active = false
