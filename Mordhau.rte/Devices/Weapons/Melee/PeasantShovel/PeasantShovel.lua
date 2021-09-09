@@ -1796,12 +1796,12 @@ function Update(self)
 			
 			canBeBlocked = currentPhase.canBeBlocked or false
 			canDamage = currentPhase.canDamage or false
+			if canDamage == true then
+				self.Attacked = true;
+			end
 			if self.blockedNullifier == false then
 				canDamage = false;
 				canBeBlocked = false;
-			end
-			if canDamage == true then
-				self.Attacked = true;
 			end
 			damage = currentPhase.attackDamage or 0
 			damageVector = currentPhase.attackVector or Vector(0,0)
@@ -2243,7 +2243,12 @@ function Update(self)
 							end
 						end
 						
-						if addWounds == true and woundName then
+						if addWounds == true and woundName ~= nil then
+							local MOParent = MO:GetRootParent()
+							if MOParent and IsAHuman(MOParent) then
+								MOParent = ToAHuman(MOParent)
+								MOParent:SetNumberValue("Mordhau Flinched", 1);
+							end
 							MO:SetNumberValue("Mordhau Flinched", 1);
 							local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 							MO:AddAttachable(flincher)
@@ -2286,7 +2291,7 @@ function Update(self)
 								actorHit:FlashWhite(50);
 							end
 						end
-					elseif woundName then -- generic wound adding for non-actors
+					elseif woundName ~= nil then -- generic wound adding for non-actors
 						for i = 1, woundsToAdd do
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end

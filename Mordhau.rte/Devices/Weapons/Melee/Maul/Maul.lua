@@ -220,7 +220,7 @@ function Create(self)
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 6
-	attackPhase[i].frameEnd = 6
+	attackPhase[i].frameEnd = 7
 	attackPhase[i].angleStart = 15
 	attackPhase[i].angleEnd = 45
 	attackPhase[i].offsetStart = Vector(0, 0)
@@ -266,7 +266,7 @@ function Create(self)
 	-- Early Early Attack
 	i = 3
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 160
+	attackPhase[i].durationMS = 200
 	
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
@@ -277,10 +277,10 @@ function Create(self)
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
 	
-	attackPhase[i].frameStart = 7
+	attackPhase[i].frameStart = 6
 	attackPhase[i].frameEnd = 11
-	attackPhase[i].angleStart = 30
-	attackPhase[i].angleEnd = -50
+	attackPhase[i].angleStart = 45
+	attackPhase[i].angleEnd = -70
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(7, -2)
 	
@@ -291,7 +291,7 @@ function Create(self)
 	-- Early Attack
 	i = 4
 	attackPhase[i] = {}
-	attackPhase[i].durationMS = 50
+	attackPhase[i].durationMS = 25
 	
 	attackPhase[i].canBeBlocked = true
 	attackPhase[i].canDamage = false
@@ -304,7 +304,7 @@ function Create(self)
 	
 	attackPhase[i].frameStart = 11
 	attackPhase[i].frameEnd = 11
-	attackPhase[i].angleStart = -50
+	attackPhase[i].angleStart = -70
 	attackPhase[i].angleEnd = -90
 	attackPhase[i].offsetStart = Vector(7, -2)
 	attackPhase[i].offsetEnd = Vector(7, -2)
@@ -327,7 +327,7 @@ function Create(self)
 	attackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
-	attackPhase[i].frameStart = 11
+	attackPhase[i].frameStart = 12
 	attackPhase[i].frameEnd = 16
 	attackPhase[i].angleStart = -90
 	attackPhase[i].angleEnd = -100
@@ -2377,7 +2377,12 @@ function Update(self)
 							end
 						end
 						
-						if addWounds == true and woundName then
+						if addWounds == true and woundName ~= nil then
+							local MOParent = MO:GetRootParent()
+							if MOParent and IsAHuman(MOParent) then
+								MOParent = ToAHuman(MOParent)
+								MOParent:SetNumberValue("Mordhau Flinched", 1);
+							end
 							MO:SetNumberValue("Mordhau Flinched", 1);
 							local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 							MO:AddAttachable(flincher)
@@ -2420,7 +2425,7 @@ function Update(self)
 								actorHit:FlashWhite(50);
 							end
 						end
-					elseif woundName then -- generic wound adding for non-actors
+					elseif woundName ~= nil then -- generic wound adding for non-actors
 						for i = 1, woundsToAdd do
 							MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 						end

@@ -6,6 +6,9 @@ require("Actors/Infantry/Crusader/CrusaderAIBehaviours")
 
 function Create(self)
 	self.AI = NativeHumanAI:Create(self)
+	
+	MovableMan:ChangeActorTeam(self, 3)
+	
 	--You can turn features on and off here
 	self.armSway = true;
 	self.automaticEquip = false;

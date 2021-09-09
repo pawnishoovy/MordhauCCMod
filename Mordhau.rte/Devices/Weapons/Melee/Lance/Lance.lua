@@ -330,18 +330,23 @@ function Update(self)
 								end
 							end
 							
-							if addWounds == true and woundName then
+							if addWounds == true and woundName ~= nil then
+								local MOParent = MO:GetRootParent()
+								if MOParent and IsAHuman(MOParent) then
+									MOParent = ToAHuman(MOParent)
+									MOParent:SetNumberValue("Mordhau Flinched", 1);
+								end
 								MO:SetNumberValue("Mordhau Flinched", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								MO:AddAttachable(flincher)
 								for i = 1, woundsToAdd do
 									MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 								end
-							elseif addSingleWound == true and woundName then
+							elseif addSingleWound == true and woundName ~= nil then
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 
-						elseif woundName then -- generic wound adding for non-actors
+						elseif woundName ~= nil then -- generic wound adding for non-actors
 							for i = 1, woundsToAdd do
 								MO:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
