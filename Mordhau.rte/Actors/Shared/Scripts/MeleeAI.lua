@@ -49,17 +49,14 @@ function Create(self)
 	self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 	
 	self.MeleeAI.lookOffset = 0
+	self.MeleeAI.lookOffsetCurrent = 0
+	
 	self.MeleeAI.blocking = false
 	self.MeleeAI.blockingDelay = 400 * (0.15 + 0.85 * (1 - self.MeleeAI.skill))
 	self.MeleeAI.blockingDelayTimer = Timer()
 	self.MeleeAI.blockingFatigueLevel = 1
 	self.MeleeAI.blockingFatigueLevelRegeneration = (0.15 + 0.5 * self.MeleeAI.skill)
 	self.MeleeAI.blockingFatigueMode = 0 -- 0 - ready, 1 - blocking, 2 - regenerating
-	
-	self.MeleeAI.attackMissThereshold = 0
-	self.MeleeAI.attackMissTheresholdGain = 15 * (1 - self.MeleeAI.skill)
-	self.MeleeAI.attackMissDelay = 1000
-	self.MeleeAI.attackMissTimer = Timer()
 	
 	self.MeleeAI.tactics = {
 		["Offensive"] = function ()
@@ -77,6 +74,11 @@ function Create(self)
 	self.MeleeAI.parryChance = 80--%
 	
 	self.MeleeAI.attacking = false
+	
+	self.MeleeAI.attackMissThereshold = 0
+	self.MeleeAI.attackMissTheresholdGain = 15 * (1 - self.MeleeAI.skill)
+	self.MeleeAI.attackMissDelay = 1000
+	self.MeleeAI.attackMissTimer = Timer()
 	
 	self.MeleeAI.weaponAttackData = {
 	{name = "Swing", index = 1},
@@ -220,7 +222,7 @@ function UpdateAI(self)
 				for key, tactic in pairs(self.MeleeAI.tactics) do
 					table.insert(tacticList, key)
 				end
-			--	self.MeleeAI.tactic = tacticList[math.random(1, #tacticList)]
+				self.MeleeAI.tactic = tacticList[math.random(1, #tacticList)]
 			end
 			
 			self.MeleeAI.tactics[self.MeleeAI.tactic]()
@@ -293,14 +295,14 @@ function UpdateAI(self)
 						if not self.MeleeAI.blocking then
 							self.MeleeAI.lookOffset = math.rad(70) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
 							if attackType == 4 then
-								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(40)
+								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(math.random(25,40))
 							end
 							
 							self.MeleeAI.blocking = true
 						end
 						
 						
-						if math.random() < 0.01 then
+						if math.random() < 0.05 then
 							self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 							self.MeleeAI.randomGimmickTimer:Reset()
 						end
@@ -308,6 +310,8 @@ function UpdateAI(self)
 						if weapon:NumberValueExists("Blocked Mordhau") and weapon:GetNumberValue("Blocked Mordhau") then
 							self.MeleeAI.parrySuccess = true
 							self.MeleeAI.parryReady = true
+							
+							self.MeleeAI.lookOffset = math.rad(math.random(-30, 30)) * (1 - self.MeleeAI.skill)
 						end
 					else -- End of block
 						self.MeleeAI.blockingDelayTimer:Reset()
@@ -444,7 +448,7 @@ function UpdateAI(self)
 			
 			-- Look around
 			local sway = math.sin(self.Age * 0.01 + self.UniqueID) * 0.05 + math.sin(self.Age * 0.002 + 2) * 0.1 + math.sin(self.Age * 0.015 - 3 - self.UniqueID) * 0.05 + math.sin(self.Age * 0.005 + 6) * 0.075 * 0.05 + math.sin(self.Age * 0.001 + 15 + self.UniqueID) * 0.3
-			local factor = sway * (1 - (self.MeleeAI.skill * self.MeleeAI.skill)) + self.MeleeAI.lookOffset * self.FlipFactor
+			local factor = sway * (1 - (self.MeleeAI.skill * self.MeleeAI.skill)) + self.MeleeAI.lookOffsetCurrent * self.FlipFactor
 			--self:SetAimAngle(math.pi * 0.5 * factor)
 			
 			if IsAHuman(target) and target.Head then
@@ -453,18 +457,27 @@ function UpdateAI(self)
 				ctrl.AnalogAim = (dif.Normalized):RadRotate(factor)
 			end
 			
+			local speed = 35 * (0.3 + self.MeleeAI.skill)
+			self.MeleeAI.lookOffsetCurrent = (self.MeleeAI.lookOffsetCurrent + self.MeleeAI.lookOffset * TimerMan.DeltaTimeSecs * speed) / (1 + TimerMan.DeltaTimeSecs * speed)
+			
 			if not self.MeleeAI.blocking then
-				self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 15 * (0.3 + self.MeleeAI.skill))
+				self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 35 * (0.3 + self.MeleeAI.skill))
+			else
+				self.MeleeAI.lookOffset = self.MeleeAI.lookOffset / (1 + TimerMan.DeltaTimeSecs * 15 * (0.3 + (1 - self.MeleeAI.skill)))
 			end
 			
 		elseif self.MeleeAI.active then
 			self.MeleeAI.active = false
 			self.AI.Target = nil
+			self.MeleeAI.blocking = false
+			self.MeleeAI.attacking = false
 		else
 			weapon:SetNumberValue("AI Block", 1)
 		end
 	elseif self.MeleeAI.active then
 		self.MeleeAI.active = false
 		self.AI.Target = nil
+		self.MeleeAI.blocking = false
+		self.MeleeAI.attacking = false
 	end
 end

@@ -69,6 +69,13 @@ function Create(self)
 	self.pickUpSound = CreateSoundContainer("Metal Pickup Mordhau", "Mordhau.rte");
 	self.pickUpSound.Pitch = 0.8;
 
+	--
+	self.originalJointOffset = Vector(self.JointOffset.X, self.JointOffset.Y)
+	
+	self.slideJointOffset = Vector(3, -6)
+	self.slideFactor = 0
+	self.slideSpeed = 2.0
+
 	-- throwing stuff
 	
 	self.bounceSound = CreateSoundContainer("Hafted Thrown Bounce Mordhau", "Mordhau.rte");
@@ -1626,6 +1633,9 @@ function Create(self)
 end
 
 function Update(self)
+	
+	self.JointOffset = Vector(self.originalJointOffset.X, self.originalJointOffset.Y) + self.slideJointOffset * self.slideFactor
+	
 
 	if UInputMan:KeyPressed(38) then
 		self:ReloadScripts();
@@ -1850,7 +1860,8 @@ function Update(self)
 		end
 	
 		if self.attackAnimationIsPlaying and currentAttackAnimation ~= 0 then -- play the animation
-		
+			self.slideFactor = math.max(self.slideFactor - TimerMan.DeltaTimeSecs * self.slideSpeed * 1.5, 0)
+			
 			self.rotationInterpolationSpeed = 25;
 		
 			local animation = self.currentAttackAnimation
@@ -2129,8 +2140,12 @@ function Update(self)
 				
 				self:SetNumberValue("Current Attack Type", 0);
 				self:SetNumberValue("Current Attack Range", 0);
+				
+				self.slideFactor = math.min(self.slideFactor + TimerMan.DeltaTimeSecs * self.slideSpeed, 1)
 			
 			elseif keyReleased then
+				
+				self.slideFactor = math.max(self.slideFactor - TimerMan.DeltaTimeSecs * self.slideSpeed * 1.5, 0)
 			
 				self.parent:SetNumberValue("Block Foley", 1);
 			
@@ -2142,7 +2157,9 @@ function Update(self)
 				self.baseRotation = 5;
 			
 			else
-			
+				
+				self.slideFactor = math.max(self.slideFactor - TimerMan.DeltaTimeSecs * self.slideSpeed * 1.5, 0)
+				
 				self:SetNumberValue("Current Attack Type", 0);
 				self:SetNumberValue("Current Attack Range", 0);
 				
