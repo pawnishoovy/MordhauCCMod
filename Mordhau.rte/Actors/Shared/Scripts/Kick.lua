@@ -45,20 +45,14 @@ function Kick(self, leg)
 						
 						
 						if IsHeldDevice(mo) then
-							if not targetWeapon:IsInGroup("Weapons - Mordhau Melee") then
-								local parent = mo:GetParent()
-								if parent then
-									if IsMOSRotating(parent) then
-										parent = ToMOSRotating(parent)
-										parent:RemoveAttachable(ToHeldDevice(mo), true, false)
-										mo.Vel = Vector(4 * self.FlipFactor, -4)
-										mo.AngularVel = RangeRand(2,7) * (math.random(0, 1) - 0.5) * 2.0
-									elseif IsAttachable(parent) then
-										parent = ToAttachable(parent)
-										parent:RemoveAttachable(ToHeldDevice(mo), true, false)
-										mo.Vel = Vector(4 * self.FlipFactor, -4)
-										mo.AngularVel = RangeRand(2,7) * (math.random(0, 1) - 0.5) * 2.0
-									end
+						
+							self.kickImpactDeviceSound:Play(self.Pos);
+						
+							if not mo:IsInGroup("Weapons - Mordhau Melee") then
+								if IsAttached(mo) then
+									ToAttachable(mo):RemoveFromParent(true, true);
+									mo.Vel = Vector(4 * self.FlipFactor, -4)
+									mo.AngularVel = RangeRand(2,7) * (math.random(0, 1) - 0.5) * 2.0
 								end
 							end
 							
@@ -68,11 +62,15 @@ function Kick(self, leg)
 						else
 							local parent = mo:GetRootParent()
 							if parent and IsActor(parent) then
+							
+								self.kickImpactSound:Play(self.Pos);
+							
 								parent = ToActor(parent)
 
 								parent.Vel = parent.Vel + Vector(3 * self.FlipFactor, -3)
 								
 								mo:SetNumberValue("Mordhau Flinched", 1);
+								mo:SetNumberValue("Mordhau Impact Sound", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								mo:AddAttachable(flincher)
 								
@@ -100,6 +98,10 @@ function Kick(self, leg)
 end
 
 function Create(self)
+
+	self.kickImpactSound = CreateSoundContainer("Kick Impact Mordhau", "Mordhau.rte");
+	self.kickImpactDeviceSound = CreateSoundContainer("Kick Impact Device Mordhau", "Mordhau.rte");
+
 	self.kicking = false
 	self.kickDurationDefault = 1000
 	self.kickDuration = self.kickDurationDefault
@@ -116,12 +118,18 @@ function Create(self)
 end
 
 function Update(self)
+
+	if self:NumberValueExists("Mordhau Impact Sound") then
+		self:RemoveNumberValue("Mordhau Impact Sound");
+		self.BodyHitSound:Play(self.Pos);
+	end
+
 	local leg = (self.FGLeg and self.FGLeg or self.BGLeg)
 	
 	if self.Status < 1 and self.controller and leg then
 		if self.controller:IsState(Controller.MOVE_UP) then
 		end
-		if not self.kicking and self.kickCooldownTimer:IsPastSimMS(self.kickCooldown) and (self:NumberValueExists("AI Kick") or (UInputMan:KeyPressed(6) and self:IsPlayerControlled())) then
+		if not self.kicking and self.kickCooldownTimer:IsPastSimMS(self.kickCooldown) and (self:NumberValueExists("AI Kick") or (UInputMan:KeyPressed(20) and self:IsPlayerControlled())) then
 			local valid = true
 			if self.EquippedItem then	
 				if (IsHDFirearm(self.EquippedItem)) then
@@ -143,6 +151,11 @@ function Update(self)
 				self.kickDuration = self.kickDurationDefault
 				
 				self.kickAim = self.controller.AnalogAim
+				
+				if self.movementSounds.Jump then
+					self.movementSounds.Jump:Play(self.Pos);
+				end
+				
 			end
 			
 			self:RemoveNumberValue("AI Kick")

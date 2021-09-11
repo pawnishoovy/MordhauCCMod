@@ -63,6 +63,20 @@ function Update(self)
 					
 					self.ledgeGrabAim = self.controller.AnalogAim
 					
+					if self.movementSounds.Crawl then
+						self.movementSounds.Crawl:Play(self.Pos);
+					end
+					
+					local pos = Vector(0, 0);
+					SceneMan:CastObstacleRay(self.ledgeGrabPos, Vector(0, 20), pos, Vector(0, 0), self.ID, self.Team, 0, 5);				
+					local terrPixel = SceneMan:GetTerrMatter(pos.X, pos.Y)
+					
+					if self.terrainSounds.Crawl and self.terrainSounds.Crawl[terrPixel] ~= nil then
+						self.terrainSounds.Crawl[terrPixel]:Play(self.Pos);
+					elseif self.terrainSounds.Crawl then -- default to concrete
+						self.terrainSounds.Crawl[177]:Play(self.Pos);
+					end		
+						
 					if self.Status < 1 then
 						self.Status = 1
 					end
@@ -95,7 +109,8 @@ function Update(self)
 			--self.FGArm.IdleOffset = SceneMan:ShortestDistance(self.Pos, self.ledgeGrabPos, SceneMan.SceneWrapsX):RadRotate(-self.RotAngle)
 			--self.BGArm.IdleOffset = SceneMan:ShortestDistance(self.Pos, self.ledgeGrabPos, SceneMan.SceneWrapsX):RadRotate(-self.RotAngle)
 			
-			if self.ledgeGrabPullTimer:IsPastSimMS(self.ledgeGrabPullDuration) then
+			if self.ledgeGrabPullTimer:IsPastSimMS(self.ledgeGrabPullDuration) then	
+			
 				self.ledgeGrabbed = false
 				self.ledgeGrabPos = nil
 				
