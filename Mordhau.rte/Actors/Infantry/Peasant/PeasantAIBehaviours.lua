@@ -721,6 +721,13 @@ function PeasantAIBehaviours.handleVoicelines(self)
 		PeasantAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.Happy, 5, 4);
 	end
 	
+	if self:NumberValueExists("Kick Attack") then
+		self:RemoveNumberValue("Kick Attack");
+		PeasantAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
+		self.movementSounds.AttackLarge:Play(self.Pos);
+		self.movementSounds.AttackExtreme:Play(self.Pos);
+	end
+	
 	if self.EquippedItem then	
 		-- SUPPRESSING
 		if (IsHDFirearm(self.EquippedItem)) then

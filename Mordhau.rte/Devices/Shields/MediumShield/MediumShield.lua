@@ -12,6 +12,8 @@ function Create(self)
 
 	self.parryTimer = Timer();
 	self.parryWindow = 500;
+	
+	self.Frame = 1
 
 	if math.random(0, 100) < 50 then
 		self.pickUpSound = CreateSoundContainer("Wood Pickup Mordhau", "Mordhau.rte");
