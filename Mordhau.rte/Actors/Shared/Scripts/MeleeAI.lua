@@ -1,13 +1,13 @@
 --require("AI/NativeHumanAI")   -- or NativeCrabAI or NativeTurretAI
 
 function Sign(x)
-   if x<0 then
-     return -1
-   elseif x>0 then
-     return 1
-   else
-     return 0
-   end
+	if x<0 then
+		return -1
+	elseif x>0 then
+		return 1
+	else
+		return 0
+	end
 end
 
 function Create(self)
@@ -52,7 +52,8 @@ function Create(self)
 	self.MeleeAI.lookOffsetCurrent = 0
 	
 	self.MeleeAI.blocking = false
-	self.MeleeAI.blockingDelay = 400 * (0.15 + 0.85 * (1 - self.MeleeAI.skill))
+	self.MeleeAI.blockingDelayMax = 1000 * (0.15 + 0.85 * (1 - self.MeleeAI.skill))
+	self.MeleeAI.blockingDelay = self.MeleeAI.blockingDelayMax * RangeRand(0.1, 1.0) * RangeRand(0.5, 1.0)
 	self.MeleeAI.blockingDelayTimer = Timer()
 	self.MeleeAI.blockingFatigueLevel = 1
 	self.MeleeAI.blockingFatigueLevelRegeneration = (0.15 + 0.5 * self.MeleeAI.skill)
@@ -290,15 +291,15 @@ function UpdateAI(self)
 						block = true
 						if self.MeleeAI.blockingDelayTimer:IsPastSimMS(self.MeleeAI.blockingDelay) then
 							weapon:SetNumberValue("AI Block", 1)
-						end
-						
-						if not self.MeleeAI.blocking then
-							self.MeleeAI.lookOffset = math.rad(70) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
-							if attackType == 4 then
-								self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(math.random(25,40))
+								
+							if not self.MeleeAI.blocking then
+								self.MeleeAI.lookOffset = math.rad(70) * RangeRand(-1, 1) * (1 - self.MeleeAI.skill)
+								if attackType == 4 then
+									self.MeleeAI.lookOffset = self.MeleeAI.lookOffset + math.rad(math.random(25,40))
+								end
+								
+								self.MeleeAI.blocking = true
 							end
-							
-							self.MeleeAI.blocking = true
 						end
 						
 						
@@ -326,6 +327,10 @@ function UpdateAI(self)
 						if self.MeleeAI.blocking then
 							self.MeleeAI.blocking = false
 							self.MeleeAI.attackMissThereshold = self.MeleeAI.attackMissThereshold + self.MeleeAI.attackMissTheresholdGain * 0.5
+							
+							self.MeleeAI.blockingDelay = self.MeleeAI.blockingDelayMax * RangeRand(0.1, 1.0) * RangeRand(0.5, 1.0)
+							
+							weapon:RemoveNumberValue("AI Flourish")
 						end
 					end
 					
@@ -353,7 +358,7 @@ function UpdateAI(self)
 					
 					if weapon and (not block) and self.MeleeAI.attackMissTimer:IsPastSimMS(self.MeleeAI.attackMissDelay) and not (weapon:NumberValueExists("Current Attack Type") and weapon:GetNumberValue("Current Attack Type") > 0) then
 						
-						if math.random(0, 100) < self.MeleeAI.attackMissThereshold then -- Attack miss thereshold handling
+						if RangeRand(0, 100) < self.MeleeAI.attackMissThereshold then -- Attack miss thereshold handling
 							self.MeleeAI.attackMissThereshold = -self.MeleeAI.attackMissTheresholdGain
 							self.MeleeAI.attackMissTimer:Reset()
 						elseif dif.Magnitude < (meleeRange + math.random(-5,5) + 10) then
@@ -377,6 +382,8 @@ function UpdateAI(self)
 								self.MeleeAI.randomGimmickDelay = RangeRand(self.MeleeAI.randomGimmickDelayMin, self.MeleeAI.randomGimmickDelayMax)
 								self.MeleeAI.randomGimmickTimer:Reset()
 							end
+							
+							weapon:RemoveNumberValue("AI Flourish")
 						end
 						
 					end

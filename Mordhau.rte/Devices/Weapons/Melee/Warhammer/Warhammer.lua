@@ -2156,7 +2156,7 @@ function Update(self)
 				
 				self:SetNumberValue("Blocking", 1);
 				
-				stanceTarget = Vector(4, -7);
+				stanceTarget = Vector(2.5, -12);
 				
 				self.originalBaseRotation = -160;
 				self.baseRotation = -145;
@@ -2165,7 +2165,7 @@ function Update(self)
 			
 				self.originalBaseRotation = -160;
 			
-				stanceTarget = Vector(4, -7);
+				stanceTarget = Vector(2.5, -12);
 				
 				self:SetNumberValue("Current Attack Type", 0);
 				self:SetNumberValue("Current Attack Range", 0);
