@@ -2,14 +2,15 @@
 function Kick(self, leg)
 	local factor = self.kickTimer.ElapsedSimTimeMS / self.kickDuration
 	factor = math.sin(factor * math.pi * 0.5)
-	local angleOffset = math.pi * 0.4 * (math.sin(math.pow(factor, 1.5) * math.pi) + math.sin(math.pow(factor, 2) * math.pi))
+	local angleOffset = math.pi * 0.35 * (math.sin(math.pow(factor, 1.5) * math.pi) + math.sin(math.pow(factor, 2) * math.pi))
 	leg.RotAngle = leg.RotAngle + angleOffset * self.FlipFactor
 	
 	local lengthFactor = math.max(math.sin(math.sqrt(1 - factor) * math.pi), math.pow(factor, 2))
 	leg.Frame = math.floor(lengthFactor * (leg.FrameCount - 1) + 0.5)
 	
-	local offset = 3 * math.cos(math.pow((1 - factor) * 2, 2) * math.pi)
-	local jointOffset = Vector((leg.JointOffset.X + offset) * self.FlipFactor, leg.JointOffset.Y):RadRotate(leg.RotAngle);
+	local offsetX = 2 * math.cos(math.pow((1 - factor) * 2, 2) * math.pi)
+	local offsetY = 2 * math.sin(math.pow((factor) * 2, 2) * math.pi)
+	local jointOffset = Vector((leg.JointOffset.X + offsetX) * self.FlipFactor, leg.JointOffset.Y + offsetY):RadRotate(leg.RotAngle);
 	leg.Pos = leg.Pos - jointOffset + Vector(jointOffset.X, jointOffset.Y):RadRotate(-angleOffset * leg.FlipFactor);
 	
 	local foot = leg.Foot
@@ -44,7 +45,7 @@ function Kick(self, leg)
 						
 						
 						if IsHeldDevice(mo) then
-							if mo:NumberValueExists("Mordhau Melee") then
+							if not targetWeapon:IsInGroup("Weapons - Mordhau Melee") then
 								local parent = mo:GetParent()
 								if parent then
 									if IsMOSRotating(parent) then
@@ -88,7 +89,7 @@ function Kick(self, leg)
 				
 				if checkPixTerrain and checkPixTerrain ~= 0 then
 					self.kickDamage = false
-					self.Vel = self.Vel + Vector(-3 * self.FlipFactor, -3)
+					self.Vel = self.Vel + Vector(-3 * self.FlipFactor, -3) * self.kickRecoil
 				end
 			else
 				self.kickDuration = math.max(self.kickDuration - TimerMan.DeltaTimeSecs * 2000, 0)
@@ -105,6 +106,8 @@ function Create(self)
 	self.kickTimer = Timer()
 	self.kickCooldown = 1000
 	self.kickCooldownTimer = Timer()
+	
+	self.kickRecoil = 0.5
 	
 	self.kickYell = true
 	self.kickDamage = true
@@ -135,7 +138,7 @@ function Update(self)
 				self.kickYell = true
 				self.kickDamage = true
 				
-				self.Vel = self.Vel + Vector(1 * self.FlipFactor, -1)
+				self.Vel = self.Vel + Vector(-3 * self.FlipFactor, -1) * self.kickRecoil
 				
 				self.kickDuration = self.kickDurationDefault
 				
@@ -158,7 +161,7 @@ function Update(self)
 				self.kickYell = false
 				self:SetNumberValue("Kick Attack", 1)
 				
-				self.Vel = self.Vel + Vector(3 * self.FlipFactor, -2.5)
+				self.Vel = self.Vel + Vector(6 * self.FlipFactor, -2.5) * self.kickRecoil
 			end
 			
 			--self.controller.AnalogAim = self.kickAim
