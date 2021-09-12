@@ -795,7 +795,7 @@ function CrusaderAIBehaviours.handleVoicelines(self)
 	
 	if self:NumberValueExists("Kick Attack") then
 		self:RemoveNumberValue("Kick Attack");
-		CrusadertAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
+		CrusaderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
 		self.movementSounds.Jump:Play(self.Pos);
 	end
 	
