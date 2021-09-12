@@ -273,6 +273,10 @@ function Update(self)
 						
 							actorHit = ToActor(actorHit)
 							
+							if actorHit.BodyHitSound then
+								actorHit.BodyHitSound:Play(actorHit.Pos)
+							end
+							
 							actorHit.Status = 1;
 							actorHit.Vel = actorHit.Vel + (self.Vel);
 							

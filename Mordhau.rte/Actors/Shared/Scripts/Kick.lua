@@ -66,11 +66,14 @@ function Kick(self, leg)
 								self.kickImpactSound:Play(self.Pos);
 							
 								parent = ToActor(parent)
+								
+								if parent.BodyHitSound then
+									parent.BodyHitSound:Play(parent.Pos)
+								end
 
 								parent.Vel = parent.Vel + Vector(3 * self.FlipFactor, -3)
 								
 								mo:SetNumberValue("Mordhau Flinched", 1);
-								mo:SetNumberValue("Mordhau Impact Sound", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								mo:AddAttachable(flincher)
 								
@@ -86,6 +89,9 @@ function Kick(self, leg)
 				end
 				
 				if checkPixTerrain and checkPixTerrain ~= 0 then
+				
+					self.kickImpactTerrainSound:Play(self.Pos);
+				
 					self.kickDamage = false
 					self.Vel = self.Vel + Vector(-3 * self.FlipFactor, -3) * self.kickRecoil
 				end
@@ -101,6 +107,7 @@ function Create(self)
 
 	self.kickImpactSound = CreateSoundContainer("Kick Impact Mordhau", "Mordhau.rte");
 	self.kickImpactDeviceSound = CreateSoundContainer("Kick Impact Device Mordhau", "Mordhau.rte");
+	self.kickImpactTerrainSound = CreateSoundContainer("Kick Impact Terrain Mordhau", "Mordhau.rte");
 
 	self.kicking = false
 	self.kickDurationDefault = 1000
@@ -118,11 +125,6 @@ function Create(self)
 end
 
 function Update(self)
-
-	if self:NumberValueExists("Mordhau Impact Sound") then
-		self:RemoveNumberValue("Mordhau Impact Sound");
-		self.BodyHitSound:Play(self.Pos);
-	end
 
 	local leg = (self.FGLeg and self.FGLeg or self.BGLeg)
 	
@@ -151,10 +153,6 @@ function Update(self)
 				self.kickDuration = self.kickDurationDefault
 				
 				self.kickAim = self.controller.AnalogAim
-				
-				if self.movementSounds.Jump then
-					self.movementSounds.Jump:Play(self.Pos);
-				end
 				
 			end
 			

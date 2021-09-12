@@ -741,6 +741,12 @@ function CommanderAIBehaviours.handleVoicelines(self)
 		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.killingEnemy, 5, 4);
 	end
 	
+	if self:NumberValueExists("Kick Attack") then
+		self:RemoveNumberValue("Kick Attack");
+		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntLight, 3, 3);
+		self.movementSounds.Jump:Play(self.Pos);
+	end
+	
 	if self.EquippedItem then	
 		-- SUPPRESSING
 		if (IsHDFirearm(self.EquippedItem)) then

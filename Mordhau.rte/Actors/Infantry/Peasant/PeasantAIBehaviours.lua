@@ -724,8 +724,7 @@ function PeasantAIBehaviours.handleVoicelines(self)
 	if self:NumberValueExists("Kick Attack") then
 		self:RemoveNumberValue("Kick Attack");
 		PeasantAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
-		self.movementSounds.AttackLarge:Play(self.Pos);
-		self.movementSounds.AttackExtreme:Play(self.Pos);
+		self.movementSounds.Jump:Play(self.Pos);
 	end
 	
 	if self.EquippedItem then	
