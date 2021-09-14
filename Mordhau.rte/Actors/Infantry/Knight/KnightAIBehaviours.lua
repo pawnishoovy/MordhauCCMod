@@ -806,6 +806,15 @@ function KnightAIBehaviours.handleVoicelines(self)
 		self.movementSounds.Jump:Play(self.Pos);
 	end
 	
+	if self:NumberValueExists("Puglism Block") then
+		self:RemoveNumberValue("Puglism Block");
+		self.movementSounds.AttackLight:Play(self.Pos);
+	elseif self:NumberValueExists("Puglism Attack") then
+		self:RemoveNumberValue("Puglism Attack");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
+		self.movementSounds.AttackMedium:Play(self.Pos);
+	end
+	
 	if self.EquippedItem then	
 		-- SUPPRESSING
 		if (IsHDFirearm(self.EquippedItem)) then

@@ -7,7 +7,7 @@ require("Actors/Infantry/Knight/KnightAIBehaviours")
 function Create(self)
 	self.AI = NativeHumanAI:Create(self)
 	--You can turn features on and off here
-	self.armSway = true;
+	self.armSway = false;--true;
 	self.automaticEquip = false;
 	self.alternativeGib = true;
 	self.visibleInventory = false;
