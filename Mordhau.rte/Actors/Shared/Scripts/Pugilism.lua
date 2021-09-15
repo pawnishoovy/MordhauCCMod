@@ -31,6 +31,7 @@ function Create(self)
 	self.pugilismAttackCooldownTimer = Timer()
 	self.pugilismAttackGrunt = true
 	self.pugilismAttackDamage = true
+	
 end
 
 function Update(self)
@@ -45,12 +46,17 @@ function Update(self)
 		
 		local ctrl = (self.controller and self.controller or self:GetController())
 		
-		local blocking = (self:IsPlayerControlled() and UInputMan:KeyHeld(18))
+		local blocking = (self:IsPlayerControlled() and UInputMan:KeyHeld(18)) or self:NumberValueExists("AI Block")
 		local attacking = (ctrl and ctrl:IsState(Controller.WEAPON_FIRE) or false)
+		
+		self:RemoveNumberValue("AI Block");
 		
 		if self.pugilismState == self.pugilismStates.Idle then
 			local idleAnimFG = Vector(3, 0):RadRotate(self.Age * 0.003)
 			local idleAnimBG = Vector(0, 2):RadRotate(self.Age * 0.003)
+			
+			self:RemoveNumberValue("Puglism Blocking")
+			self:RemoveNumberValue("Puglism Attacking")
 			
 			if attacking then
 				if self.pugilismAttackCooldownTimer:IsPastSimMS(self.pugilismAttackCooldown) then
@@ -88,6 +94,9 @@ function Update(self)
 			self.pugilismArmFG.targetOffset = blockAnim
 			self.pugilismArmBG.targetOffset = blockAnim
 			
+			self:SetNumberValue("Puglism Blocking", 1)
+			self:RemoveNumberValue("Puglism Attacking")
+			
 			if armFG then
 				armFG.ParentOffset = armFG.ParentOffset + ((self.pugilismArmFG.originalParentOffset + Vector(4, 1)) - armFG.ParentOffset) * TimerMan.DeltaTimeSecs * 5.5
 			end
@@ -102,6 +111,9 @@ function Update(self)
 			local factor = self.pugilismAttackTimer.ElapsedSimTimeMS / self.pugilismAttackDuration
 			factor = math.max(math.min(factor, 1), 0.01)
 			factor = math.pow(factor, 4)
+			
+			self:RemoveNumberValue("Puglism Blocking")
+			self:SetNumberValue("Puglism Attacking", 1)
 			
 			local arm = arms[self.pugilismArmIndex]
 			if arm then
@@ -178,7 +190,8 @@ function Update(self)
 			end
 			
 		elseif self.pugilismState == self.pugilismStates.Showe then
-			
+			self:RemoveNumberValue("Puglism Blocking")
+			self:SetNumberValue("Puglism Attacking", 1)
 		end
 		
 		for i, arm in ipairs(arms) do
