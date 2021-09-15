@@ -207,7 +207,7 @@ function Create(self)
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 26
 	self:SetNumberValue("Attack 1 Range", attackPhase[i].furthestReach + attackPhase[i].attackRange)
 	self:SetStringValue("Attack 1 Name", "Swing");
 	attackPhase[i].attackPush = 0
@@ -264,9 +264,9 @@ function Create(self)
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 29
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, 7) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
 	
 	attackPhase[i].frameStart = 7
@@ -289,9 +289,9 @@ function Create(self)
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 29
 	attackPhase[i].attackPush = 0.8
-	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(4, 7) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 70;
 	
 	attackPhase[i].frameStart = 11
@@ -314,9 +314,9 @@ function Create(self)
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 28
 	attackPhase[i].attackPush = 0.85
-	attackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	attackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
 	
 	attackPhase[i].frameStart = 11
@@ -486,7 +486,7 @@ function Create(self)
 	horseAttackPhase[i].attackDamage = 0
 	horseAttackPhase[i].attackStunChance = 0
 	horseAttackPhase[i].furthestReach = 10 -- for AI calculation number value setting later
-	horseAttackPhase[i].attackRange = 20
+	horseAttackPhase[i].attackRange = 18
 	self:SetNumberValue("Attack 2 Range", horseAttackPhase[i].furthestReach + horseAttackPhase[i].attackRange)
 	self:SetStringValue("Attack 2 Name", "Horse Swing");
 	horseAttackPhase[i].attackPush = 0
@@ -550,7 +550,7 @@ function Create(self)
 	horseAttackPhase[i].attackAngle = 0;
 	
 	horseAttackPhase[i].frameStart = 9
-	horseAttackPhase[i].frameEnd = 9
+	horseAttackPhase[i].frameEnd = 10
 	horseAttackPhase[i].angleStart = -300
 	horseAttackPhase[i].angleEnd = -295
 	horseAttackPhase[i].offsetStart = Vector(-15, -5)
@@ -571,13 +571,13 @@ function Create(self)
 	horseAttackPhase[i].canDamage = false
 	horseAttackPhase[i].attackDamage = 3.4
 	horseAttackPhase[i].attackStunChance = 0.15
-	horseAttackPhase[i].attackRange = 20
+	horseAttackPhase[i].attackRange = 21
 	horseAttackPhase[i].attackPush = 0.8
-	horseAttackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackVector = Vector(4, 7) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 167;
 	
-	horseAttackPhase[i].frameStart = 9
-	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].frameStart = 10
+	horseAttackPhase[i].frameEnd = 9
 	horseAttackPhase[i].angleStart = -300
 	horseAttackPhase[i].angleEnd = -220
 	horseAttackPhase[i].offsetStart = Vector(-15, -6)
@@ -596,13 +596,13 @@ function Create(self)
 	horseAttackPhase[i].canDamage = false
 	horseAttackPhase[i].attackDamage = 4
 	horseAttackPhase[i].attackStunChance = 0.15
-	horseAttackPhase[i].attackRange = 20
+	horseAttackPhase[i].attackRange = 21
 	horseAttackPhase[i].attackPush = 0.85
-	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 145;
 	
-	horseAttackPhase[i].frameStart = 6
-	horseAttackPhase[i].frameEnd = 6
+	horseAttackPhase[i].frameStart = 9
+	horseAttackPhase[i].frameEnd = 9
 	horseAttackPhase[i].angleStart = -220
 	horseAttackPhase[i].angleEnd = -200
 	horseAttackPhase[i].offsetStart = Vector(-7, 2)
@@ -621,12 +621,12 @@ function Create(self)
 	horseAttackPhase[i].canDamage = true
 	horseAttackPhase[i].attackDamage = 4
 	horseAttackPhase[i].attackStunChance = 0.15
-	horseAttackPhase[i].attackRange = 20
+	horseAttackPhase[i].attackRange = 19
 	horseAttackPhase[i].attackPush = 0.85
-	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
+	horseAttackPhase[i].attackVector = Vector(0, 7) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 110;
 	
-	horseAttackPhase[i].frameStart = 6
+	horseAttackPhase[i].frameStart = 9
 	horseAttackPhase[i].frameEnd = 6
 	horseAttackPhase[i].angleStart = -200
 	horseAttackPhase[i].angleEnd = -45

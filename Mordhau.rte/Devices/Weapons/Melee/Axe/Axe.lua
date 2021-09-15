@@ -212,7 +212,7 @@ function Create(self)
 	attackPhase[i].attackDamage = 0
 	attackPhase[i].attackStunChance = 0
 	attackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
-	attackPhase[i].attackRange = 13
+	attackPhase[i].attackRange = 15
 	self:SetNumberValue("Attack 1 Range", attackPhase[i].furthestReach + attackPhase[i].attackRange)
 	self:SetStringValue("Attack 1 Name", "Swing");
 	attackPhase[i].attackPush = 0
@@ -269,7 +269,7 @@ function Create(self)
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 16
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 0;
@@ -294,7 +294,7 @@ function Create(self)
 	attackPhase[i].canDamage = false
 	attackPhase[i].attackDamage = 3.4
 	attackPhase[i].attackStunChance = 0.15
-	attackPhase[i].attackRange = 20
+	attackPhase[i].attackRange = 16
 	attackPhase[i].attackPush = 0.8
 	attackPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 70;
@@ -319,7 +319,7 @@ function Create(self)
 	attackPhase[i].canDamage = true
 	attackPhase[i].attackDamage = 2.5
 	attackPhase[i].attackStunChance = 0.02
-	attackPhase[i].attackRange = 13
+	attackPhase[i].attackRange = 17
 	attackPhase[i].attackPush = 0.4
 	attackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	attackPhase[i].attackAngle = 90;
@@ -410,7 +410,7 @@ function Create(self)
 	horseAttackPhase[i].attackDamage = 0
 	horseAttackPhase[i].attackStunChance = 0
 	horseAttackPhase[i].furthestReach = 10 -- for AI calculation number value setting later
-	horseAttackPhase[i].attackRange = 13
+	horseAttackPhase[i].attackRange = 15
 	self:SetNumberValue("Attack 2 Range", horseAttackPhase[i].furthestReach + horseAttackPhase[i].attackRange)
 	self:SetStringValue("Attack 2 Name", "Horse Swing");
 	horseAttackPhase[i].attackPush = 0
@@ -495,7 +495,7 @@ function Create(self)
 	horseAttackPhase[i].canDamage = false
 	horseAttackPhase[i].attackDamage = 2.5
 	horseAttackPhase[i].attackStunChance = 0.02
-	horseAttackPhase[i].attackRange = 13
+	horseAttackPhase[i].attackRange = 16
 	horseAttackPhase[i].attackPush = 0.4
 	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 167;
@@ -520,7 +520,7 @@ function Create(self)
 	horseAttackPhase[i].canDamage = false
 	horseAttackPhase[i].attackDamage = 2.5
 	horseAttackPhase[i].attackStunChance = 0.02
-	horseAttackPhase[i].attackRange = 13
+	horseAttackPhase[i].attackRange = 16
 	horseAttackPhase[i].attackPush = 0.4
 	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 145;
@@ -545,7 +545,7 @@ function Create(self)
 	horseAttackPhase[i].canDamage = true
 	horseAttackPhase[i].attackDamage = 2.5
 	horseAttackPhase[i].attackStunChance = 0.02
-	horseAttackPhase[i].attackRange = 13
+	horseAttackPhase[i].attackRange = 15
 	horseAttackPhase[i].attackPush = 0.4
 	horseAttackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	horseAttackPhase[i].attackAngle = 110;
@@ -664,7 +664,7 @@ function Create(self)
 	stabattackPhase[i].attackDamage = 0
 	stabattackPhase[i].attackStunChance = 0
 	stabattackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
-	stabattackPhase[i].attackRange = 14
+	stabattackPhase[i].attackRange = 16
 	self:SetNumberValue("Attack 3 Range", stabattackPhase[i].furthestReach + stabattackPhase[i].attackRange)
 	self:SetStringValue("Attack 3 Name", "Stab");
 	stabattackPhase[i].attackPush = 0
@@ -721,7 +721,7 @@ function Create(self)
 	stabattackPhase[i].canDamage = false
 	stabattackPhase[i].attackDamage = 4
 	stabattackPhase[i].attackStunChance = 0.15
-	stabattackPhase[i].attackRange = 22
+	stabattackPhase[i].attackRange = 18
 	stabattackPhase[i].attackPush = 0.8
 	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabattackPhase[i].attackAngle = 90;
@@ -746,7 +746,7 @@ function Create(self)
 	stabattackPhase[i].canDamage = false
 	stabattackPhase[i].attackDamage = 4
 	stabattackPhase[i].attackStunChance = 0.15
-	stabattackPhase[i].attackRange = 22
+	stabattackPhase[i].attackRange = 18
 	stabattackPhase[i].attackPush = 0.8
 	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabattackPhase[i].attackAngle = 90;
@@ -771,7 +771,7 @@ function Create(self)
 	stabattackPhase[i].canDamage = true
 	stabattackPhase[i].attackDamage = 1 -- what do you expect?
 	stabattackPhase[i].attackStunChance = 0.02
-	stabattackPhase[i].attackRange = 13
+	stabattackPhase[i].attackRange = 16
 	stabattackPhase[i].attackPush = 0.4
 	stabattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	stabattackPhase[i].attackAngle = 90;
@@ -863,7 +863,7 @@ function Create(self)
 	overheadattackPhase[i].attackDamage = 0
 	overheadattackPhase[i].attackStunChance = 0
 	overheadattackPhase[i].furthestReach = 15 -- for AI calculation number value setting later
-	overheadattackPhase[i].attackRange = 13
+	overheadattackPhase[i].attackRange = 15
 	self:SetNumberValue("Attack 4 Range", overheadattackPhase[i].furthestReach + overheadattackPhase[i].attackRange)
 	self:SetStringValue("Attack 4 Name", "Overhead");
 	overheadattackPhase[i].attackPush = 0
@@ -912,7 +912,7 @@ function Create(self)
 	overheadattackPhase[i].canDamage = false
 	overheadattackPhase[i].attackDamage = 5
 	overheadattackPhase[i].attackStunChance = 0.3
-	overheadattackPhase[i].attackRange = 20
+	overheadattackPhase[i].attackRange = 16
 	overheadattackPhase[i].attackPush = 0.8
 	overheadattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	overheadattackPhase[i].attackAngle = 55;
@@ -937,7 +937,7 @@ function Create(self)
 	overheadattackPhase[i].canDamage = true
 	overheadattackPhase[i].attackDamage = 3.3
 	overheadattackPhase[i].attackStunChance = 0.1
-	overheadattackPhase[i].attackRange = 13
+	overheadattackPhase[i].attackRange = 15
 	overheadattackPhase[i].attackPush = 0.5
 	overheadattackPhase[i].attackVector = Vector(0, 4) -- local space vector relative to position and rotation
 	overheadattackPhase[i].attackAngle = 55;
@@ -1735,7 +1735,7 @@ function Update(self)
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
-				playAttackAnimation(self, 6) -- throw
+				playAttackAnimation(self, 7) -- throw
 			end
 			
 			-- if self.isCharged then

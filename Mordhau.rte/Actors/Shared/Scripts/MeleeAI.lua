@@ -252,7 +252,7 @@ function UpdateAI(self)
 					
 					if enemyAttacking then
 						self:SetNumberValue("AI Block", 1)
-					elseif not self:NumberValueExists("Puglism Attacking")
+					elseif not self:NumberValueExists("Puglism Attacking") then
 						if RangeRand(0, 100) < self.MeleeAI.kickChance and difMagnitude < 40 then
 							self:SetNumberValue("AI Kick", 1)
 						elseif difMagnitude < (meleeRange + math.random(-5,5) + 10) then
