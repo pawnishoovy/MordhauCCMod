@@ -1818,13 +1818,13 @@ function Update(self)
 				else
 					playAttackAnimation(self, 5)
 				end
-			elseif flourish then
+			elseif flourish and not self.parent:NumberValueExists("Mordhau Charge Ready") then
 				self.parent:SetNumberValue("Block Foley", 1);
 				playAttackAnimation(self, 4) -- fancypants shit
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
-				playAttackAnimation(self, 6) -- throw
+				playAttackAnimation(self, 7) -- throw
 			end
 			
 			-- if self.isCharged then
@@ -2194,6 +2194,18 @@ function Update(self)
 				self.baseRotation = -25;
 				
 			end
+			
+			if self.Blocking == false and self.parent:NumberValueExists("Mordhau Charge Ready") then
+			
+				self.rotationInterpolationSpeed = 5
+			
+				stanceTarget = Vector(-2, -10);
+				
+				self.originalBaseRotation = 40;
+				self.baseRotation = 40;
+				
+			end
+			
 --[[			elseif not self.attackAnimationIsPlaying then
 			
 				self.Blocking = true;

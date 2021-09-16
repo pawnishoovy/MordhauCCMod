@@ -326,6 +326,9 @@ function Create(self)
 	self.doubleTapTimer = Timer();
 	self.doubleTapState = 0
 
+	self.accelerationFactor = 0.3;
+	self.moveMultiplier = 0.8;
+	self.walkMultiplier = 0.8;
 	self.sprintMultiplier = 1.2;
 
 	self.sprintPushForceDenominator = 1.2 / 0.8

@@ -5595,3 +5595,5 @@ Ronin.rte/Devices/Tools/MedicalDartGun/Sounds/Fire2.flac
 Ronin.rte/Devices/Tools/MedicalDartGun/Sounds/Fire3.flac
 Ronin.rte/Devices/Tools/MedicalDartGun/Sounds/ReloadEnd.flac
 Ronin.rte/Devices/Tools/MedicalDartGun/Sounds/ReloadStart.flac
+Console.dump.log
+Console.input.log

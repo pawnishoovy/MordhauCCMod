@@ -223,9 +223,12 @@ function Update(self)
 				
 				--PrimitiveMan:DrawCirclePrimitive(data.position, 1, 5);
 				--PrimitiveMan:DrawLinePrimitive(data.position, posTarget, 5);
-				
 				local offset = SceneMan:ShortestDistance(self.Pos + Vector(arm.ParentOffset.X * self.FlipFactor, arm.ParentOffset.Y):RadRotate(self.RotAngle), pos + vel * rte.PxTravelledPerFrame * 0.25, SceneMan.SceneWrapsX):RadRotate(-self.RotAngle)
-				arm.IdleOffset = Vector(offset.X * self.FlipFactor, offset.Y)
+				if self.Charging then		
+					arm.IdleOffset = Vector(13 + (offset.X * self.FlipFactor), offset.Y)
+				else				
+					arm.IdleOffset = Vector(offset.X * self.FlipFactor, offset.Y)
+				end
 			end
 		end
 		

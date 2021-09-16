@@ -255,26 +255,30 @@ function KnightAIBehaviours.handleMovement(self)
 	--isSprinting
 	aiSprint = (not self:IsPlayerControlled() and self.MeleeAI.active == false) and (self.controller:IsState(Controller.MOVE_LEFT) == true or self.controller:IsState(Controller.MOVE_RIGHT) == true)
 	
-	--local movementMultiplier = 1
-	local movementMultiplier = 1
-	local walkMultiplier = 0.8
-	--local sprintMultiplier = 0.5 * movementMultiplier
-	local sprintMultiplier = 1.0	 
 	if self.isSprinting or aiSprint then
 		if input == false
 		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true
 		or self.noSprint then
 			self.isSprinting = false
 		end
-		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.sprintMultiplier * sprintMultiplier);
-		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * self.sprintMultiplier * sprintMultiplier);
-		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * self.sprintMultiplier * sprintMultiplier);
-		self.LimbPathPushForce = self.limbPathDefaultPushForce * self.sprintPushForceDenominator * sprintMultiplier
+		
+		if self.moveMultiplier < self.sprintMultiplier then
+			self.moveMultiplier = self.moveMultiplier + TimerMan.DeltaTimeSecs * self.accelerationFactor;
+			if self.moveMultiplier > self.sprintMultiplier then
+				self.moveMultiplier = self.sprintMultiplier;
+			end
+		end
+		
+		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.moveMultiplier);
+		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * self.moveMultiplier);
+		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * self.moveMultiplier);
+		self.LimbPathPushForce = self.limbPathDefaultPushForce * self.sprintPushForceDenominator
 	else
-		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * walkMultiplier);
-		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * walkMultiplier);
-		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * walkMultiplier);
-		self.LimbPathPushForce = self.limbPathDefaultPushForce * walkMultiplier
+		self.moveMultiplier = self.walkMultiplier;
+		self:SetLimbPathSpeed(0, self.limbPathDefaultSpeed0 * self.moveMultiplier);
+		self:SetLimbPathSpeed(1, self.limbPathDefaultSpeed1 * self.moveMultiplier);
+		self:SetLimbPathSpeed(2, self.limbPathDefaultSpeed2 * self.moveMultiplier);
+		self.LimbPathPushForce = self.limbPathDefaultPushForce * self.moveMultiplier
 	end
 
 	if (crouching) then
@@ -800,6 +804,12 @@ function KnightAIBehaviours.handleVoicelines(self)
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.killingEnemy, 5, 4);
 	end
 	
+	if self:NumberValueExists("Mordhau Charge") then
+		self:RemoveNumberValue("Mordhau Charge");
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackExtreme, 3, 3);
+		self.movementSounds.AttackLight:Play(self.Pos);
+	end
+	
 	if self:NumberValueExists("Kick Attack") then
 		self:RemoveNumberValue("Kick Attack");
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
@@ -808,7 +818,7 @@ function KnightAIBehaviours.handleVoicelines(self)
 	
 	if self:NumberValueExists("Puglism Block") then
 		self:RemoveNumberValue("Puglism Block");
-		self.movementSounds.AttackLight:Play(self.Pos);
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 2, 0);
 	elseif self:NumberValueExists("Puglism Attack") then
 		self:RemoveNumberValue("Puglism Attack");
 		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.attackLight, 3, 3);
