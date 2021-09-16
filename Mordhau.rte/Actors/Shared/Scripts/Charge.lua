@@ -64,7 +64,7 @@ function Update(self)
 		local team = 0
 		if actor then team = actor.Team end
 		local aimAngle = self:GetAimAngle(false) / 4;
-		local rayVec = Vector(18*self.FlipFactor, 0):RadRotate(self.RotAngle):RadRotate(aimAngle);
+		local rayVec = Vector(18*self.FlipFactor, 0):RadRotate(self.RotAngle):RadRotate(aimAngle*self.FlipFactor);
 		local rayOrigin = self.Pos + Vector(0, -7);
 		
 		PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
