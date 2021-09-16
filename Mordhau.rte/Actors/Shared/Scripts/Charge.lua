@@ -63,10 +63,11 @@ function Update(self)
 		local hitType = 0
 		local team = 0
 		if actor then team = actor.Team end
-		local rayVec = Vector(18*self.FlipFactor, 0):RadRotate(self.RotAngle)
+		local aimAngle = self:GetAimAngle(false) / 4;
+		local rayVec = Vector(18*self.FlipFactor, 0):RadRotate(self.RotAngle):RadRotate(aimAngle);
 		local rayOrigin = self.Pos + Vector(0, -7);
 		
-		--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+		PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 		--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 		
 		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, self.Team, 0, false, 2); -- Raycast		
