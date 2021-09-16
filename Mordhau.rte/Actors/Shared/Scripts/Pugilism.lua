@@ -32,6 +32,11 @@ function Create(self)
 	self.pugilismAttackGrunt = true
 	self.pugilismAttackDamage = true
 	
+	self.pugilismSwingSound = CreateSoundContainer("Pugilism Swing Mordhau", "Mordhau.rte");
+	self.pugilismBlockedSound = CreateSoundContainer("Pugilism Blocked Mordhau", "Mordhau.rte");
+	self.pugilismHitMetalSound = CreateSoundContainer("Pugilism HitMetal Mordhau", "Mordhau.rte");
+	self.pugilismHitFleshSound = CreateSoundContainer("Pugilism HitFlesh Mordhau", "Mordhau.rte");
+	
 end
 
 function Update(self)
@@ -119,6 +124,7 @@ function Update(self)
 			if arm then
 				if self.pugilismAttackGrunt and factor > 0.2 then
 					self:SetNumberValue("Puglism Attack", 1)
+					self.pugilismSwingSound:Play(self.Pos);
 					self.pugilismAttackGrunt = false
 					
 					self.Vel = self.Vel + Vector(3 * self.FlipFactor, -1) * 0.3
@@ -143,6 +149,8 @@ function Update(self)
 							local woundName = mo:GetEntryWoundPresetName()
 							local woundNameExit = mo:GetExitWoundPresetName()
 							local woundOffset = SceneMan:ShortestDistance(mo.Pos, handPos, SceneMan.SceneWrapsX):RadRotate(mo.RotAngle * -1.0)
+							
+							local material = mo.Material.PresetName
 							
 							if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
 								for i = 1, 2 do
@@ -169,6 +177,20 @@ function Update(self)
 									local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 									mo:AddAttachable(flincher)
 								end
+							end
+							
+							if string.find(material,"Metal") or string.find(woundName,"Metal") or string.find(woundNameExit,"Metal") or string.find(material,"Stuff") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
+								-- if self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX then
+									-- local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX);
+									-- if effect then
+										-- effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+										-- MovableMan:AddParticle(effect);
+										-- effect:GibThis();
+									-- end
+								-- end
+								self.pugilismHitMetalSound:Play(self.Pos);
+							else
+								self.pugilismHitFleshSound:Play(self.Pos);
 							end
 							
 						end

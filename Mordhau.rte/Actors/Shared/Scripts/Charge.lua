@@ -20,20 +20,20 @@ function Create(self)
 	self.GFX.hitDeflectGFX = "Melee Terrain Hard Effect Mordhau"
 	
 	self.chargeTerrainHitSounds = {
-	[12] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
-	[164] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
-	[177] = CreateSoundContainer("MeleeTerrainHit Concrete Mordhau", "Mordhau.rte"),
-	[9] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
-	[10] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
-	[11] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
-	[128] = CreateSoundContainer("MeleeTerrainHit Dirt Mordhau", "Mordhau.rte"),
-	[6] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
-	[8] = CreateSoundContainer("MeleeTerrainHit Sand Mordhau", "Mordhau.rte"),
-	[178] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
-	[179] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
-	[180] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
-	[181] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
-	[182] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte")}
+	[12] = CreateSoundContainer("TerrainImpact Heavy Concrete", "Mordhau.rte"),
+	[164] = CreateSoundContainer("TerrainImpact Heavy Concrete", "Mordhau.rte"),
+	[177] = CreateSoundContainer("TerrainImpact Heavy Concrete", "Mordhau.rte"),
+	[9] = CreateSoundContainer("TerrainImpact Heavy Dirt", "Mordhau.rte"),
+	[10] = CreateSoundContainer("TerrainImpact Heavy Dirt", "Mordhau.rte"),
+	[11] = CreateSoundContainer("TerrainImpact Heavy Dirt", "Mordhau.rte"),
+	[128] = CreateSoundContainer("TerrainImpact Heavy Dirt", "Mordhau.rte"),
+	[6] = CreateSoundContainer("TerrainImpact Heavy Sand", "Mordhau.rte"),
+	[8] = CreateSoundContainer("TerrainImpact Heavy Sand", "Mordhau.rte"),
+	[178] = CreateSoundContainer("TerrainImpact Heavy SolidMetal", "Mordhau.rte"),
+	[179] = CreateSoundContainer("TerrainImpact Heavy SolidMetal", "Mordhau.rte"),
+	[180] = CreateSoundContainer("TerrainImpact Heavy SolidMetal", "Mordhau.rte"),
+	[181] = CreateSoundContainer("TerrainImpact Heavy SolidMetal", "Mordhau.rte"),
+	[182] = CreateSoundContainer("TerrainImpact Heavy SolidMetal", "Mordhau.rte")}
 	
 	self.chargeOriginalSprintMultiplier = self.sprintMultiplier;
 	
@@ -66,7 +66,7 @@ function Update(self)
 		local rayVec = Vector(18*self.FlipFactor, 0):RadRotate(self.RotAngle)
 		local rayOrigin = self.Pos + Vector(0, -7);
 		
-		PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+		--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 		--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
 		
 		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, self.Team, 0, false, 2); -- Raycast		
@@ -328,6 +328,9 @@ function Update(self)
 						end
 					end
 					
+					if self.BodyHitSound then
+						self.BodyHitSound:Play(self.Pos);
+					end
 					hitType = 4 -- Hard
 				else
 					if self.GFX.hitTerrainSoftGFX then
@@ -346,7 +349,6 @@ function Update(self)
 		
 		if hit then
 			self:RemoveNumberValue("Mordhau Charge Ready");
-			self.tackleImpactSound:Play(self.Pos);
 			self.Charging = false;
 			self.moveMultiplier = self.walkMultiplier;
 			self.isSprinting = false;
