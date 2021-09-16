@@ -260,6 +260,8 @@ function ArcherAIBehaviours.handleMovement(self)
 		or self.controller:IsState(Controller.MOVE_LEFT) == true and self.HFlipped == false or self.controller:IsState(Controller.MOVE_RIGHT) == true and self.HFlipped == true
 		or self.noSprint then
 			self.isSprinting = false
+		else
+			self.isSprinting = true;
 		end
 		
 		if self.moveMultiplier < self.sprintMultiplier then

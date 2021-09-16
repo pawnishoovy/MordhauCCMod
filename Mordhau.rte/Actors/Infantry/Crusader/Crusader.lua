@@ -10,7 +10,7 @@ function Create(self)
 	MovableMan:ChangeActorTeam(self, 3)
 	
 	--You can turn features on and off here
-	self.armSway = true;
+	self.armSway = false;
 	self.automaticEquip = false;
 	self.alternativeGib = true;
 	self.visibleInventory = false;

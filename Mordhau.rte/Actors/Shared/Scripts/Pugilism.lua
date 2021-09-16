@@ -49,6 +49,9 @@ function Update(self)
 		local armBG = self.BGArm
 		local arms = {armFG, armBG}
 		
+		local doSway = false;
+		local armPairs = {{self.FGArm, self.FGLeg, self.BGLeg}, {self.BGArm, self.BGLeg, self.FGLeg}};
+		
 		local ctrl = (self.controller and self.controller or self:GetController())
 		
 		local blocking = (self:IsPlayerControlled() and UInputMan:KeyHeld(18)) or self:NumberValueExists("AI Block")
@@ -127,7 +130,7 @@ function Update(self)
 					self.pugilismSwingSound:Play(self.Pos);
 					self.pugilismAttackGrunt = false
 					
-					self.Vel = self.Vel + Vector(3 * self.FlipFactor, -1) * 0.3
+					self.Vel = self.Vel + Vector(2/(1 + self.Vel.Magnitude), 0):RadRotate(self:GetAimAngle(true)) * math.abs(math.cos(self:GetAimAngle(true)));
 				end
 				
 				local attackAnim = Vector(-12, 0) * (1 - factor) + Vector(25, 0):RadRotate(self:GetAimAngle(false)) * math.max(math.sqrt(math.sin(factor * math.pi)), math.sqrt(math.sin(math.pow(factor, 2) * math.pi)) * 0.5)
@@ -249,8 +252,37 @@ function Update(self)
 				if self.Charging then
 					local aimAngle = self:GetAimAngle(false) / 4;
 					arm.IdleOffset = Vector(13 + (offset.X * self.FlipFactor), offset.Y):RadRotate(aimAngle);
+				elseif self.isSprinting then
+					doSway = true;
 				else				
 					arm.IdleOffset = Vector(offset.X * self.FlipFactor, offset.Y)
+				end
+			end
+		end
+		
+		if doSway == true and self.pugilismState == self.pugilismStates.Idle and self.Status == Actor.STABLE then
+			for i = 1, #armPairs do
+				local arm = armPairs[i][1];
+				if arm then
+					if self:NumberValueExists("Mordhau Charge Ready") and i == 1 then
+						local rotAng = self.RotAngle - (1.57 * self.FlipFactor);
+						arm.IdleOffset = Vector(10, 0):RadRotate(rotAng * self.FlipFactor + 1.5 + (i * 0.2));
+					else
+						arm = ToArm(arm);
+						
+						local armLength = arm.MaxLength;
+						local rotAng = self.RotAngle - (1.57 * self.FlipFactor);
+						local legMain = armPairs[i][2];
+						local legAlt = armPairs[i][3];
+						
+						if self.controller:IsState(Controller.MOVE_LEFT) or self.controller:IsState(Controller.MOVE_RIGHT) then
+							rotAng = (legAlt and legAlt.RotAngle) or (legMain and (-legMain.RotAngle + math.pi) or rotAng);
+						elseif legMain then
+							rotAng = legMain.RotAngle;
+						end
+						
+						arm.IdleOffset = Vector(0, armLength * 0.7):RadRotate(rotAng * self.FlipFactor + 1.5 + (i * 0.2));
+					end
 				end
 			end
 		end
