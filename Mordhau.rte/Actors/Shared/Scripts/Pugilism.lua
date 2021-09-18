@@ -252,7 +252,7 @@ function Update(self)
 				if self.Charging then
 					local aimAngle = self:GetAimAngle(false) / 4;
 					arm.IdleOffset = Vector(13 + (offset.X * self.FlipFactor), offset.Y):RadRotate(aimAngle);
-				elseif self.isSprinting then
+				elseif self.isSprinting and self.pugilismState == self.pugilismStates.Idle then
 					doSway = true;
 				else				
 					arm.IdleOffset = Vector(offset.X * self.FlipFactor, offset.Y)
@@ -260,7 +260,7 @@ function Update(self)
 			end
 		end
 		
-		if doSway == true and self.pugilismState == self.pugilismStates.Idle and self.Status == Actor.STABLE then
+		if doSway == true and self.Status == Actor.STABLE then
 			for i = 1, #armPairs do
 				local arm = armPairs[i][1];
 				if arm then
