@@ -162,6 +162,7 @@ function CommanderAIBehaviours.handleMovement(self)
 			self.isJumping = false
 			if self.moveSoundTimer:IsPastSimMS(500) then
 				self.movementSounds.Land:Play(self.Pos);
+				self.movementSounds.StepAdd:Play(self.Pos);
 				self.moveSoundTimer:Reset();
 				
 				local pos = Vector(0, 0);
@@ -235,6 +236,7 @@ function CommanderAIBehaviours.handleMovement(self)
 			self.wasInAir = false;
 			if self.Vel.Y > 0 and self.moveSoundTimer:IsPastSimMS(500) then
 				self.movementSounds.Land:Play(self.Pos);
+				self.movementSounds.StepAdd:Play(self.Pos);
 				self.moveSoundTimer:Reset();
 				
 				local pos = Vector(0, 0);
@@ -756,7 +758,7 @@ function CommanderAIBehaviours.handleVoicelines(self)
 	
 	if self:NumberValueExists("Kick Attack") then
 		self:RemoveNumberValue("Kick Attack");
-		CommanderAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntLight, 3, 3);
+		KnightAIBehaviours.createVoiceSoundEffect(self, self.voiceSounds.gruntMedium, 3, 3);
 		self.movementSounds.Jump:Play(self.Pos);
 	end
 	

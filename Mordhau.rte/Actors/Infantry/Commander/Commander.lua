@@ -189,23 +189,34 @@ function Create(self)
 	-- EVERYTHING ELSE
 	
 	self.movementSounds = {
-	Land = CreateSoundContainer("Knight Gear Land", "Mordhau.rte"),
-	Jump = CreateSoundContainer("Knight Gear Jump", "Mordhau.rte"),
-	Crouch = CreateSoundContainer("Knight Gear CrouchStand", "Mordhau.rte"),
-	Stand = CreateSoundContainer("Knight Gear CrouchStand", "Mordhau.rte"),
-	Step = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
+	Land = CreateSoundContainer("Commander Gear Land", "Mordhau.rte"),
+	Jump = CreateSoundContainer("Commander Gear Jump", "Mordhau.rte"),
+	Crouch = CreateSoundContainer("Commander Gear CrouchStand", "Mordhau.rte"),
+	Stand = CreateSoundContainer("Commander Gear CrouchStand", "Mordhau.rte"),
+	Step = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
 	StepAdd = CreateSoundContainer("Commander Gear Footstep Add", "Mordhau.rte"),
-	Prone = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
-	Crawl = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
-	ThrowStart = CreateSoundContainer("Knight Gear Light Move", "Mordhau.rte"),
-	Throw = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
-	AttackLight = CreateSoundContainer("Knight Gear Light Move", "Mordhau.rte"),
-	AttackMedium = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
-	AttackLarge = CreateSoundContainer("Knight Gear Move", "Mordhau.rte"),
-	AttackExtreme = CreateSoundContainer("Knight Gear Move", "Mordhau.rte")};
+	Prone = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
+	Crawl = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
+	ThrowStart = CreateSoundContainer("Commander Gear Light Move", "Mordhau.rte"),
+	Throw = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
+	AttackLight = CreateSoundContainer("Commander Gear Light Move", "Mordhau.rte"),
+	AttackMedium = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
+	AttackLarge = CreateSoundContainer("Commander Gear Move", "Mordhau.rte"),
+	AttackExtreme = CreateSoundContainer("Commander Gear Move", "Mordhau.rte")};
+	
+	self.kickImpactSound = CreateSoundContainer("Commander Kick Impact Mordhau", "Mordhau.rte");
+	self.kickImpactDeviceSound = CreateSoundContainer("Commander Kick Impact Device Mordhau", "Mordhau.rte");
+	self.kickImpactTerrainSound = CreateSoundContainer("Commander Kick Impact Terrain Mordhau", "Mordhau.rte");
+	
+	self.tackleImpactSound = CreateSoundContainer("Commander Tackle Impact Mordhau", "Mordhau.rte");
+	
+	self.pugilismSwingSound = CreateSoundContainer("Commander Pugilism Swing Mordhau", "Mordhau.rte");
+	self.pugilismBlockedSound = CreateSoundContainer("Commander Pugilism Blocked Mordhau", "Mordhau.rte");
+	self.pugilismHitMetalSound = CreateSoundContainer("Commander Pugilism HitMetal Mordhau", "Mordhau.rte");
+	self.pugilismHitFleshSound = CreateSoundContainer("Commander Pugilism HitFlesh Mordhau", "Mordhau.rte");
 
-	self.voiceSound = CreateSoundContainer("Knight Gear Move", "Mordhau.rte");
-	self.atmosphericVoiceSound = CreateSoundContainer("Knight Gear Move", "Mordhau.rte");
+	self.voiceSound = CreateSoundContainer("Commander Gear Move", "Mordhau.rte");
+	self.atmosphericVoiceSound = CreateSoundContainer("Commander Gear Move", "Mordhau.rte");
 	-- MEANINGLESS! this is just so we can do voiceSound.Pos without an if check first! it will be overwritten first actual VO play
 	
 	self.altitude = 0;

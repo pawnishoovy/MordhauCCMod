@@ -2149,6 +2149,14 @@ function Update(self)
 				self.originalBaseRotation = 40;
 				self.baseRotation = 40;
 				
+				if self.parent:NumberValueExists("Mordhau Charging") then
+				
+					stanceTarget = Vector(12, 0);
+					
+					self.originalBaseRotation = 50;
+					self.baseRotation = 50;
+				end
+				
 			end
 --[[			elseif not self.attackAnimationIsPlaying then
 			

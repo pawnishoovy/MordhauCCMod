@@ -32,11 +32,6 @@ function Create(self)
 	self.pugilismAttackGrunt = true
 	self.pugilismAttackDamage = true
 	
-	self.pugilismSwingSound = CreateSoundContainer("Pugilism Swing Mordhau", "Mordhau.rte");
-	self.pugilismBlockedSound = CreateSoundContainer("Pugilism Blocked Mordhau", "Mordhau.rte");
-	self.pugilismHitMetalSound = CreateSoundContainer("Pugilism HitMetal Mordhau", "Mordhau.rte");
-	self.pugilismHitFleshSound = CreateSoundContainer("Pugilism HitFlesh Mordhau", "Mordhau.rte");
-	
 end
 
 function Update(self)
@@ -155,8 +150,17 @@ function Update(self)
 							
 							local material = mo.Material.PresetName
 							
+							local damage = 3 + (math.max(1, (self.Mass-130) / 50)); -- for every 50 mass above 130, add one damage
+							
+							local addWounds = true;
+							
+							local woundsToAdd;
+							local speedMult = math.max(1, self.Vel.Magnitude / 18);
+							
+							woundsToAdd = math.floor((damage*speedMult))
+							
 							if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
-								for i = 1, 2 do
+								for i = 1, woundsToAdd do
 									mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
 								end
 							end
@@ -266,7 +270,7 @@ function Update(self)
 				if arm then
 					if self:NumberValueExists("Mordhau Charge Ready") and i == 1 then
 						local rotAng = self.RotAngle - (1.57 * self.FlipFactor);
-						arm.IdleOffset = Vector(10, 0):RadRotate(rotAng * self.FlipFactor + 1.5 + (i * 0.2));
+						arm.IdleOffset = Vector(-2, 4):RadRotate(rotAng * self.FlipFactor + 1.5 + (i * 0.2));
 					else
 						arm = ToArm(arm);
 						

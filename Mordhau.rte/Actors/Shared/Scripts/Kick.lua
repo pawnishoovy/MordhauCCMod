@@ -37,8 +37,17 @@ function Kick(self, leg)
 						local woundNameExit = mo:GetExitWoundPresetName()
 						local woundOffset = SceneMan:ShortestDistance(mo.Pos, footPos, SceneMan.SceneWrapsX):RadRotate(mo.RotAngle * -1.0)
 						
+						local damage = 3 + (math.max(1, (self.Mass-130) / 40)); -- for every 40 mass above 130, add one damage
+						
+						local addWounds = true;
+						
+						local woundsToAdd;
+						local speedMult = math.max(1, self.Vel.Magnitude / 18);
+						
+						woundsToAdd = math.floor((damage*speedMult))
+						
 						if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
-							for i = 1, 3 do
+							for i = 1, woundsToAdd do
 								mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 						end
@@ -71,7 +80,7 @@ function Kick(self, leg)
 									parent.BodyHitSound:Play(parent.Pos)
 								end
 
-								parent.Vel = parent.Vel + Vector(3 * self.FlipFactor, -3)
+								parent.Vel = parent.Vel + Vector(3 * self.FlipFactor * math.min(math.max(1, (self.Mass-130) / 50), 3), -3)  -- for every 50 mass above 130, multiply throwing distance to a max of 3 times
 								
 								mo:SetNumberValue("Mordhau Flinched", 1);
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
@@ -104,10 +113,6 @@ function Kick(self, leg)
 end
 
 function Create(self)
-
-	self.kickImpactSound = CreateSoundContainer("Kick Impact Mordhau", "Mordhau.rte");
-	self.kickImpactDeviceSound = CreateSoundContainer("Kick Impact Device Mordhau", "Mordhau.rte");
-	self.kickImpactTerrainSound = CreateSoundContainer("Kick Impact Terrain Mordhau", "Mordhau.rte");
 
 	self.kicking = false
 	self.kickDurationDefault = 1000
