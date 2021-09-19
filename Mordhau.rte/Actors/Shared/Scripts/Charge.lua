@@ -49,6 +49,7 @@ function Update(self)
 		self.Charging = true;
 		self.chargeTimer:Reset();
 		self.sprintMultiplier = self.chargeOriginalSprintMultiplier * 1.3;
+		self:SetNumberValue("Mordhau Charging", 1);
 		
 	elseif self.Charging == true then
 	
@@ -178,7 +179,7 @@ function Update(self)
 						self.blockedSound:Play(self.Pos);
 					end	
 					
-					local damage = 4;
+					local damage = 4 + (math.max(1, (self.Mass-130) / 20)); -- for every 20 mass above 130, add one damage
 					
 					local addWounds = true;
 					
@@ -200,7 +201,7 @@ function Update(self)
 						end
 						
 						actorHit.Status = 1;
-						actorHit.Vel = actorHit.Vel + (self.Vel);
+						actorHit.Vel = actorHit.Vel + (self.Vel) * math.min(math.max(1, (self.Mass-130) / 50), 3); -- for every 50 mass above 130, multiply throwing distance to a max of 3 times
 						
 						if self.Vel.Magnitude < 18 then
 							if math.random(0, 100) > 10 then
@@ -368,6 +369,7 @@ function Update(self)
 			end
 		end
 	else
+		self:RemoveNumberValue("Mordhau Charging");
 		self.IDToIgnore = nil;
 		self.sprintMultiplier = self.chargeOriginalSprintMultiplier;
 		if self.moveMultiplier == self.sprintMultiplier then

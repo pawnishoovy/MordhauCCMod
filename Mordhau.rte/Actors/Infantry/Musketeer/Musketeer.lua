@@ -210,6 +210,15 @@ function Create(self)
 	AttackMedium = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte"),
 	AttackLarge = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte"),
 	AttackExtreme = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte")};
+	
+	self.kickImpactSound = CreateSoundContainer("Kick Impact Mordhau", "Mordhau.rte");
+	self.kickImpactDeviceSound = CreateSoundContainer("Kick Impact Device Mordhau", "Mordhau.rte");
+	self.kickImpactTerrainSound = CreateSoundContainer("Kick Impact Terrain Mordhau", "Mordhau.rte");
+	
+	self.pugilismSwingSound = CreateSoundContainer("Pugilism Swing Mordhau", "Mordhau.rte");
+	self.pugilismBlockedSound = CreateSoundContainer("Pugilism Blocked Mordhau", "Mordhau.rte");
+	self.pugilismHitMetalSound = CreateSoundContainer("Pugilism HitMetal Mordhau", "Mordhau.rte");
+	self.pugilismHitFleshSound = CreateSoundContainer("Pugilism HitFlesh Mordhau", "Mordhau.rte");
 
 	self.voiceSound = CreateSoundContainer("Musketeer Gear Move", "Mordhau.rte");
 	-- MEANINGLESS! this is just so we can do voiceSound.Pos without an if check first! it will be overwritten first actual VO play
