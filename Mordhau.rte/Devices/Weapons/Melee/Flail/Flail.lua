@@ -7,7 +7,8 @@ end
 function playAttackAnimation(self, animation)
 	self.attackAnimationIsPlaying = true
 	self.currentAttackStart = false;
-	self.currentAttackSequence = 1
+	self.currentAttackSequence = self.phaseStart or 1;
+	self.phaseStart = nil;
 	self.currentAttackAnimation = animation
 	self.attackAnimationTimer:Reset()
 	self.attackAnimationCanHit = true
@@ -23,10 +24,14 @@ function playAttackAnimation(self, animation)
 	
 	self.IDToIgnore = nil;
 	
-	self.attackBuffered = false;
-	self.stabBuffered = false;
-	self.overheadBuffered = false;
-	
+	if self.ignoreUnbuffering then
+		self.ignoreUnbuffering = nil;
+	else
+		self.attackBuffered = false;
+		self.stabBuffered = false;
+		self.overheadBuffered = false;
+	end
+		
 	if self.Parrying == true then
 		self:SetStringValue("Parrying Type", self.attackAnimationsTypes[self.currentAttackAnimation]);
 		-- make our parrying shield counter alongside us
@@ -267,6 +272,17 @@ function Create(self)
 	self.chainBall = self.chainSegments[self.chainLength + 1]
 	self.chainBallLastPos = Vector(self.chainBall.position.X, self.chainBall.position.Y)
 	
+	self.chainHeavyMovement = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
+	self.chainLoop = CreateSoundContainer("Chain Loop Flail Mordhau", "Mordhau.rte");
+	self.chainLoop.Volume = 0;
+	self.chainLoop:Play(self.Pos);
+	self.chainSwingLoop = CreateSoundContainer("Chain Swing Loop Flail Mordhau", "Mordhau.rte");
+	self.chainSwingLoop.Volume = 0;
+	self.chainSwingLoop:Play(self.Pos);
+	
+	self.chainLoopVolumeTarget = 0;
+	self.chainSwingLoopVolumeTarget = 0;
+	
 	-- throwing stuff
 	
 	self.bounceSound = CreateSoundContainer("Bounce Javelin", "Mordhau.rte");
@@ -294,16 +310,14 @@ function Create(self)
 			[181] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte"),
 			[182] = CreateSoundContainer("MeleeTerrainHit SolidMetal Mordhau", "Mordhau.rte")}}
 			
-	self.soundHitFlesh = CreateSoundContainer("Slash Flesh Flail Mordhau", "Mordhau.rte");
-	self.soundHitMetal = CreateSoundContainer("Slash Metal Flail Mordhau", "Mordhau.rte");
+	self.soundHitFlesh = CreateSoundContainer("Slash Flesh Warhammer Mordhau", "Mordhau.rte");
+	self.soundHitMetal = CreateSoundContainer("Slash Metal Warhammer Mordhau", "Mordhau.rte");
 	
 
 	self.equipAnimationTimer = Timer();
 	
 	self.swingRotationFrames = 1; -- this is the amount of frames it takes us to go from sideways to facing forwards again (after a swing)
 								  -- for swords this might just be one, for big axes it could be as high as 4
-								  
-	self.sweetSpotThreshold = 0.7; -- if our hit position is at least 70% of the range away from the hit origin, we deal max damage. otherwise, linearly decrease towards 25% damage
 
 	self.originalStanceOffset = Vector(self.StanceOffset.X * self.FlipFactor, self.StanceOffset.Y)
 	
@@ -348,13 +362,13 @@ function Create(self)
 	local regularAttackSounds = {}
 	local i
 	
-	self.blockedSound = CreateSoundContainer("Blocked Flail Mordhau", "Mordhau.rte");
-	self.parrySound = CreateSoundContainer("Parry Flail Mordhau", "Mordhau.rte");
-	self.heavyBlockAddSound = CreateSoundContainer("HeavyBlockAdd Flail Mordhau", "Mordhau.rte");
+	self.blockedSound = CreateSoundContainer("Basic Melee Metal Blocked Mordhau", "Mordhau.rte");
+	self.parrySound = CreateSoundContainer("Basic Melee Parry Mordhau", "Mordhau.rte");
+	self.heavyBlockAddSound = CreateSoundContainer("Basic Melee Wood HeavyBlockAdd Mordhau", "Mordhau.rte");
 	
 	self.blockSounds = {};
-	self.blockSounds.Slash = CreateSoundContainer("Slash Block Flail Mordhau", "Mordhau.rte");
-	self.blockSounds.Stab = CreateSoundContainer("Stab Block Flail Mordhau", "Mordhau.rte");
+	self.blockSounds.Slash = CreateSoundContainer("Basic Melee Wood Block Mordhau", "Mordhau.rte");
+	self.blockSounds.Stab = CreateSoundContainer("Stab Block Warhammer Mordhau", "Mordhau.rte");
 	
 	self.blockGFX = {};
 	self.blockGFX.Slash = "Slash Block Effect Mordhau";
@@ -370,11 +384,11 @@ function Create(self)
 	--regularAttackSounds.hitDefaultSound
 	--regularAttackSounds.hitDefaultSoundVariations
 	
-	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Flail Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitDeflectSound = CreateSoundContainer("Slash Metal Warhammer Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Flail Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitFleshSound = CreateSoundContainer("Slash Flesh Warhammer Mordhau", "Mordhau.rte");
 	
-	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Flail Mordhau", "Mordhau.rte");
+	regularAttackSounds.hitMetalSound = CreateSoundContainer("Slash Metal Warhammer Mordhau", "Mordhau.rte");
 	
 	local stabAttackSounds = {}
 	
@@ -382,11 +396,11 @@ function Create(self)
 	--stabAttackSounds.hitDefaultSound
 	--stabAttackSounds.hitDefaultSoundVariations
 	
-	stabAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Flail Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitDeflectSound = CreateSoundContainer("Stab Metal Warhammer Mordhau", "Mordhau.rte");
 	
-	stabAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Flail Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitFleshSound = CreateSoundContainer("Stab Flesh Warhammer Mordhau", "Mordhau.rte");
 	
-	stabAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Flail Mordhau", "Mordhau.rte");
+	stabAttackSounds.hitMetalSound = CreateSoundContainer("Stab Metal Warhammer Mordhau", "Mordhau.rte");
 	
 	local regularAttackGFX = {}
 	
@@ -429,7 +443,7 @@ function Create(self)
 	attackPhase[i].soundStart = nil
 	attackPhase[i].soundStartVariations = 0
 	
-	attackPhase[i].soundEnd = nil
+	attackPhase[i].soundEnd = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
 	attackPhase[i].soundEndVariations = 0
 	
 	-- Late Prepare
@@ -454,7 +468,7 @@ function Create(self)
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(-6, -5)
 	
-	attackPhase[i].soundStart = nil
+	attackPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	attackPhase[i].soundStartVariations = 0
 	
 	attackPhase[i].soundEnd = nil
@@ -481,7 +495,7 @@ function Create(self)
 	attackPhase[i].offsetStart = Vector(-6, -5)
 	attackPhase[i].offsetEnd = Vector(7, -2)
 	
-	attackPhase[i].soundStart = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
+	attackPhase[i].soundStart = nil
 	
 	attackPhase[i].soundEnd = nil
 	
@@ -706,7 +720,7 @@ function Create(self)
 	horseAttackPhase[i].offsetStart = Vector(-6, 0)
 	horseAttackPhase[i].offsetEnd = Vector(-15, -5)
 	
-	horseAttackPhase[i].soundStart = nil
+	horseAttackPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	horseAttackPhase[i].soundStartVariations = 0
 	
 	horseAttackPhase[i].soundEnd = nil
@@ -737,7 +751,7 @@ function Create(self)
 	horseAttackPhase[i].soundStart = nil
 	horseAttackPhase[i].soundStartVariations = 0
 	
-	horseAttackPhase[i].soundEnd = nil
+	horseAttackPhase[i].soundEnd = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
 	horseAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Early Attack
@@ -761,7 +775,7 @@ function Create(self)
 	horseAttackPhase[i].offsetStart = Vector(-15, -6)
 	horseAttackPhase[i].offsetEnd = Vector(-7, 2)
 	
-	horseAttackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	horseAttackPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
 	horseAttackPhase[i].soundEnd = nil
 	
@@ -1017,7 +1031,7 @@ function Create(self)
 	stabAttackPhase[i].soundStart = nil
 	stabAttackPhase[i].soundStartVariations = 0
 	
-	stabAttackPhase[i].soundEnd = nil
+	stabAttackPhase[i].soundEnd = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
 	stabAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Early Attack
@@ -1041,7 +1055,7 @@ function Create(self)
 	stabAttackPhase[i].offsetStart = Vector(-3, -4)
 	stabAttackPhase[i].offsetEnd = Vector(0, -5)
 	
-	stabAttackPhase[i].soundStart = CreateSoundContainer("Stab Flail Mordhau", "Mordhau.rte");
+	stabAttackPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
 	stabAttackPhase[i].soundEnd = nil
 	
@@ -1164,7 +1178,7 @@ function Create(self)
 	-- Prepare
 	i = 1
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 300
+	overheadAttackPhase[i].durationMS = 200
 	
 	overheadAttackPhase[i].canBeBlocked = false
 	overheadAttackPhase[i].canDamage = false
@@ -1178,16 +1192,16 @@ function Create(self)
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
 	overheadAttackPhase[i].frameStart = 6
-	overheadAttackPhase[i].frameEnd = 6
+	overheadAttackPhase[i].frameEnd = 10
 	overheadAttackPhase[i].angleStart = -15
-	overheadAttackPhase[i].angleEnd = 25
+	overheadAttackPhase[i].angleEnd = 90
 	overheadAttackPhase[i].offsetStart = Vector(0, 0)
-	overheadAttackPhase[i].offsetEnd = Vector(4,-13)
+	overheadAttackPhase[i].offsetEnd = Vector(-5,-4)
 	
 	-- Late Prepare
 	i = 2
 	overheadAttackPhase[i] = {}
-	overheadAttackPhase[i].durationMS = 200
+	overheadAttackPhase[i].durationMS = 300
 	
 	overheadAttackPhase[i].lastPrepare = true
 	overheadAttackPhase[i].canBeBlocked = false
@@ -1198,17 +1212,17 @@ function Create(self)
 	overheadAttackPhase[i].attackPush = 0
 	overheadAttackPhase[i].attackVector = Vector(4, 10) -- local space vector relative to position and rotation
 	
-	overheadAttackPhase[i].frameStart = 6
+	overheadAttackPhase[i].frameStart = 11
 	overheadAttackPhase[i].frameEnd = 6
-	overheadAttackPhase[i].angleStart = 25
-	overheadAttackPhase[i].angleEnd = 27
-	overheadAttackPhase[i].offsetStart = Vector(4, -13)
-	overheadAttackPhase[i].offsetEnd = Vector(4, -13)
+	overheadAttackPhase[i].angleStart = 90
+	overheadAttackPhase[i].angleEnd = 0
+	overheadAttackPhase[i].offsetStart = Vector(-5, -13)
+	overheadAttackPhase[i].offsetEnd = Vector(-4, -13)
 	
-	overheadAttackPhase[i].soundStart = nil
+	overheadAttackPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	overheadAttackPhase[i].soundStartVariations = 0
 	
-	overheadAttackPhase[i].soundEnd = nil
+	overheadAttackPhase[i].soundEnd = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
 	overheadAttackPhase[i].soundEndVariations = 0
 	
 	-- Early Attack
@@ -1227,12 +1241,12 @@ function Create(self)
 	
 	overheadAttackPhase[i].frameStart = 6
 	overheadAttackPhase[i].frameEnd = 6
-	overheadAttackPhase[i].angleStart = 27
+	overheadAttackPhase[i].angleStart = 0
 	overheadAttackPhase[i].angleEnd = 20
-	overheadAttackPhase[i].offsetStart = Vector(4, -13)
+	overheadAttackPhase[i].offsetStart = Vector(-4, -13)
 	overheadAttackPhase[i].offsetEnd = Vector(6, -10)
 	
-	overheadAttackPhase[i].soundStart = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
+	overheadAttackPhase[i].soundStart = nil
 	
 	overheadAttackPhase[i].soundEnd = nil
 	
@@ -1303,116 +1317,295 @@ function Create(self)
 	self.attackAnimationsGFX[3] = regularAttackGFX
 	self.attackAnimations[3] = overheadAttackPhase
 	self.attackAnimationsTypes[3] = overheadAttackPhase.Type
-
-	-- Flourish... obviously
-	flourishPhase = {}
-	flourishPhase.Type = "Flourish";
 	
-	-- Surprise
+	-- why have a flail if you can't twirl it? Twirl Start
+	twirlStartPhase = {}
+	twirlStartPhase.Type = "Twirl";
+	
+	-- Wind
 	i = 1
-	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 100
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 200
+
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 0
+	twirlStartPhase[i].attackStunChance = 0
+	twirlStartPhase[i].attackRange = 0
+	twirlStartPhase[i].attackPush = 0
+	twirlStartPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 90;
 	
-	flourishPhase[i].canBeBlocked = false
-	flourishPhase[i].canDamage = false
-	flourishPhase[i].attackDamage = 0
-	flourishPhase[i].attackStunChance = 0
-	flourishPhase[i].attackRange = 0
-	flourishPhase[i].attackPush = 0
-	flourishPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
-	flourishPhase[i].attackAngle = 90;
+	twirlStartPhase[i].frameStart = 6
+	twirlStartPhase[i].frameEnd = 6
+	twirlStartPhase[i].angleStart = 0
+	twirlStartPhase[i].angleEnd = -45
+	twirlStartPhase[i].offsetStart = Vector(0, 0)
+	twirlStartPhase[i].offsetEnd = Vector(0, 0)
 	
-	flourishPhase[i].frameStart = 6
-	flourishPhase[i].frameEnd = 11
-	flourishPhase[i].angleStart = 0
-	flourishPhase[i].angleEnd = 90
-	flourishPhase[i].offsetStart = Vector(0, 0)
-	flourishPhase[i].offsetEnd = Vector(-6, -5)
+	twirlStartPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
-	flourishPhase[i].soundStart = CreateSoundContainer("Flourish Flail Mordhau", "Mordhau.rte");
-	
-	-- Bedazzle
+	-- Back
 	i = 2
-	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 100
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 150
 	
-	flourishPhase[i].canBeBlocked = false
-	flourishPhase[i].canDamage = false
-	flourishPhase[i].attackDamage = 0
-	flourishPhase[i].attackStunChance = 0
-	flourishPhase[i].attackRange = 0
-	flourishPhase[i].attackPush = 0
-	flourishPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
-	flourishPhase[i].attackAngle = 0;
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 0
+	twirlStartPhase[i].attackStunChance = 0
+	twirlStartPhase[i].attackRange = 0
+	twirlStartPhase[i].attackPush = 0
+	twirlStartPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 90;
 	
-	flourishPhase[i].frameStart = 11
-	flourishPhase[i].frameEnd = 6
-	flourishPhase[i].angleStart = 90
-	flourishPhase[i].angleEnd = 45
-	flourishPhase[i].offsetStart = Vector(-6, -5)
-	flourishPhase[i].offsetEnd = Vector(-6, -5)
+	twirlStartPhase[i].frameStart = 6
+	twirlStartPhase[i].frameEnd = 11
+	twirlStartPhase[i].angleStart = -45
+	twirlStartPhase[i].angleEnd = 90
+	twirlStartPhase[i].offsetStart = Vector(0, 0)
+	twirlStartPhase[i].offsetEnd = Vector(-6, -5)
 	
-	flourishPhase[i].soundStart = nil
-	flourishPhase[i].soundStartVariations = 0
+	twirlStartPhase[i].soundStart = CreateSoundContainer("Flourish Flail Mordhau", "Mordhau.rte");
 	
-	flourishPhase[i].soundEnd = nil
-	flourishPhase[i].soundEndVariations = 0
-	
-	-- Amaze
+	-- Combo Phase
 	i = 3
-	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 100
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 0
 	
-	flourishPhase[i].lastPrepare = true
-	flourishPhase[i].canBeBlocked = false
-	flourishPhase[i].canDamage = false
-	flourishPhase[i].attackDamage = 3.4
-	flourishPhase[i].attackStunChance = 0.15
-	flourishPhase[i].attackRange = 20
-	flourishPhase[i].attackPush = 0.8
-	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	flourishPhase[i].attackAngle = 0;
+	twirlStartPhase[i].twirlComboPhase = true;
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 0
+	twirlStartPhase[i].attackStunChance = 0
+	twirlStartPhase[i].attackRange = 0
+	twirlStartPhase[i].attackPush = 0
+	twirlStartPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 6
-	flourishPhase[i].frameEnd = 7
-	flourishPhase[i].angleStart = 45
-	flourishPhase[i].angleEnd = -20
-	flourishPhase[i].offsetStart = Vector(-6, -5)
-	flourishPhase[i].offsetEnd = Vector(7, -2)
+	twirlStartPhase[i].frameStart = 11
+	twirlStartPhase[i].frameEnd = 11
+	twirlStartPhase[i].angleStart = 90
+	twirlStartPhase[i].angleEnd = 90
+	twirlStartPhase[i].offsetStart = Vector(-6, -5)
+	twirlStartPhase[i].offsetEnd = Vector(-6, -5)
 	
-	flourishPhase[i].soundEnd = nil
+	twirlStartPhase[i].soundStart = nil
+	twirlStartPhase[i].soundStartVariations = 0
 	
-	-- Bask
+	twirlStartPhase[i].soundEnd = nil
+	twirlStartPhase[i].soundEndVariations = 0	
+	
+	-- Forward
 	i = 4
-	flourishPhase[i] = {}
-	flourishPhase[i].durationMS = 0
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 120
 	
-	flourishPhase[i].firstRecovery = false
-	flourishPhase[i].canBeBlocked = false
-	flourishPhase[i].canDamage = false
-	flourishPhase[i].attackDamage = 3.4
-	flourishPhase[i].attackStunChance = 0.15
-	flourishPhase[i].attackRange = 20
-	flourishPhase[i].attackPush = 0.8
-	flourishPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
-	flourishPhase[i].attackAngle = 0;
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 0
+	twirlStartPhase[i].attackStunChance = 0
+	twirlStartPhase[i].attackRange = 0
+	twirlStartPhase[i].attackPush = 0
+	twirlStartPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 0;
 	
-	flourishPhase[i].frameStart = 7
-	flourishPhase[i].frameEnd = 6
-	flourishPhase[i].angleStart = -20
-	flourishPhase[i].angleEnd = -15
-	flourishPhase[i].offsetStart = Vector(7, -2)
-	flourishPhase[i].offsetEnd = Vector(7, -2)
+	twirlStartPhase[i].frameStart = 11
+	twirlStartPhase[i].frameEnd = 6
+	twirlStartPhase[i].angleStart = 90
+	twirlStartPhase[i].angleEnd = 45
+	twirlStartPhase[i].offsetStart = Vector(-6, -5)
+	twirlStartPhase[i].offsetEnd = Vector(-6, -5)
 	
-	flourishPhase[i].soundStart = nil
+	twirlStartPhase[i].soundStart = nil
+	twirlStartPhase[i].soundStartVariations = 0
 	
-	flourishPhase[i].soundEnd = nil
+	twirlStartPhase[i].soundEnd = nil
+	twirlStartPhase[i].soundEndVariations = 0
+	
+	-- Forwarder
+	i = 5
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 150
+	
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 3.4
+	twirlStartPhase[i].attackStunChance = 0.15
+	twirlStartPhase[i].attackRange = 20
+	twirlStartPhase[i].attackPush = 0.8
+	twirlStartPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 0;
+	
+	twirlStartPhase[i].frameStart = 6
+	twirlStartPhase[i].frameEnd = 7
+	twirlStartPhase[i].angleStart = 45
+	twirlStartPhase[i].angleEnd = -20
+	twirlStartPhase[i].offsetStart = Vector(-6, -5)
+	twirlStartPhase[i].offsetEnd = Vector(7, -2)
+	
+	-- End
+	i = 6
+	twirlStartPhase[i] = {}
+	twirlStartPhase[i].durationMS = 100
+	
+	twirlStartPhase[i].twirlEnd = true
+	twirlStartPhase[i].canBeBlocked = false
+	twirlStartPhase[i].canDamage = false
+	twirlStartPhase[i].attackDamage = 3.4
+	twirlStartPhase[i].attackStunChance = 0.15
+	twirlStartPhase[i].attackRange = 20
+	twirlStartPhase[i].attackPush = 0.8
+	twirlStartPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	twirlStartPhase[i].attackAngle = 0;
+	
+	twirlStartPhase[i].frameStart = 7
+	twirlStartPhase[i].frameEnd = 7
+	twirlStartPhase[i].angleStart = -20
+	twirlStartPhase[i].angleEnd = -20
+	twirlStartPhase[i].offsetStart = Vector(7, -2)
+	twirlStartPhase[i].offsetEnd = Vector(7, -2)
+	
+	twirlStartPhase[i].soundEnd = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
 	-- Add the animation to the animation table
-	self.attackAnimationsSounds[4] = regularAttackSounds
-	self.attackAnimationsGFX[4] = regularAttackGFX
-	self.attackAnimations[4] = flourishPhase
-	self.attackAnimationsTypes[4] = flourishPhase.Type
+	self.attackAnimationsSounds[11] = regularAttackSounds
+	self.attackAnimationsGFX[11] = regularAttackGFX
+	self.attackAnimations[11] = twirlStartPhase
+	self.attackAnimationsTypes[11] = twirlStartPhase.Type
+
+	-- Twirl Continue
+	twirlPhase = {}
+	twirlPhase.Type = "Twirl";
+	
+	-- Combo Placeholder
+	i = 1
+	twirlPhase[i] = {}
+	twirlPhase[i].durationMS = 150
+	
+	twirlPhase[i].canBeBlocked = false
+	twirlPhase[i].canDamage = false
+	twirlPhase[i].attackDamage = 0
+	twirlPhase[i].attackStunChance = 0
+	twirlPhase[i].attackRange = 0
+	twirlPhase[i].attackPush = 0
+	twirlPhase[i].attackVector = Vector(0, -4) -- local space vector relative to position and rotation
+	twirlPhase[i].attackAngle = 90;
+	
+	twirlPhase[i].frameStart = 6
+	twirlPhase[i].frameEnd = 11
+	twirlPhase[i].angleStart = -90
+	twirlPhase[i].angleEnd = 90
+	twirlPhase[i].offsetStart = Vector(0, 0)
+	twirlPhase[i].offsetEnd = Vector(-6, -5)
+	
+	-- Combo Phase
+	i = 2
+	twirlPhase[i] = {}
+	twirlPhase[i].durationMS = 0
+	
+	twirlPhase[i].twirlComboPhase = true;
+	twirlPhase[i].canBeBlocked = false
+	twirlPhase[i].canDamage = false
+	twirlPhase[i].attackDamage = 0
+	twirlPhase[i].attackStunChance = 0
+	twirlPhase[i].attackRange = 0
+	twirlPhase[i].attackPush = 0
+	twirlPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	twirlPhase[i].attackAngle = 0;
+	
+	twirlPhase[i].frameStart = 11
+	twirlPhase[i].frameEnd = 11
+	twirlPhase[i].angleStart = 90
+	twirlPhase[i].angleEnd = 90
+	twirlPhase[i].offsetStart = Vector(-6, -5)
+	twirlPhase[i].offsetEnd = Vector(-6, -5)
+	
+	twirlPhase[i].soundStart = nil
+	twirlPhase[i].soundStartVariations = 0
+	
+	twirlPhase[i].soundEnd = nil
+	twirlPhase[i].soundEndVariations = 0	
+	
+	-- Forward
+	i = 3
+	twirlPhase[i] = {}
+	twirlPhase[i].durationMS = 120
+	
+	twirlPhase[i].canBeBlocked = false
+	twirlPhase[i].canDamage = false
+	twirlPhase[i].attackDamage = 0
+	twirlPhase[i].attackStunChance = 0
+	twirlPhase[i].attackRange = 0
+	twirlPhase[i].attackPush = 0
+	twirlPhase[i].attackVector = Vector(4, -4) -- local space vector relative to position and rotation
+	twirlPhase[i].attackAngle = 0;
+	
+	twirlPhase[i].frameStart = 11
+	twirlPhase[i].frameEnd = 6
+	twirlPhase[i].angleStart = 90
+	twirlPhase[i].angleEnd = 45
+	twirlPhase[i].offsetStart = Vector(-6, -5)
+	twirlPhase[i].offsetEnd = Vector(-6, -5)
+	
+	twirlPhase[i].soundStart = CreateSoundContainer("FlourishContinue Flail Mordhau", "Mordhau.rte");
+	twirlPhase[i].soundStartVariations = 0
+	
+	twirlPhase[i].soundEnd = nil
+	twirlPhase[i].soundEndVariations = 0
+	
+	-- Forwarder
+	i = 4
+	twirlPhase[i] = {}
+	twirlPhase[i].durationMS = 100
+	
+	twirlPhase[i].canBeBlocked = false
+	twirlPhase[i].canDamage = false
+	twirlPhase[i].attackDamage = 3.4
+	twirlPhase[i].attackStunChance = 0.15
+	twirlPhase[i].attackRange = 20
+	twirlPhase[i].attackPush = 0.8
+	twirlPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	twirlPhase[i].attackAngle = 0;
+	
+	twirlPhase[i].frameStart = 6
+	twirlPhase[i].frameEnd = 7
+	twirlPhase[i].angleStart = 45
+	twirlPhase[i].angleEnd = -20
+	twirlPhase[i].offsetStart = Vector(-6, -5)
+	twirlPhase[i].offsetEnd = Vector(7, -2)
+	
+	twirlPhase[i].soundEnd = nil
+	
+	-- End
+	i = 5
+	twirlPhase[i] = {}
+	twirlPhase[i].durationMS = 100
+	
+	twirlPhase[i].twirlEnd = true
+	twirlPhase[i].canBeBlocked = false
+	twirlPhase[i].canDamage = false
+	twirlPhase[i].attackDamage = 3.4
+	twirlPhase[i].attackStunChance = 0.15
+	twirlPhase[i].attackRange = 20
+	twirlPhase[i].attackPush = 0.8
+	twirlPhase[i].attackVector = Vector(4, 4) -- local space vector relative to position and rotation
+	twirlPhase[i].attackAngle = 0;
+	
+	twirlPhase[i].frameStart = 7
+	twirlPhase[i].frameEnd = 7
+	twirlPhase[i].angleStart = -20
+	twirlPhase[i].angleEnd = -20
+	twirlPhase[i].offsetStart = Vector(7, -2)
+	twirlPhase[i].offsetEnd = Vector(7, -2)
+	
+	twirlPhase[i].soundEnd = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
+	
+	-- Add the animation to the animation table
+	self.attackAnimationsSounds[12] = regularAttackSounds
+	self.attackAnimationsGFX[12] = regularAttackGFX
+	self.attackAnimations[12] = twirlPhase
+	self.attackAnimationsTypes[12] = twirlPhase.Type
 	
 	-- warcry
 	warcryPhase = {}
@@ -1565,7 +1758,7 @@ function Create(self)
 	shieldWarcryPhase[i].offsetStart = Vector(0, 0)
 	shieldWarcryPhase[i].offsetEnd = Vector(-6, -5)
 	
-	shieldWarcryPhase[i].soundStart = nil
+	shieldWarcryPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
 	-- Bash
 	i = 2
@@ -1588,7 +1781,7 @@ function Create(self)
 	shieldWarcryPhase[i].offsetStart = Vector(-6, -5)
 	shieldWarcryPhase[i].offsetEnd = Vector(0, 0)
 	
-	shieldWarcryPhase[i].soundStart = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
+	shieldWarcryPhase[i].soundStart = nil
 	shieldWarcryPhase[i].soundStartVariations = 0
 	
 	shieldWarcryPhase[i].soundEnd = CreateSoundContainer("Blocked Flail Mordhau", "Mordhau.rte");
@@ -1615,7 +1808,7 @@ function Create(self)
 	shieldWarcryPhase[i].offsetStart = Vector(0, 0)
 	shieldWarcryPhase[i].offsetEnd = Vector(-6, -5)
 	
-	shieldWarcryPhase[i].soundEnd = nil
+	shieldWarcryPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	
 	-- Bash
 	i = 4
@@ -1638,7 +1831,7 @@ function Create(self)
 	shieldWarcryPhase[i].offsetStart = Vector(-6, -5)
 	shieldWarcryPhase[i].offsetEnd = Vector(-2, -2)
 	
-	shieldWarcryPhase[i].soundStart = CreateSoundContainer("Slash Flail Mordhau", "Mordhau.rte");
+	shieldWarcryPhase[i].soundStart = nil
 	
 	shieldWarcryPhase[i].soundEnd = CreateSoundContainer("Blocked Flail Mordhau", "Mordhau.rte");
 	
@@ -1743,7 +1936,7 @@ function Create(self)
 	throwPhase[i].offsetStart = Vector(-15, -15)
 	throwPhase[i].offsetEnd = Vector(6, -2)
 	
-	throwPhase[i].soundStart = nil
+	throwPhase[i].soundStart = CreateSoundContainer("Chain HeavyMovement Flail Mordhau", "Mordhau.rte");
 	throwPhase[i].soundStartVariations = 0
 	
 	throwPhase[i].soundEnd = nil
@@ -1851,6 +2044,16 @@ function Update(self)
 		self:ReloadScripts();
 	end
 	
+	if not self.chainLoop:IsBeingPlayed() then
+		self.chainLoop:Play(self.Pos);
+	end
+	if not self.chainSwingLoop:IsBeingPlayed() then
+		self.chainSwingLoop:Play(self.Pos);
+	end
+	
+	self.chainLoop.Pos = self.Pos;
+	self.chainSwingLoop.Pos = self.Pos;
+	
 	self:RemoveStringValue("Blocked Mordhau")
 
 	local act = self:GetRootParent();
@@ -1896,10 +2099,10 @@ function Update(self)
 		if self.parriedCooldown == false then
 			if player then
 				throw = (player and UInputMan:KeyPressed(10));
-				flourish = (player and UInputMan:KeyPressed(8));
+				flourish = (player and (UInputMan:KeyPressed(8) or UInputMan:KeyHeld(8)));
 				stab = (player and UInputMan:KeyPressed(2))
 				overhead = (player and UInputMan:KeyPressed(22))
-				if stab or overhead or flourish or throw or warcry then
+				if stab or overhead or throw then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
@@ -1915,7 +2118,7 @@ function Update(self)
 				stab = self:NumberValueExists("AI Stab");
 				overhead = self:NumberValueExists("AI Overhead");
 				attack = self:NumberValueExists("AI Attack");
-				if stab or overhead or flourish or throw or warcry then
+				if stab or overhead or throw or warcry then
 					controller:SetState(Controller.PRESS_PRIMARY, true)
 					self:Activate();
 				end
@@ -1931,6 +2134,7 @@ function Update(self)
 			-- charge = (self:IsActivated() and not self.isCharged) or (self.isCharging and not self.isCharged)
 		-- else -- AI
 		attacked = activated and not self.attackAnimationIsPlaying
+	
 		-- end
 		
 		-- replace with your own code if you wish
@@ -2017,7 +2221,7 @@ function Update(self)
 				end
 			elseif flourish and not self.parent:NumberValueExists("Mordhau Charge Ready") then
 				self.parent:SetNumberValue("Block Foley", 1);
-				playAttackAnimation(self, 4) -- fancypants shit
+				playAttackAnimation(self, 11) -- fancypants shit
 			elseif throw then
 				self.parent:SetNumberValue("Block Foley", 1);
 				self.Throwing = true;
@@ -2032,6 +2236,18 @@ function Update(self)
 			-- else
 				--playAttackAnimation(self, 1) -- regular attack
 			-- end
+		elseif not self.attackAnimationIsPlaying then
+			if flourish then
+				self.parent:SetNumberValue("Block Foley", 1);
+				playAttackAnimation(self, 11) -- fancypants shit
+			elseif warcry then
+				local BGItem = self.parent.EquippedBGItem;				
+				if BGItem and BGItem:IsInGroup("Shields") then
+					playAttackAnimation(self, 6)
+				else
+					playAttackAnimation(self, 5)
+				end
+			end
 		end
 		
 		self:RemoveNumberValue("Warcried");
@@ -2142,8 +2358,7 @@ function Update(self)
 				end
 			end
 			
-			local heavyAttackFactor = (self.wasCharged and currentPhase.lastPrepare == true) and (currentPhase.durationMS * 2) or 0;
-			local workingDuration = currentPhase.durationMS + heavyAttackFactor;
+			local workingDuration = currentPhase.durationMS
 			if self.attackAnimationsTypes[self.currentAttackAnimation] == "ShieldWarcry" then
 				workingDuration = workingDuration * (math.random(8, 17) / 10);
 			end
@@ -2164,11 +2379,11 @@ function Update(self)
 			damageStun = currentPhase.attackStunChance or 0
 			damagePush = currentPhase.attackPush or 0
 			
-			if self.wasCharged == true then
-				damage = damage * 1.3;
-				damageStun = damageStun * 1.3;
-				damagePush = damagePush * 1.3;
-			end
+			-- if self.wasCharged == true then
+				-- damage = damage * 1.3;
+				-- damageStun = damageStun * 1.3;
+				-- damagePush = damagePush * 1.3;
+			-- end
 				
 			
 			rotationTarget = rotationTarget + (currentPhase.angleStart * (1 - factor) + currentPhase.angleEnd * factor) / 180 * math.pi -- interpolate rotation
@@ -2176,7 +2391,7 @@ function Update(self)
 			local frameChange = currentPhase.frameEnd - currentPhase.frameStart
 			self.Frame = math.floor(currentPhase.frameStart + math.floor(frameChange * factor, 0.55))
 			
-			if (self.Attacked == true and attack) and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+			if ((self.Attacked == true or self.attackAnimationsTypes[self.currentAttackAnimation] == "Twirl") and attack) and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 				if not stab and not overhead then
 					self.attackBuffered = true;
 					self.attackAnimationBuffered = self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or 1;
@@ -2187,13 +2402,16 @@ function Update(self)
 					self.overheadBuffered = true;
 					self.attackAnimationBuffered = 3;
 				end
+			elseif self.Attacked == true and flourish and self.attackAnimationsTypes[self.currentAttackAnimation] ~= "Twirl" and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+				self.attackBuffered = true;
+				self.attackAnimationBuffered = 11;
+			end
 				
-			end	
+				
 
-			if self.partiallyRecovered == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+			if (self.partiallyRecovered == true or currentPhase.twirlComboPhase == true) and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
 			
 				self.chargeDecided = false;
-				playAttackAnimation(self, self.attackAnimationBuffered)
 				
 				self.attackBuffered = false;
 				self.stabBuffered = false;
@@ -2203,33 +2421,43 @@ function Update(self)
 				-- doesn't THAT sound scientific
 				
 				local attackPhases = self.attackAnimations[self.attackAnimationBuffered]
-				local currentPhase = attackPhases[1]
+				local phaseToUse
+				if currentPhase.twirlComboPhase == true then
+					phaseToUse = attackPhases[2]
+					self.phaseStart = 2;
+				else
+					phaseToUse = attackPhases[1]
+				end
 				
 				self.pseudoPhase = {}
-				self.pseudoPhase.durationMS = (currentPhase.durationMS * 1.8) or 0
+				self.pseudoPhase.durationMS = (phaseToUse.durationMS) or 0
 				
-				self.pseudoPhase.canBeBlocked = currentPhase.canBeBlocked or false
-				self.pseudoPhase.canDamage = currentPhase.canDamage or false
-				self.pseudoPhase.attackDamage = currentPhase.attackDamage or 0
-				self.pseudoPhase.attackStunChance = currentPhase.attackStunChance or 0
-				self.pseudoPhase.attackRange = currentPhase.attackRange or 0
-				self.pseudoPhase.attackPush = currentPhase.attackPush or 0
-				self.pseudoPhase.attackVector = currentPhase.attackVector or Vector(0, 0)
-				self.pseudoPhase.attackAngle = currentPhase.attackAngle or 0
+				self.pseudoPhase.canBeBlocked = phaseToUse.canBeBlocked or false
+				self.pseudoPhase.canDamage = phaseToUse.canDamage or false
+				self.pseudoPhase.attackDamage = phaseToUse.attackDamage or 0
+				self.pseudoPhase.attackStunChance = phaseToUse.attackStunChance or 0
+				self.pseudoPhase.attackRange = phaseToUse.attackRange or 0
+				self.pseudoPhase.attackPush = phaseToUse.attackPush or 0
+				self.pseudoPhase.attackVector = phaseToUse.attackVector or Vector(0, 0)
+				self.pseudoPhase.attackAngle = phaseToUse.attackAngle or 0
 				
 				self.pseudoPhase.frameStart = self.Frame
-				self.pseudoPhase.frameEnd = currentPhase.frameEnd or 6
+				self.pseudoPhase.frameEnd = phaseToUse.frameEnd or 6
 				self.pseudoPhase.angleStart = (self.rotation * self.FlipFactor) * (180/math.pi)
-				self.pseudoPhase.angleEnd = currentPhase.angleEnd or 0
+				self.pseudoPhase.angleEnd = phaseToUse.angleEnd or 0
 				self.pseudoPhase.offsetStart = self.stance
-				self.pseudoPhase.offsetEnd = currentPhase.offsetEnd or Vector(0, 0)
+				self.pseudoPhase.offsetEnd = phaseToUse.offsetEnd or Vector(0, 0)
 				
-				self.pseudoPhase.soundStart = currentPhase.soundStart or nil
+				self.pseudoPhase.soundStart = phaseToUse.soundStart or nil
 				
-				self.pseudoPhase.soundEnd = currentPhase.soundEnd or nil
+				self.pseudoPhase.soundEnd = phaseToUse.soundEnd or nil
+				
+				playAttackAnimation(self, self.attackAnimationBuffered)
 					
-				
-			end			
+			elseif currentPhase.twirlEnd == true and self.attackAnimationsTypes[self.currentAttackAnimation] == "Twirl" and flourish then
+				playAttackAnimation(self, 12);
+				self.ignoreUnbuffering = true;
+			end
 			
 			-- DEBUG
 			-- PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(-20, 40), "animation = "..animation, true, 0);
@@ -2252,7 +2480,7 @@ function Update(self)
 					self.currentAttackSequence = 0
 					self.attackAnimationIsPlaying = false
 					if self.Throwing == true then
-						local throwChargeFactor = self.wasCharged and 15 or 0
+						local throwChargeFactor = self.wasCharged and 0 or 0
 						self.Throwing = false;
 						self.wasThrown = true;
 						self:GetParent():RemoveAttachable(self, true, false);
@@ -2522,7 +2750,22 @@ function Update(self)
 		
 		-- FLAIL PHYSICS!
 		FlailHandleChain(self)
+		
+		if self.chainLoop.Volume < self.chainLoopVolumeTarget then
+			self.chainLoop.Volume = self.chainLoop.Volume + 1 * TimerMan.DeltaTimeSecs;
+		elseif self.chainLoop.Volume > self.chainLoopVolumeTarget then
+			self.chainLoop.Volume = self.chainLoop.Volume - 0.8 * TimerMan.DeltaTimeSecs;
+			if self.chainLoop.Volume < 0 then
+				self.chainLoop.Volume = 0
+			end
+		end
+		
+		self.chainLoopVolumeTarget = math.min(1, self.chainMovementFactor)
+		self.chainLoop.Pitch = math.min(1, math.max(0.9, self.chainMovementFactor))
+		
 		-- FLAIL PHYSICS!
+		
+
 		
 		-- COLLISION DETECTION
 		
@@ -2539,8 +2782,20 @@ function Update(self)
 			local rayVec = Vector(self.chainBall.velocity.Magnitude * 1.55 * self.FlipFactor, 0):RadRotate(self.RotAngle):DegRotate(damageAngle*self.FlipFactor)
 			local rayOrigin = Vector(self.chainBall.position.X, self.chainBall.position.Y) - Vector(rayVec.X, rayVec.Y) * 0.3
 			
-			--PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
+			PrimitiveMan:DrawLinePrimitive(rayOrigin, rayOrigin + rayVec,  5);
 			--PrimitiveMan:DrawCirclePrimitive(self.Pos, 3, 5);
+			
+			if self.chainSwingLoop.Volume < self.chainSwingLoopVolumeTarget then
+				self.chainSwingLoop.Volume = self.chainSwingLoop.Volume + 10 * TimerMan.DeltaTimeSecs;
+			elseif self.chainSwingLoop.Volume > self.chainSwingLoopVolumeTarget then
+				self.chainSwingLoop.Volume = self.chainSwingLoop.Volume - 0.2 * TimerMan.DeltaTimeSecs;
+				if self.chainSwingLoop.Volume < 0 then
+					self.chainSwingLoop.Volume = 0
+				end
+			end
+			
+			self.chainSwingLoopVolumeTarget = math.min(1, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/12)
+			self.chainSwingLoop.Pitch = math.min(1, math.max(0.9, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/12))
 			
 			local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.IDToIgnore or self.ID, self.Team, 0, false, 2); -- Raycast
 			if moCheck and moCheck ~= rte.NoMOID then
@@ -2604,19 +2859,11 @@ function Update(self)
 						self.blockedSound:Play(self.Pos);
 					end
 					
-					local hitRange = SceneMan:ShortestDistance(rayOrigin, rayHitPos, SceneMan.SceneWrapsX);
-					local minimumRange = damageRange* self.sweetSpotThreshold;
-					
 					local woundsToAdd;
 					local speedMult = math.max(1, self.Vel.Magnitude / 18);
-					
-					if hitRange.Magnitude > minimumRange then
-						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
-					else
-						local mult = hitRange.Magnitude / minimumRange;
-						damage = damage * math.max(0.25, mult);
-						woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
-					end
+
+					woundsToAdd = math.floor((damage*speedMult) + RangeRand(0,0.9))
+
 					
 					-- Hurt the actor, add extra damage
 					local actorHit = MovableMan:GetMOFromID(MO.RootID)
@@ -2651,23 +2898,23 @@ function Update(self)
 						end
 						
 						if self.wasCharged then
-							if crit then
-								actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
-								actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
-								actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
-								actorHit:GetController():SetState(Controller.AIM_SHARP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
-								actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMP,false);
-								actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
-								actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
-								actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
-								actorHit:FlashWhite(150);
-								if math.random(0, 100) < 30 then
-									self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
-								end
-							end
+							-- if crit then
+								-- actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
+								-- actorHit:GetController():SetState(Controller.WEAPON_CHANGE_NEXT,false);
+								-- actorHit:GetController():SetState(Controller.WEAPON_CHANGE_PREV,false);
+								-- actorHit:GetController():SetState(Controller.WEAPON_FIRE,false);
+								-- actorHit:GetController():SetState(Controller.AIM_SHARP,false);
+								-- actorHit:GetController():SetState(Controller.WEAPON_PICKUP,false);
+								-- actorHit:GetController():SetState(Controller.WEAPON_DROP,false);
+								-- actorHit:GetController():SetState(Controller.BODY_JUMP,false);
+								-- actorHit:GetController():SetState(Controller.BODY_JUMPSTART,false);
+								-- actorHit:GetController():SetState(Controller.MOVE_LEFT,false);
+								-- actorHit:GetController():SetState(Controller.MOVE_RIGHT,false);
+								-- actorHit:FlashWhite(150);
+								-- if math.random(0, 100) < 30 then
+									-- self.parent:SetNumberValue("Attack Success", 1); -- celebration!!
+								-- end
+							-- end
 						else
 							if crit then
 								actorHit:GetController():SetState(Controller.BODY_CROUCH,true);
@@ -2721,15 +2968,15 @@ function Update(self)
 							MovableMan:AddParticle(effect);
 							effect:GibThis();
 						end
-						if self.wasCharged then
-							local effect = CreateMOSRotating(self.blockGFX.Heavy, "Mordhau.rte");
-							if effect then
-								effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
-								MovableMan:AddParticle(effect);
-								effect:GibThis();
-							end
-							MO:SetNumberValue("Blocked Heavy", 1);
-						end
+						-- if self.wasCharged then
+							-- local effect = CreateMOSRotating(self.blockGFX.Heavy, "Mordhau.rte");
+							-- if effect then
+								-- effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+								-- MovableMan:AddParticle(effect);
+								-- effect:GibThis();
+							-- end
+							-- MO:SetNumberValue("Blocked Heavy", 1);
+						-- end
 						
 					else
 						self.IDToIgnore = MO.ID;
@@ -2799,8 +3046,39 @@ function Update(self)
 				end
 				self.attackAnimationCanHit = false
 			end
+		else
+			if self.attackAnimationsTypes[self.currentAttackAnimation] == "Twirl" and self.attackAnimationIsPlaying then
+				if self.chainSwingLoop.Volume < self.chainSwingLoopVolumeTarget then
+					self.chainSwingLoop.Volume = self.chainSwingLoop.Volume + 10 * TimerMan.DeltaTimeSecs;
+				elseif self.chainSwingLoop.Volume > self.chainSwingLoopVolumeTarget then
+					if self.chainSwingLoop.Volume > self.chainSwingLoopVolumeTarget * 1.5 then
+						self.chainSwingLoop.Volume = self.chainSwingLoop.Volume - 3 * TimerMan.DeltaTimeSecs;
+					else
+						self.chainSwingLoop.Volume = self.chainSwingLoop.Volume - 0.2 * TimerMan.DeltaTimeSecs;
+					end
+					if self.chainSwingLoop.Volume < 0 then
+						self.chainSwingLoop.Volume = 0
+					end
+				end
+				
+				self.chainSwingLoopVolumeTarget = math.min(1, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/24)
+				self.chainSwingLoop.Pitch = math.min(1, math.max(0.9, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/12))
+			else
+				self.chainSwingLoop.Volume = self.chainSwingLoop.Volume - 10 * TimerMan.DeltaTimeSecs;
+				if self.chainSwingLoop.Volume < 0 then
+					self.chainSwingLoop.Volume = 0
+				end
+				
+				self.chainSwingLoopVolumeTarget = math.min(1, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/12)
+				self.chainSwingLoop.Pitch = math.min(1, math.max(0.9, (self.chainBall.velocity.Magnitude - self.Vel.Magnitude)/12))
+			end
 		end
 	end
 	
 	self:RemoveNumberValue("AI Block");
+end
+
+function Destroy(self)
+	self.chainLoop:Stop(-1);
+	self.chainSwingLoop:Stop(-1);
 end
