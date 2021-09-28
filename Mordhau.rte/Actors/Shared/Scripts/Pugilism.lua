@@ -58,7 +58,7 @@ function Update(self)
 			local idleAnimFG = Vector(3, 0):RadRotate(self.Age * 0.003)
 			local idleAnimBG = Vector(0, 2):RadRotate(self.Age * 0.003)
 			
-			self:RemoveNumberValue("Puglism Blocking")
+			self:RemoveNumberValue("Pugilism Blocking")
 			self:RemoveNumberValue("Puglism Attacking")
 			
 			if attacking then
@@ -90,7 +90,7 @@ function Update(self)
 			
 			if blocking then
 				self.pugilismState = self.pugilismStates.Blocking
-				self:SetNumberValue("Puglism Block", 1)
+				self:SetNumberValue("Pugilism Blocking", 1)
 			end
 		elseif self.pugilismState == self.pugilismStates.Blocking then
 			local blockAnim = Vector(10, -10)--:RadRotate(self:GetAimAngle(false))
@@ -115,14 +115,14 @@ function Update(self)
 			factor = math.max(math.min(factor, 1), 0.01)
 			factor = math.pow(factor, 4)
 			
-			self:RemoveNumberValue("Puglism Blocking")
+			self:RemoveNumberValue("Pugilism Blocking")
 			self:SetNumberValue("Puglism Attacking", 1)
 			
 			local arm = arms[self.pugilismArmIndex]
 			if arm then
 				if self.pugilismAttackGrunt and factor > 0.2 then
 					self:SetNumberValue("Puglism Attack", 1)
-					self.pugilismSwingSound:Play(self.Pos);
+					self.pugilismSwingSound:Play(arm.HandPos);
 					self.pugilismAttackGrunt = false
 					
 					self.Vel = self.Vel + Vector(2/(1 + self.Vel.Magnitude), 0):RadRotate(self:GetAimAngle(true)) * math.abs(math.cos(self:GetAimAngle(true)));
@@ -142,64 +142,69 @@ function Update(self)
 					if checkPixMO and checkPixMO ~= rte.NoMOID and MovableMan:GetMOFromID(checkPixMO).Team ~= self.Team then
 						local mo = ToMOSRotating(MovableMan:GetMOFromID(checkPixMO))
 						if mo then
-							self.pugilismAttackDamage = false
-							
-							local woundName = mo:GetEntryWoundPresetName()
-							local woundNameExit = mo:GetExitWoundPresetName()
-							local woundOffset = SceneMan:ShortestDistance(mo.Pos, handPos, SceneMan.SceneWrapsX):RadRotate(mo.RotAngle * -1.0)
-							
-							local material = mo.Material.PresetName
-							
-							local damage = 3 + (math.max(1, (self.Mass-130) / 50)); -- for every 50 mass above 130, add one damage
-							
-							local addWounds = true;
-							
-							local woundsToAdd;
-							local speedMult = math.max(1, self.Vel.Magnitude / 18);
-							
-							woundsToAdd = math.floor((damage*speedMult))
-							
-							if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
-								for i = 1, woundsToAdd do
-									mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
-								end
-							end
-							
-							
-							if not IsHeldDevice(mo) then
-								local parent = mo:GetRootParent()
-								if parent and IsActor(parent) then
-								
-									--self.kickImpactSound:Play(self.Pos);
-								
-									parent = ToActor(parent)
-									
-									if parent.BodyHitSound then
-										parent.BodyHitSound:Play(parent.Pos)
-									end
-
-									parent.Vel = parent.Vel + Vector(1.5, 0):RadRotate(self:GetAimAngle(true))
-									
-									mo:SetNumberValue("Mordhau Flinched", 1);
-									local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
-									mo:AddAttachable(flincher)
-								end
-							end
-							
-							if string.find(material,"Metal") or string.find(woundName,"Metal") or string.find(woundNameExit,"Metal") or string.find(material,"Stuff") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
-								-- if self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX then
-									-- local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX);
-									-- if effect then
-										-- effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
-										-- MovableMan:AddParticle(effect);
-										-- effect:GibThis();
-									-- end
-								-- end
-								self.pugilismHitMetalSound:Play(self.Pos);
+							if IsArm(mo) and ToAHuman(mo:GetRootParent()):NumberValueExists("Pugilism Blocking") then
+								self.pugilismAttackDamage = false
+								self.pugilismBlockedSound:Play(handPos);
 							else
-								self.pugilismHitFleshSound:Play(self.Pos);
+								self.pugilismAttackDamage = false
+								
+								local woundName = mo:GetEntryWoundPresetName()
+								local woundNameExit = mo:GetExitWoundPresetName()
+								local woundOffset = SceneMan:ShortestDistance(mo.Pos, handPos, SceneMan.SceneWrapsX):RadRotate(mo.RotAngle * -1.0)
+								
+								local material = mo.Material.PresetName
+								
+								local damage = 3 + (math.max(1, (self.Mass-130) / 50)); -- for every 50 mass above 130, add one damage
+								
+								local addWounds = true;
+								
+								local woundsToAdd;
+								local speedMult = math.max(1, self.Vel.Magnitude / 18);
+								
+								woundsToAdd = math.floor((damage*speedMult))
+								
+								if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
+									for i = 1, woundsToAdd do
+										mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
+									end
+								end
+								
+								
+								if not IsHeldDevice(mo) then
+									local parent = mo:GetRootParent()
+									if parent and IsActor(parent) then
+									
+										--self.kickImpactSound:Play(self.Pos);
+									
+										parent = ToActor(parent)
+										
+										if parent.BodyHitSound then
+											parent.BodyHitSound:Play(parent.Pos)
+										end
+
+										parent.Vel = parent.Vel + Vector(1.5, 0):RadRotate(self:GetAimAngle(true))
+										
+										mo:SetNumberValue("Mordhau Flinched", 1);
+										local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
+										mo:AddAttachable(flincher)
+									end
+								end
+								
+								if string.find(material,"Metal") or string.find(woundName,"Metal") or string.find(woundNameExit,"Metal") or string.find(material,"Stuff") or string.find(woundName,"Dent") or string.find(woundNameExit,"Dent") then
+									-- if self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX then
+										-- local effect = CreateMOSRotating(self.attackAnimationsGFX[self.currentAttackAnimation].hitMetalGFX);
+										-- if effect then
+											-- effect.Pos = rayHitPos - rayVec:SetMagnitude(3)
+											-- MovableMan:AddParticle(effect);
+											-- effect:GibThis();
+										-- end
+									-- end
+									self.pugilismHitMetalSound:Play(handPos);
+								else
+									self.pugilismHitFleshSound:Play(handPos);
+								end
+								
 							end
-							
 						end
 						
 						
@@ -219,7 +224,7 @@ function Update(self)
 			end
 			
 		elseif self.pugilismState == self.pugilismStates.Showe then
-			self:RemoveNumberValue("Puglism Blocking")
+			self:RemoveNumberValue("Pugilism Blocking")
 			self:SetNumberValue("Puglism Attacking", 1)
 		end
 		
