@@ -253,7 +253,7 @@ function UpdateAI(self)
 					if enemyAttacking then
 						self:SetNumberValue("AI Block", 1)
 					elseif not self:NumberValueExists("Puglism Attacking") then
-						if RangeRand(0, 100) < self.MeleeAI.kickChance and difMagnitude < 40 then
+						if RangeRand(0, 100) < self.MeleeAI.kickChance * 0.5 and difMagnitude < 40 then -- Tends to kick a lil too often
 							self:SetNumberValue("AI Kick", 1)
 						elseif difMagnitude < (meleeRange + math.random(-5,5) + 10) then
 							ctrl:SetState(Controller.WEAPON_FIRE, true)
@@ -582,7 +582,7 @@ function UpdateAI(self)
 			self.AI.Target = nil
 			self.MeleeAI.blocking = false
 			self.MeleeAI.attacking = false
-		else
+		elseif weapon then
 			weapon:SetNumberValue("AI Block", 1)
 		end
 	elseif self.MeleeAI.active then

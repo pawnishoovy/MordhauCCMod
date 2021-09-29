@@ -85,7 +85,7 @@ function Update(self)
 				armFG.ParentOffset = armFG.ParentOffset + ((self.pugilismArmFG.originalParentOffset) - armFG.ParentOffset) * TimerMan.DeltaTimeSecs * 8
 			end
 			if armBG then
-				armBG.ParentOffset = armFG.ParentOffset + ((self.pugilismArmBG.originalParentOffset) - armBG.ParentOffset) * TimerMan.DeltaTimeSecs * 8
+				armBG.ParentOffset = armBG.ParentOffset + ((self.pugilismArmBG.originalParentOffset) - armBG.ParentOffset) * TimerMan.DeltaTimeSecs * 8
 			end
 			
 			if blocking then

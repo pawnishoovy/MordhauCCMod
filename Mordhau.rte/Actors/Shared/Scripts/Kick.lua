@@ -86,7 +86,7 @@ function Kick(self, leg)
 								local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 								mo:AddAttachable(flincher)
 								
-								if parent.Status < 1 then
+								if string.find(mo.PresetName, "Head") and mo:GetParent().UniqueID == parent.UniqueID and parent.Status < 1 then -- Headshot knockdown
 									parent.Status = 1
 								end
 							end
