@@ -505,7 +505,7 @@ function Create(self)
 	horseAttackPhase[i].offsetStart = Vector(-15, -6)
 	horseAttackPhase[i].offsetEnd = Vector(-7, 2)
 	
-	horseAttackPhase[i].soundStart = CreateSoundContainer("Slash Longsword Mordhau", "Mordhau.rte");
+	horseAttackPhase[i].soundStart = CreateSoundContainer("Slash Shortsword Mordhau", "Mordhau.rte");
 	
 	horseAttackPhase[i].soundEnd = nil
 	
