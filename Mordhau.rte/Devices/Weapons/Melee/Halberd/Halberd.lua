@@ -2314,6 +2314,10 @@ function Update(self)
 							end
 						end
 						
+						if not (IsAHuman(actorHit) and ToAHuman(actorHit).Head and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID) then
+							woundsToAdd = woundsToAdd * 2; -- drastically increase our damage if not hitting the head
+						end
+						
 						if addWounds == true and woundName ~= nil then
 							local MOParent = MO:GetRootParent()
 							if MOParent and IsAHuman(MOParent) then

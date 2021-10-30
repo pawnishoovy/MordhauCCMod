@@ -3668,6 +3668,8 @@ function Update(self)
 								end
 							end
 							
+							-- this doesn't need wound doubling on non-head hits. strong enough, lol
+							
 							if addWounds == true and woundName ~= nil then
 								local MOParent = MO:GetRootParent()
 								if MOParent and IsAHuman(MOParent) then
