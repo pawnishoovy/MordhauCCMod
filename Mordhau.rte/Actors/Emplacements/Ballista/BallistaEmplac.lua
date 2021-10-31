@@ -2,6 +2,15 @@
 ------ Modified script of the turret --------
 
 function Create(self)
+
+	self.handle = nil;
+	for attachable in self.Attachables do
+		
+		if string.find(attachable.PresetName, "Handle Ballista") then
+			self.handle = attachable
+			self.handle.InheritsRotAngle = true
+		end
+	end
 	
 	if IsACrab(self:GetRootParent()) then
 		self.parent = ToACrab(self:GetRootParent());
@@ -75,6 +84,16 @@ function Create(self)
 end
 
 function Update(self)
+
+	if self.handle and not self:NumberValueExists("LostHandle") then
+		self.handle:ClearForces();
+		self.handle:ClearImpulseForces();
+		
+		self.handle:RemoveWounds(self.handle.WoundCount);
+		
+		self.handle.GetsHitByMOs = false;
+		
+	end
 
 	if UInputMan:KeyPressed(38) then
 		self:ReloadScripts();
@@ -205,10 +224,22 @@ function Update(self)
 							-- self.Frame = math.floor(factor * (3) + 0.5)
 						-- end
 						
+						if self.reloadPhase == 0 then
+							
+							if self.handle and not self:NumberValueExists("LostHandle") then
+							
+								local factor = (self.reloadTimer.ElapsedSimTimeMS - self.reloadDelay) / self.afterDelay;
+								
+								self.handle.RotAngle = self.RotAngle + math.rad(360*5) * factor * self.FlipFactor;
+								
+							end
+						end
+						
 						if self.afterSoundPlayed ~= true then
 						
 							if self.reloadPhase == 0 then
 								self.phaseOnStop = 0;
+	
 								
 							elseif self.reloadPhase == 1 then
 								self.phaseOnStop = 1;
