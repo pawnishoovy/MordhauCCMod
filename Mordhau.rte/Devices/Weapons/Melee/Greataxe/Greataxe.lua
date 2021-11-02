@@ -24,10 +24,8 @@ function playAttackAnimation(self, animation)
 	
 	self.IDToIgnore = nil;
 	
-	self.attackBuffered = false;
-	self.stabBuffered = false;
-	self.overheadBuffered = false;
-	
+	self.moveBuffered = false;
+
 	self.wasParried = false;
 	
 	self.Hits = 0;
@@ -3198,28 +3196,57 @@ function Update(self)
 			local frameChange = currentPhase.frameEnd - currentPhase.frameStart
 			self.Frame = math.floor(currentPhase.frameStart + math.floor(frameChange * factor, 0.55))
 		
-			if (self.Attacked == true and attack) and not (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
-				if not stab and not overhead then
-					self.attackBuffered = true;
-					self.attackAnimationBuffered = self.parent:NumberValueExists("Mordhau Disable Movement") and 15 or math.random(1, 2) ;
+			if (self.Attacked == true and attack) and not (self.moveBuffered) then
+				
+				self.moveBuffered = true;
+				
+				if not stab and not overhead and not flourish and not throw and not warcry then
+					if self.parent:NumberValueExists("Mordhau Disable Movement") then -- we're probably on a horse if this is set... probably...
+						self.attackAnimationBuffered = 15;
+					else
+						self.attackAnimationBuffered = math.random(1, 2);
+					end
 				elseif stab then
-					self.stabBuffered = true;
-					self.attackAnimationBuffered = math.random(3, 4) 
+					self.attackAnimationBuffered = math.random(3, 4);
 				elseif overhead then
-					self.overheadBuffered = true;
-					self.attackAnimationBuffered = math.random(5, 6) 
+					self.attackAnimationBuffered = math.random(5, 6);
+				elseif warcry then
+					self.attackAnimationBuffered = 8;
+				elseif flourish and not self.parent:NumberValueExists("Mordhau Charge Ready") then
+					self.attackAnimationBuffered = 7;
+				elseif throw then
+					self.attackAnimationBuffered = 9;
 				end
 				
 			end
 				
-			if self.partiallyRecovered == true and (self.attackBuffered or self.stabBuffered or self.overheadBuffered) then
+			if self.partiallyRecovered == true and (self.moveBuffered) then
 			
 				self.chargeDecided = false;
 				playAttackAnimation(self, self.attackAnimationBuffered)
+		
+				if self.attackAnimationBuffered == 15 then
+					self:SetNumberValue("Current Attack Type", 2);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
+				elseif self.attackAnimationBuffered == 1 or self.attackAnimationBuffered == 2 then
+					self:SetNumberValue("Current Attack Type", 1);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
+				elseif self.attackAnimationBuffered == 3 or self.attackAnimationBuffered == 4 then
+					self:SetNumberValue("Current Attack Type", 3);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
+				elseif self.attackAnimationBuffered == 5 or self.attackAnimationBuffered == 6 then
+					self:SetNumberValue("Current Attack Type", 4);
+					self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
+				elseif self.attackAnimationBuffered == 8 then
+					self.parent:SetNumberValue("Block Foley", 1);
+				elseif self.attackAnimationBuffered == 7 then
+					self.parent:SetNumberValue("Block Foley", 1);
+				elseif self.attackAnimationBuffered == 9 then
+					self.parent:SetNumberValue("Block Foley", 1);
+					self.Throwing = true;
+				end
 				
-				self.attackBuffered = false;
-				self.stabBuffered = false;
-				self.overheadBuffered = false;
+				self.moveBuffered = false;
 			
 				-- construct pseudo phase to get us from where we are now through the first phase of the buffered attack, if we buffered one
 				-- doesn't THAT sound scientific
@@ -3270,7 +3297,7 @@ function Update(self)
 					end
 					self.currentAttackSequence = self.currentAttackSequence + 1
 				else
-					if not self.attackBuffered == true then
+					if not self.moveBuffered == true then
 						self.attackCooldown = true;
 					end
 					self:SetNumberValue("Blocked", 0);
@@ -3736,9 +3763,7 @@ function Update(self)
 							self.parriedCooldown = true;
 							self.parriedCooldownTimer:Reset();
 							self.parriedCooldownDelay = 600;
-							self.attackBuffered = false;
-							self.stabBuffered = false;
-							self.overheadBuffered = false;
+							self.moveBuffered = false;
 							self.wasParried = true;
 							local effect = CreateMOSRotating(self.blockGFX.Parry, "Mordhau.rte");
 							if effect then
