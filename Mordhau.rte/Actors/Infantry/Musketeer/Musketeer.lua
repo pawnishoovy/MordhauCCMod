@@ -17,6 +17,14 @@ function Create(self)
 	self.RTE = "Mordhau.rte";
 	self.baseRTE = "Mordhau.rte";
 	
+	-- States:
+	self.MeleeAISkill = 0.3 -- Diagnosis: skill issue
+	
+	local activity = ActivityMan:GetActivity()
+	if activity then
+		self.MeleeAISkill = (self.MeleeAISkill / 2) + ((self.MeleeAISkill / 2) * (activity:GetTeamAISkill(self.Team)/100))
+	end
+	
 	-- IDENTITY AND VOICE
 	
 	self.IdentityPrimary = "Balderdasher";

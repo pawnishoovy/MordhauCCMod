@@ -919,13 +919,7 @@ function PeasantAIBehaviours.handleDying(self)
 				self.ToSettle = false;
 				self.RestThreshold = -1;
 				self.dyingSoundPlayed = true;
-				if self.inCombat == true and (math.random(1, 100) < self.incapacitationChance) then
-					self.incapacitated = true
-				end
 			end
-		end
-		if self.incapacitated and (self.dyingSoundPlayed and self.Vel.Magnitude < 1) then
-			self.Vel = self.Vel + Vector(RangeRand(-2, 2), RangeRand(-0.5, 0.5)) * TimerMan.DeltaTimeSecs * 62.5
 		end
 		
 		if self.voiceSound:IsBeingPlayed() then

@@ -6,6 +6,9 @@ require("Actors/Infantry/Peasant/PeasantAIBehaviours")
 
 function Create(self)
 	self.AI = NativeHumanAI:Create(self)
+	
+	MovableMan:ChangeActorTeam(self, 3)
+	
 	--You can turn features on and off here
 	self.armSway = false;
 	self.automaticEquip = false;
@@ -16,6 +19,14 @@ function Create(self)
 	
 	self.RTE = "Mordhau.rte";
 	self.baseRTE = "Mordhau.rte";
+	
+	-- States:
+	self.MeleeAISkill = 0.1 -- Diagnosis: skill issue
+	
+	local activity = ActivityMan:GetActivity()
+	if activity then
+		self.MeleeAISkill = (self.MeleeAISkill / 2) + ((self.MeleeAISkill / 2) * (activity:GetTeamAISkill(self.Team)/100))
+	end
 	
 	-- IDENTITY AND VOICE
 	

@@ -19,7 +19,7 @@ function Create(self)
 --	MovableMan:ChangeActorTeam(self, 3)
 	
 	-- States:
-	self.MeleeAI.skill = 1 -- Diagnosis: skill issue
+	self.MeleeAI.skill = self.MeleeAISkill -- Diagnosis: skill issue
 	self.MeleeAI.active = false
 	
 	local activity = ActivityMan:GetActivity()

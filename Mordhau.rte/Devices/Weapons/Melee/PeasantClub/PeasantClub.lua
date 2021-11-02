@@ -1843,7 +1843,7 @@ function Update(self)
 			
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
-				if activated then
+				if activated or (player == false and math.random(0, 100) < 20) then
 					self.wasCharged = true;
 					self.parent:SetNumberValue("Extreme Attack", 1);
 				else
@@ -2463,7 +2463,6 @@ function Update(self)
 					and (MO:GetStringValue("Parrying Type") == self.attackAnimationsTypes[self.currentAttackAnimation] or MO:GetStringValue("Parrying Type") == "Flourish")))
 					or (MO:NumberValueExists("AI Parry Eligible")) then
 						self:SetNumberValue("Blocked", 1)
-						self.attackCooldown = true;
 						if MO:StringValueExists("Parrying Type") or (MO:NumberValueExists("AI Parry Eligible")) then
 							self.parriedCooldown = true;
 							self.parriedCooldownTimer:Reset();

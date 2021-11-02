@@ -2434,7 +2434,7 @@ function Update(self)
 			
 			if self.chargeDecided == false and nextPhase and nextPhase.canBeBlocked == true and currentPhase.canBeBlocked == false then
 				self.chargeDecided = true;
-				if activated then
+				if activated or (player == false and math.random(0, 100) < 20) then
 					self.wasCharged = true;
 					self.parent:SetNumberValue("Large Attack", 1);
 				else
