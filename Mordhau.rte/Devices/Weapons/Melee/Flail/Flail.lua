@@ -2848,7 +2848,7 @@ function Update(self)
 					self.baseRotation = self.baseRotation - (math.random(25, 35) * -1)
 				end
 				
-				if self.Parrying == true or self:NumberValueExists("AI Parry Eligible") then
+				if self.Parrying == true or self:NumberValueExists("AI Parry Eligible") and self:GetStringValue("Blocked Type") == "Slash" then
 					self.parrySound:Play(self.Pos);
 					
 					if self:NumberValueExists("AI Parry Eligible") then
@@ -2857,26 +2857,24 @@ function Update(self)
 						
 						self.Parrying = true;
 						
-						if self:GetStringValue("Blocked Type") == "Slash" then
-							if math.random(0, 100) < 33 then
-								playAttackAnimation(self, 4);
-								self:SetNumberValue("Current Attack Type", 4);
-								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
-							elseif math.random(0, 100) < 66 then
-								if self.parent:NumberValueExists("Mordhau Disable Movement") then
-									playAttackAnimation(self, 15);
-									self:SetNumberValue("Current Attack Type", 2);
-									self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
-								else
-									playAttackAnimation(self, 1);
-									self:SetNumberValue("Current Attack Type", 1);
-									self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
-								end
+						if math.random(0, 100) < 33 then
+							playAttackAnimation(self, 3);
+							self:SetNumberValue("Current Attack Type", 4);
+							self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 4 Range"));
+						elseif math.random(0, 100) < 66 then
+							if self.parent:NumberValueExists("Mordhau Disable Movement") then
+								playAttackAnimation(self, 15);
+								self:SetNumberValue("Current Attack Type", 2);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 2 Range"));
 							else
-								playAttackAnimation(self, 2);
-								self:SetNumberValue("Current Attack Type", 3);
-								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
+								playAttackAnimation(self, 1);
+								self:SetNumberValue("Current Attack Type", 1);
+								self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 1 Range"));
 							end
+						else
+							playAttackAnimation(self, 2);
+							self:SetNumberValue("Current Attack Type", 3);
+							self:SetNumberValue("Current Attack Range", self:GetNumberValue("Attack 3 Range"));
 						end
 					
 						self.Blocking = false;
