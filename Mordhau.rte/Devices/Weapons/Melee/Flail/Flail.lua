@@ -3053,7 +3053,7 @@ function Update(self)
 						end
 						
 						if not (IsAHuman(actorHit) and ToAHuman(actorHit).Head and MO.UniqueID == ToAHuman(actorHit).Head.UniqueID) then
-							woundsToAdd = woundsToAdd * 2; -- drastically increase our damage if not hitting the head
+							woundsToAdd = math.floor(woundsToAdd * 1.5); -- drastically increase our damage if not hitting the head
 						end
 						
 						if addWounds == true and woundName ~= nil then
