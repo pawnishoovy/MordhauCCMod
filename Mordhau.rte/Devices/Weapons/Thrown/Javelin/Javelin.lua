@@ -163,7 +163,6 @@ function Update(self)
 					-- self.stickVecY = stickVec.Y;
 					-- self.stickRot = self.RotAngle - self.stickMO.RotAngle;
 					
-					self.state = self.states.StuckMO
 					local stickMO = ToMOSRotating(MO)
 					local stickVec = SceneMan:ShortestDistance(stickMO.Pos,rayHitPos,SceneMan.SceneWrapsX):RadRotate(-stickMO.RotAngle);
 					self.stickMOUID = stickMO.UniqueID
@@ -242,9 +241,17 @@ function Update(self)
 					
 					self.flightLoopSound:Stop(-1);
 					
-					self.PinStrength = 1000;
-					self.Vel = Vector()
-					self.AngularVel = 0;
+					if not (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) then -- deflect coolly off of weapons! 
+						self.PinStrength = 1000;
+						self.Vel = Vector()
+						self.AngularVel = 0;
+						
+						self.state = self.states.StuckMO
+					else
+						self.state = self.states.Dropped;
+						self.AngularVel = math.random(-15, 15);
+						self.Vel = Vector(self.Vel.X, self.Vel.Y - 6):SetMagnitude(self.Vel.Magnitude * 0.5);
+					end
 					
 					self.HitsMOs = false;
 					

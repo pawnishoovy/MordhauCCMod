@@ -121,6 +121,7 @@ function Update(self)
 			local arm = arms[self.pugilismArmIndex]
 			if arm then
 				if self.pugilismAttackGrunt and factor > 0.2 then
+					self.pugilismAttackCooldown = 400;
 					self:SetNumberValue("Puglism Attack", 1)
 					self.pugilismSwingSound:Play(arm.HandPos);
 					self.pugilismAttackGrunt = false
@@ -163,13 +164,6 @@ function Update(self)
 								
 								woundsToAdd = math.floor((damage*speedMult))
 								
-								if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
-									for i = 1, woundsToAdd do
-										mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
-									end
-								end
-								
-								
 								if not IsHeldDevice(mo) then
 									local parent = mo:GetRootParent()
 									if parent and IsActor(parent) then
@@ -187,6 +181,16 @@ function Update(self)
 										mo:SetNumberValue("Mordhau Flinched", 1);
 										local flincher = CreateAttachable("Mordhau Flincher", "Mordhau.rte")
 										mo:AddAttachable(flincher)
+									end
+								elseif mo:IsInGroup("Weapons - Mordhau Melee") then
+									self.pugilismAttackCooldown = 800;
+									mo:SetStringValue("Blocked Type", "Slash");
+									addWounds = false;
+								end
+								
+								if addWounds == true and woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
+									for i = 1, woundsToAdd do
+										mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
 									end
 								end
 								

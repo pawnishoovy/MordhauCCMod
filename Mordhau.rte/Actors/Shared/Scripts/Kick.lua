@@ -44,14 +44,7 @@ function Kick(self, leg)
 						local woundsToAdd;
 						local speedMult = math.max(1, self.Vel.Magnitude / 18);
 						
-						woundsToAdd = math.floor((damage*speedMult))
-						
-						if woundName ~= "" and woundName ~= nil then -- generic wound adding for non-actors
-							for i = 1, woundsToAdd do
-								mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
-							end
-						end
-						
+						woundsToAdd = math.floor((damage*speedMult))					
 						
 						if IsHeldDevice(mo) then
 						
@@ -63,6 +56,9 @@ function Kick(self, leg)
 									mo.Vel = Vector(4 * self.FlipFactor, -4)
 									mo.AngularVel = RangeRand(2,7) * (math.random(0, 1) - 0.5) * 2.0
 								end
+							else
+								mo:SetStringValue("Blocked Type", "Stab");
+								addWounds = false;
 							end
 							
 							mo:SetNumberValue("Mordhau Flinched", 1);
@@ -89,6 +85,12 @@ function Kick(self, leg)
 								if string.find(mo.PresetName, "Head") and mo:GetParent().UniqueID == parent.UniqueID and parent.Status < 1 then -- Headshot knockdown
 									parent.Status = 1
 								end
+							end
+						end
+						
+						if addWounds == true and woundName ~= "" and woundName ~= nil then -- generic wound adding
+							for i = 1, woundsToAdd do
+								mo:AddWound(CreateAEmitter(woundName), woundOffset, true)
 							end
 						end
 						

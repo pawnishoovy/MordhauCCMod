@@ -114,14 +114,20 @@ function Update(self)
 						
 					self.spinSound:Stop(-1);
 					
-					self.PinStrength = 1000;
-					self.Vel = Vector()
-					self.AngularVel = 0;
+					if not (MO:IsInGroup("Weapons - Mordhau Melee") or ToMOSRotating(MO):NumberValueExists("Weapons - Mordhau Melee")) then -- deflect coolly off of weapons! 
+						self.PinStrength = 1000;
+						self.Vel = Vector()
+						self.AngularVel = 0;
+						
+						self.stuck = true
+						self.phase = 1
+					else
+						self.phase = 3
+						self.AngularVel = math.random(-15, 15);
+						self.Vel = Vector(self.Vel.X, self.Vel.Y - 6):SetMagnitude(self.Vel.Magnitude * 0.5);
+					end
 					
 					self.HitsMOs = false;
-					
-					self.stuck = true
-					self.phase = 1
 				end
 				
 			else
