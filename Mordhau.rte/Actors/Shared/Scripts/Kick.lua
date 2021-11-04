@@ -51,7 +51,7 @@ function Kick(self, leg)
 							self.kickImpactDeviceSound:Play(self.Pos);
 						
 							if not mo:IsInGroup("Weapons - Mordhau Melee") then
-								if IsAttached(mo) then
+								if IsAttached(ToAttachable(mo)) then
 									ToAttachable(mo):RemoveFromParent(true, true);
 									mo.Vel = Vector(4 * self.FlipFactor, -4)
 									mo.AngularVel = RangeRand(2,7) * (math.random(0, 1) - 0.5) * 2.0
