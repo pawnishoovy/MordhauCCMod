@@ -46,7 +46,13 @@ function Kick(self, leg)
 						
 						woundsToAdd = math.floor((damage*speedMult))					
 						
-						if IsHeldDevice(mo) then
+						if IsArm(mo) and ToAHuman(mo:GetRootParent()):NumberValueExists("Pugilism Blocking") then
+							addWounds = false;
+							self.kickImpactTerrainSound:Play(self.Pos);
+						elseif IsLeg(mo) and ToAHuman(mo:GetRootParent()):NumberValueExists("Kicking") then
+							addWounds = false;
+							self.kickImpactTerrainSound:Play(self.Pos);
+						elseif IsHeldDevice(mo) then
 						
 							self.kickImpactDeviceSound:Play(self.Pos);
 						
@@ -147,6 +153,10 @@ function Update(self)
 						valid = false
 					end
 				end
+			end
+			
+			if self.pugilismState and self.pugilismState ~= self.pugilismStates.Idle then
+				valid = false;
 			end
 			
 			if valid then

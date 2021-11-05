@@ -61,7 +61,7 @@ function Update(self)
 			self:RemoveNumberValue("Pugilism Blocking")
 			self:RemoveNumberValue("Puglism Attacking")
 			
-			if attacking then
+			if attacking and self.kicking ~= true  then
 				if self.pugilismAttackCooldownTimer:IsPastSimMS(self.pugilismAttackCooldown) then
 					self.pugilismState = self.pugilismStates.Punch
 					self.pugilismAttackTimer:Reset()
@@ -155,7 +155,7 @@ function Update(self)
 								
 								local material = mo.Material.PresetName
 								
-								local damage = 3 + (math.max(1, (self.Mass-130) / 50)); -- for every 50 mass above 130, add one damage
+								local damage = 1 + (math.max(1, (self.Mass-130) / 50)); -- for every 50 mass above 130, add one damage
 								
 								local addWounds = true;
 								
