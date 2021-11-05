@@ -84,14 +84,12 @@ function Update(self)
 	
 	--- Areodynamics
 	if not self.stuck then
+		-- Rotate + areodynamics
 		local v = self.Vel.Magnitude;
-		-- Balance
 		
-		-- FROTATE
-		-- attention: magic below!
 		local min_value = -math.pi;
 		local max_value = math.pi;
-		local value = self.RotAngle - self.Vel.AbsRadAngle;
+		local value = self.RotAngle - self.Vel.AbsRadAngle + math.pi * (self.FlipFactor + 1) * 0.5;
 		local result;
 		
 		local range = max_value - min_value;
@@ -103,12 +101,12 @@ function Update(self)
 			result = ret + min_value;
 		end
 		
-		local a = 5 * v / 60;
-		local b = 10 * v / 60;
+		local a = 1.5 * v / 60;
+		local b = 1 * v / 60;
 		
-		self.RotAngle = self.RotAngle + result * TimerMan.DeltaTimeSecs * a;
+		self.RotAngle = self.RotAngle + result * TimerMan.DeltaTimeSecs * a * 0.5;
+		self.AngularVel = self.AngularVel + result * TimerMan.DeltaTimeSecs * a * 25;
 		self.AngularVel = (self.AngularVel) / (1 + TimerMan.DeltaTimeSecs * b)
-		--self.GlobalAccScalar = (1 + (1/math.sqrt(1 + math.abs(self.Vel.X)/10))) / 2; -- thank your 4zk!
 	end
 	
 	--self.ToDelete = false; -- no, stop, no delete plz
