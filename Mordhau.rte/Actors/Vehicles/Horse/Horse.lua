@@ -152,7 +152,7 @@ function Create(self)
 	
 	self.movementInput = 0
 	self.movementTargetVel = 4
-	self.movementAcceleration = 1.5
+	self.movementAcceleration = 4
 	
 	self.movementState = 0
 	self.movementStates = {
@@ -164,6 +164,9 @@ function Create(self)
 	}
 	
 	self.movementStateTimer = Timer() -- Fucking gear change deal, horsegine
+	
+	self.jumpCooldownTimer = Timer();
+	self.jumpCooldownDelay = 1000;
 
 	self.healthUpdateTimer = Timer();
 	self.oldHealth = self.Health;
@@ -295,6 +298,7 @@ function Update(self)
 	
 	if self.Status < Actor.DYING and ctrl then
 		self.movementInput = 0 - ((ctrl:IsState(Controller.MOVE_LEFT) or self.movingLeft) and 1 or 0) + ((ctrl:IsState(Controller.MOVE_RIGHT) or self.movingRight) and 1 or 0)
+		self.jumpInput = self.rider and self.jumpInput or ctrl:IsState(Controller.BODY_JUMPSTART)
 		if self.movementInput == 0 then 
 			self.Moving = false;
 		elseif self.Moving == false then
@@ -308,7 +312,12 @@ function Update(self)
 		end
 		self.movingRight = false;
 		self.movingLeft = false;
-		self.Jumping = false;
+		
+		if self.averageVel.Y > 10 then
+			self.inAir = true;
+		else
+			self.inAir = false;
+		end
 	end
 	
 	local pointPositions = {self.Pos + Vector(-11, 0), self.Pos + Vector(11, 0)}
@@ -527,6 +536,16 @@ function Update(self)
 							contact = true
 							length = dif.Magnitude
 							
+							if (self.Jumping or self.inAir) and contact then
+								self.inAir = false;
+								if self.jumpCooldownTimer:IsPastSimMS(350) then
+									self.Jumping = false;
+									self.landSound:Play(self.Pos);
+								elseif self.jumpCooldownTimer:IsPastSimMS(150) then
+									self.Jumping = false;
+								end
+							end
+							
 							local factor = (1 - dif.Magnitude / rayVector.Magnitude)
 							
 							local strength = 0.5 + self.movementState * 0.025
@@ -538,6 +557,19 @@ function Update(self)
 								local target = self.movementInput * animationStateData.target --self.movementTargetVel
 								local speed = animationStateData.accel --self.movementAcceleration
 								mo.Vel = Vector((mo.Vel.X + target * TimerMan.DeltaTimeSecs * speed) / (1 + TimerMan.DeltaTimeSecs * speed), mo.Vel.Y)
+							end
+							
+							if i == 1 and self.jumpInput and self.jumpCooldownTimer:IsPastSimMS(self.jumpCooldownDelay) then
+								local frontFactor = self.HFlipped and -20 or 0
+								mo.Vel = mo.Vel + Vector(0, -10 + frontFactor);
+								self.Jumping = true;
+								self.jumpCooldownTimer:Reset();
+								self.jumpSound:Play(self.Pos);
+								self.toPointJump = true;
+							elseif i == 2 and self.toPointJump then
+								local backFactor = self.HFlipped and 20 or 0
+								self.toPointJump = false;
+								mo.Vel = mo.Vel + Vector(0, -30 + backFactor);
 							end
 							
 							mo.Vel = mo.Vel + Vector(0, math.sqrt(math.max(factor, 0.01)) * -80 * TimerMan.DeltaTimeSecs) * springStrength * strength
@@ -654,7 +686,9 @@ function Update(self)
 				self.averageVel = self.averageVel + mo.Vel
 				-- Debug
 				--PrimitiveMan:DrawLinePrimitive(self.Pos, self.Pos + dif, 5);
-				--PrimitiveMan:DrawCirclePrimitive(mo.Pos, mo.Radius, 5);
+				--local colouri = 5
+				--if i == 2 then colouri = 10 end
+				--PrimitiveMan:DrawCirclePrimitive(mo.Pos, mo.Radius, colouri);
 			end
 		end
 	end
@@ -695,6 +729,8 @@ function Update(self)
 	
 	--PrimitiveMan:DrawTextPrimitive(self.Pos + Vector(0, -100), tostring(self.averageVel.Magnitude), false, 1);
 	
+	self.jumpSound.Pos = self.Pos;
+	self.landSound.Pos = self.Pos;
 	self.jingleSound.Pos = self.Pos;
 	self.creakSound.Pos = self.Pos;
 	if self.Moving then

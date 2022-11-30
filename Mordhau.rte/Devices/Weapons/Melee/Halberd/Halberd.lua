@@ -2220,6 +2220,7 @@ function Update(self)
 		local jointOffset = Vector(self.JointOffset.X * self.FlipFactor, self.JointOffset.Y):RadRotate(self.RotAngle);
 		self.Pos = self.Pos - jointOffset + Vector(jointOffset.X, jointOffset.Y):RadRotate(-self.rotation);
 		
+		
 		-- COLLISION DETECTION
 		
 		--self.attackAnimationsSounds[1]

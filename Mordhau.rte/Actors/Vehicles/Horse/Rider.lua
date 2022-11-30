@@ -190,10 +190,10 @@ function Update(self)
 		
 		if riderCtrl:IsState(Controller.BODY_JUMPSTART) then
 			ctrl:SetState(Controller.BODY_JUMPSTART, true);
-			self.Jumping = true;
+			self.jumpInput = true;
 		else
 			ctrl:SetState(Controller.BODY_JUMPSTART, false);
-			self.Jumping = false;
+			self.jumpInput = false;
 		end
 	
 		riderCtrl:SetState(Controller.MOVE_RIGHT, false);

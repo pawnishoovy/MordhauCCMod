@@ -122,7 +122,7 @@ function Update(self)
 	if self.phase == 0 and self.Vel.Magnitude > 25 then -- Raycast, stick to things
 		local rayOrigin = self.Pos
 		local rayVec = Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.Vel.Magnitude * rte.PxTravelledPerFrame + self.IndividualRadius);
-		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, self.Team, 0, false, 2); -- Raycast
+		local moCheck = SceneMan:CastMORay(rayOrigin, rayVec, self.ID, -1, 0, false, 2); -- Raycast
 		if moCheck ~= rte.NoMOID then
 			local rayHitPos = SceneMan:GetLastRayHitPos()
 			local MO = MovableMan:GetMOFromID(moCheck)
@@ -236,7 +236,7 @@ function Update(self)
 						pixel.Vel = self.Vel;
 						pixel.Pos = self.Pos - Vector(self.Vel.X,self.Vel.Y):SetMagnitude(self.IndividualRadius * 0.9);
 						pixel.Team = self.Team;
-						pixel.IgnoresTeamHits = true;
+						pixel.IgnoresTeamHits = false;
 						pixel.WoundDamageMultiplier = 1.1 + pixel.WoundDamageMultiplier * self.Vel.Magnitude / 120;--1.53;
 						MovableMan:AddParticle(pixel);
 					end
@@ -322,7 +322,7 @@ function Update(self)
 			self.arrowSuppression = false;
 			if math.random(0, 100) < 75 then
 				for actor in MovableMan.Actors do
-					if actor.Team ~= self.Team then
+					if true then
 						local d = SceneMan:ShortestDistance(actor.Pos, self.Pos, true).Magnitude;
 						if d < 120 then
 							local strength = SceneMan:CastStrengthSumRay(self.Pos, actor.Pos, 0, 128);

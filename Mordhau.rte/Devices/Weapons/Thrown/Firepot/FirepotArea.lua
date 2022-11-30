@@ -49,7 +49,7 @@ function Update(self)
 
 	self.burnLoopSound.Pos = self.Pos;
 	
-	PrimitiveMan:DrawCirclePrimitive(self.Pos, self.fuelRange, 5)
+	--PrimitiveMan:DrawCirclePrimitive(self.Pos, self.fuelRange, 5)
 	
 	if self.Age > self.burnTime then
 		self.ToDelete = true
@@ -171,7 +171,7 @@ function Update(self)
 				fuel.GFXDelay = math.random(self.GFXDelayMin, self.GFXDelayMax)
 			end
 			
-			PrimitiveMan:DrawCirclePrimitive(fuel.Pos, 13 - 10 * (1 - strength), 13) -- Debug draw
+			--PrimitiveMan:DrawCirclePrimitive(fuel.Pos, 13 - 10 * (1 - strength), 13) -- Debug draw
 		end
 	end
 	
